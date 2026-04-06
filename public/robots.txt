@@ -1,0 +1,16 @@
+# *
+User-agent: *
+Allow: /
+
+# *
+User-agent: *
+Disallow: /api/
+Disallow: /cart
+Disallow: /checkout
+Disallow: /wp-admin
+
+# Host
+Host: https://manhattanlaserspa.com
+
+# Sitemaps
+Sitemap: https://manhattanlaserspa.com/sitemap.xml
