@@ -8,8 +8,7 @@ const STORAGE_KEY = 'mls_popup_shown'
 const PROMO_CODE = 'MLS100OFF'
 
 export function PromoPopup() {
-  const [visible, setVisible] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const [open, setOpen] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [form, setForm] = useState({ firstName: '', phone: '', email: '' })
   const [smsConsent, setSmsConsent] = useState(false)
@@ -18,20 +17,16 @@ export function PromoPopup() {
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const shown = localStorage.getItem(STORAGE_KEY)
-    if (shown) return
-    const timer = setTimeout(() => {
-      setMounted(true)
-      requestAnimationFrame(() => setVisible(true))
-    }, 2500)
+    try {
+      if (localStorage.getItem(STORAGE_KEY)) return
+    } catch {}
+    const timer = setTimeout(() => setOpen(true), 2500)
     return () => clearTimeout(timer)
   }, [])
 
   function dismiss() {
-    setVisible(false)
-    localStorage.setItem(STORAGE_KEY, '1')
-    setTimeout(() => setMounted(false), 400)
+    setOpen(false)
+    try { localStorage.setItem(STORAGE_KEY, '1') } catch {}
   }
 
   function validate() {
@@ -70,16 +65,13 @@ export function PromoPopup() {
     } catch {}
   }
 
-  if (!mounted) return null
+  if (!open) return null
 
   return (
     <>
       {/* Backdrop */}
       <div
-        className={cn(
-          'fixed inset-0 z-[100] bg-dark/60 backdrop-blur-sm transition-opacity duration-400',
-          visible ? 'opacity-100' : 'opacity-0'
-        )}
+        className="fixed inset-0 z-[100] bg-dark/60 backdrop-blur-sm animate-fade-in"
         onClick={dismiss}
         aria-hidden
       />
@@ -90,11 +82,7 @@ export function PromoPopup() {
           role="dialog"
           aria-modal="true"
           aria-label="Exclusive welcome offer"
-          className={cn(
-            'pointer-events-auto relative w-full max-w-3xl bg-white rounded-3xl shadow-luxury-lg overflow-hidden',
-            'transition-all duration-500 ease-luxury',
-            visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-          )}
+          className="pointer-events-auto relative w-full max-w-3xl bg-white rounded-3xl shadow-luxury-lg overflow-hidden animate-fade-up"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close */}
