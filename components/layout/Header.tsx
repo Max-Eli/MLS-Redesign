@@ -62,13 +62,13 @@ const services = [
   },
   {
     label: 'Gift Cards',
-    href: '/shop?category=gift-cards',
+    href: '/shop?category=166',
     items: [
       { label: '$50 Gift Card',   href: '/product/gift-card-50' },
       { label: '$100 Gift Card',  href: '/product/gift-card-100' },
       { label: '$200 Gift Card',  href: '/product/gift-card-200' },
       { label: '$500 Gift Card',  href: '/product/gift-card-500' },
-      { label: 'View All',        href: '/shop?category=gift-cards' },
+      { label: 'View All',        href: '/shop?category=166' },
     ],
   },
 ]
