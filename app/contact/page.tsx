@@ -199,7 +199,7 @@ export default function ContactPage() {
                 </a>
 
                 <a
-                  href="mailto:info@manhattanlaserspa.com"
+                  href="mailto:florida@manhattanlaserspa.com"
                   className="flex items-center gap-4 group"
                 >
                   <div className="size-10 rounded-full bg-mauve-50 flex items-center justify-center flex-shrink-0">
@@ -207,7 +207,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-dark-50 group-hover:text-mauve transition-colors">
-                      info@manhattanlaserspa.com
+                      florida@manhattanlaserspa.com
                     </p>
                     <p className="text-xs text-dark-50/40">We reply within 24 hours</p>
                   </div>
