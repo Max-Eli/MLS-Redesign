@@ -1,0 +1,582 @@
+export interface ServicePageData {
+  slug: string
+  name: string
+  tagline: string
+  category: string
+  categorySlug: string
+  machine?: string
+  machineDescription?: string
+  overview: string
+  benefits: string[]
+  howItWorks: { step: string; description: string }[]
+  whoIsItFor: string
+  faqs: { question: string; answer: string }[]
+  shopCategory?: number
+  shopSlug?: string
+}
+
+export const servicesData: ServicePageData[] = [
+  // ── Laser Treatments ──────────────────────────────────────────────────────
+  {
+    slug:     'laser-hair-removal',
+    name:     'Laser Hair Removal',
+    tagline:  'Permanent hair reduction with the gold-standard in laser technology',
+    category: 'Laser Treatments',
+    categorySlug: 'laser-treatments',
+    machine:  'Candela GentleMax Pro',
+    machineDescription: 'The GentleMax Pro combines two wavelengths — 755nm Alexandrite and 1064nm Nd:YAG — making it safe and effective for all skin types. Its patented Dynamic Cooling Device (DCD) protects the skin and maximizes comfort.',
+    overview: 'Laser Hair Removal at Manhattan Laser Spa uses the Candela GentleMax Pro, the most trusted name in professional hair removal. The laser targets melanin in the hair follicle, delivering controlled heat that permanently disables hair growth — leaving skin smooth, soft, and hair-free.',
+    benefits: [
+      'Permanent hair reduction after a series of treatments',
+      'Safe for all skin tones with dual-wavelength technology',
+      'Fast treatment times — full legs in under 30 minutes',
+      'No ingrown hairs, razor burn, or stubble',
+      'Virtually painless with built-in cooling',
+    ],
+    howItWorks: [
+      { step: 'Consultation', description: 'We assess your skin type and hair color to customize your laser settings.' },
+      { step: 'Preparation', description: 'The treatment area is cleaned and a cooling gel may be applied.' },
+      { step: 'Laser Treatment', description: 'The GentleMax Pro emits pulses of laser energy targeting each follicle.' },
+      { step: 'Post-Care', description: 'SPF and soothing lotion are applied. You can return to normal activities immediately.' },
+    ],
+    whoIsItFor: 'Laser hair removal is ideal for anyone looking for a long-term solution to unwanted hair. The GentleMax Pro\'s dual wavelength makes it suitable for all skin tones, from fair to deep.',
+    faqs: [
+      { question: 'How many sessions do I need?', answer: 'Most clients achieve 80–90% permanent reduction in 6–8 sessions, spaced 4–8 weeks apart.' },
+      { question: 'Does it hurt?', answer: 'The GentleMax Pro\'s Dynamic Cooling Device makes treatments very comfortable. Most clients describe it as a quick snap sensation.' },
+      { question: 'Can I treat any area?', answer: 'Yes — face, underarms, legs, bikini, back, chest, and more.' },
+    ],
+    shopCategory: 148,
+  },
+  {
+    slug:     'co2-laser',
+    name:     'CO2 Laser Resurfacing',
+    tagline:  'Advanced skin renewal powered by the Helix fractional CO2 laser',
+    category: 'Laser Treatments',
+    categorySlug: 'laser-treatments',
+    machine:  'Helix CO2 Fractional Laser',
+    machineDescription: 'The Helix is a state-of-the-art fractional CO2 laser that creates thousands of microscopic treatment zones in the skin, stimulating the body\'s natural collagen production while leaving surrounding tissue intact for faster healing.',
+    overview: 'CO2 Laser Resurfacing with the Helix system is one of the most effective treatments for skin renewal. It addresses fine lines, wrinkles, acne scars, sun damage, enlarged pores, and uneven skin texture — delivering dramatic results with a single treatment.',
+    benefits: [
+      'Significantly reduces fine lines and wrinkles',
+      'Fades acne scars, surgical scars, and stretch marks',
+      'Improves skin tone and texture',
+      'Stimulates long-lasting collagen production',
+      'Tightens loose skin around the eyes, mouth, and neck',
+    ],
+    howItWorks: [
+      { step: 'Numbing', description: 'A topical numbing cream is applied 30–45 minutes before treatment for maximum comfort.' },
+      { step: 'Laser Pass', description: 'The Helix CO2 laser creates a precise pattern of micro-channels in the skin.' },
+      { step: 'Healing Response', description: 'The body immediately begins producing new collagen and replacing damaged tissue.' },
+      { step: 'Recovery', description: 'Skin will feel sunburned for 3–5 days. Full results develop over 3–6 months.' },
+    ],
+    whoIsItFor: 'Ideal for clients looking to address signs of aging, scarring, or significant sun damage. Best suited for Fitzpatrick skin types I–IV. A consultation is required to determine candidacy.',
+    faqs: [
+      { question: 'How much downtime is there?', answer: '5–7 days of redness and peeling. Most clients return to normal activities after 1 week.' },
+      { question: 'How many treatments do I need?', answer: 'One treatment delivers significant results. A series of lighter treatments may be recommended for sensitive skin.' },
+      { question: 'When will I see results?', answer: 'Initial improvement is visible after 1–2 weeks. Full collagen remodeling continues for up to 6 months.' },
+    ],
+    shopSlug: 'co2-laser',
+  },
+  {
+    slug:     'laser-genesis',
+    name:     'Laser Genesis',
+    tagline:  'Non-invasive skin rejuvenation with zero downtime',
+    category: 'Laser Treatments',
+    categorySlug: 'laser-treatments',
+    overview: 'Laser Genesis is a gentle, non-ablative laser treatment that heats the upper dermis to stimulate collagen production, reduce redness, minimize pores, and improve overall skin texture. It\'s often called the "red carpet treatment" because you can do it right before an event.',
+    benefits: [
+      'Reduces redness and rosacea',
+      'Minimizes large pores',
+      'Smooths fine lines and uneven texture',
+      'No downtime — return to normal activities immediately',
+      'Safe for all skin types year-round',
+    ],
+    howItWorks: [
+      { step: 'No Prep Needed', description: 'Arrive with clean skin — no numbing required.' },
+      { step: 'Treatment', description: 'The laser wand is moved gently over the skin delivering warmth to the dermis.' },
+      { step: 'Immediate Glow', description: 'Skin looks refreshed and luminous immediately after treatment.' },
+    ],
+    whoIsItFor: 'Perfect for anyone looking to maintain healthy, glowing skin. Great for rosacea sufferers and those wanting a low-maintenance anti-aging routine.',
+    faqs: [
+      { question: 'How many sessions do I need?', answer: 'A series of 4–6 sessions spaced 2–4 weeks apart is recommended for best results, followed by monthly maintenance.' },
+      { question: 'Is there any discomfort?', answer: 'Most clients find it very comfortable — it feels like gentle warmth on the skin.' },
+    ],
+    shopSlug: 'laser-genesis-1-session',
+  },
+  {
+    slug:     'laser-skin-tightening',
+    name:     'Laser Skin Tightening',
+    tagline:  'Firm and lift skin without surgery or downtime',
+    category: 'Laser Treatments',
+    categorySlug: 'laser-treatments',
+    overview: 'Laser Skin Tightening uses infrared laser energy to heat the deep layers of the dermis, causing immediate collagen contraction and stimulating long-term new collagen production. The result is firmer, tighter, more youthful-looking skin.',
+    benefits: [
+      'Non-surgical lift for face, neck, and body',
+      'Tightens loose or lax skin',
+      'Stimulates collagen and elastin production',
+      'No downtime',
+      'Progressive results that improve over months',
+    ],
+    howItWorks: [
+      { step: 'Assessment', description: 'We map the treatment area and customize energy settings to your skin.' },
+      { step: 'Treatment', description: 'Laser energy is delivered in passes over the target area, creating controlled heat in the dermis.' },
+      { step: 'Results', description: 'Skin gradually tightens over 3–6 months as new collagen forms.' },
+    ],
+    whoIsItFor: 'Best for clients with mild to moderate skin laxity on the face, neck, jowls, abdomen, or arms who want a non-surgical option.',
+    faqs: [
+      { question: 'How many treatments will I need?', answer: 'A series of 3–6 treatments spaced 4 weeks apart is typical.' },
+      { question: 'Is there any pain?', answer: 'Treatments are well-tolerated. A warming sensation is felt during the procedure.' },
+    ],
+    shopSlug: 'laser-skin-tightening-1-session',
+  },
+
+  // ── Body Contouring ───────────────────────────────────────────────────────
+  {
+    slug:     'coolsculpting',
+    name:     'CoolSculpting Elite',
+    tagline:  'FDA-cleared fat freezing technology — no surgery, no downtime',
+    category: 'Body Contouring',
+    categorySlug: 'body-contouring',
+    machine:  'CoolSculpting Elite',
+    machineDescription: 'CoolSculpting Elite is the latest generation of the original fat-freezing technology, featuring redesigned applicators that treat 18% more tissue per cycle. Two applicators can treat two areas simultaneously, cutting treatment time in half.',
+    overview: 'CoolSculpting Elite uses controlled cooling (Cryolipolysis) to permanently eliminate stubborn fat cells that won\'t budge with diet and exercise. The treated fat cells crystallize, die, and are naturally eliminated by the body over 1–3 months.',
+    benefits: [
+      'FDA-cleared and clinically proven',
+      'Permanently destroys fat cells',
+      'Treats abdomen, flanks, thighs, arms, chin, and more',
+      'No needles, no surgery, no downtime',
+      'Results visible in as little as 4 weeks',
+    ],
+    howItWorks: [
+      { step: 'Consultation', description: 'We identify your target areas and create a customized treatment plan.' },
+      { step: 'Applicator Placement', description: 'The CoolSculpting Elite applicator is positioned on the treatment area.' },
+      { step: 'Cooling Cycle', description: 'Controlled cooling freezes and crystallizes the fat cells beneath the skin.' },
+      { step: 'Natural Elimination', description: 'Over the following weeks, your body naturally processes and eliminates the dead fat cells.' },
+    ],
+    whoIsItFor: 'CoolSculpting is ideal for people who are close to their ideal body weight but have stubborn pockets of fat that are resistant to diet and exercise. It is not a weight-loss treatment.',
+    faqs: [
+      { question: 'Is it permanent?', answer: 'Yes. Once fat cells are eliminated they do not come back. Maintaining a stable weight preserves your results.' },
+      { question: 'How much fat does it remove?', answer: 'Each treatment reduces fat in the treated area by approximately 20–25%.' },
+      { question: 'When will I see results?', answer: 'Some clients notice changes as early as 3 weeks. Most dramatic results appear at 2–3 months.' },
+    ],
+    shopCategory: 144,
+  },
+  {
+    slug:     'emsculpt',
+    name:     'EMSculpt',
+    tagline:  'Build muscle and burn fat simultaneously',
+    category: 'Body Contouring',
+    categorySlug: 'body-contouring',
+    machine:  'EMSculpt',
+    machineDescription: 'EMSculpt uses High-Intensity Focused Electromagnetic (HIFEM) technology to induce 20,000 supramaximal muscle contractions in 30 minutes — an intensity impossible to achieve through voluntary exercise.',
+    overview: 'EMSculpt is the world\'s first non-invasive body-shaping procedure that simultaneously builds muscle and burns fat. It\'s FDA-cleared for the abdomen, buttocks, arms, calves, and thighs — delivering the equivalent of 20,000 crunches or squats in a single 30-minute session.',
+    benefits: [
+      '16% average increase in muscle mass',
+      '19% average reduction in fat',
+      'Lifts and tones the buttocks without surgery',
+      'Strengthens the core and reduces diastasis recti',
+      'No downtime — feel it like a workout',
+    ],
+    howItWorks: [
+      { step: 'Positioning', description: 'The EMSculpt applicator is strapped to your target muscle group.' },
+      { step: 'Contractions', description: 'HIFEM energy induces 20,000 supramaximal contractions, forcing the muscle to adapt and remodel.' },
+      { step: 'Fat Reduction', description: 'The intense muscle activity triggers metabolic reactions that break down surrounding fat cells.' },
+      { step: 'Results', description: 'Visible results after 4 sessions. Optimal results appear 2–4 weeks after the last session.' },
+    ],
+    whoIsItFor: 'Anyone looking to build muscle, tone their body, or lift the buttocks without surgery. Also ideal for postpartum clients looking to restore core strength.',
+    faqs: [
+      { question: 'How many sessions do I need?', answer: '4 sessions spaced 2–3 days apart is the standard protocol.' },
+      { question: 'Does it hurt?', answer: 'It feels like an intense workout. Some clients experience mild muscle soreness afterward.' },
+      { question: 'Can it replace exercise?', answer: 'It complements exercise. For best results, maintain an active lifestyle.' },
+    ],
+    shopSlug: 'emsculpt-4-session',
+  },
+  {
+    slug:     'endosphere',
+    name:     'Endosphere Therapy',
+    tagline:  'Revolutionary compressive microvibration for body and face',
+    category: 'Body Contouring',
+    categorySlug: 'body-contouring',
+    machine:  'Endosphere',
+    machineDescription: 'The Endosphere device uses a rotating sphere covered in 55 silicone micro-spheres that deliver compressive microvibration deep into tissue, targeting fat, cellulite, and fluid retention simultaneously.',
+    overview: 'Endosphere Therapy is a cutting-edge Italian body treatment that uses compressive microvibration to reshape the body, reduce cellulite, drain lymphatic fluid, and firm the skin. It\'s one of the most comprehensive non-invasive body treatments available.',
+    benefits: [
+      'Visibly reduces cellulite',
+      'Slims and contours the body',
+      'Drains lymphatic fluid and reduces water retention',
+      'Firms and tones loose skin',
+      'Improves circulation and skin texture',
+    ],
+    howItWorks: [
+      { step: 'Application', description: 'The Endosphere handpiece is moved over the body using specific protocols for each area.' },
+      { step: 'Microvibration', description: 'The rotating spheres deliver deep compressive vibration, breaking down fat deposits and stimulating lymphatic drainage.' },
+      { step: 'Cumulative Results', description: 'Each session builds on the last. A series of 6–12 sessions delivers optimal transformation.' },
+    ],
+    whoIsItFor: 'Ideal for clients looking to reduce cellulite, slim and tone the body, and improve skin quality. Also effective as a lymphatic drainage treatment.',
+    faqs: [
+      { question: 'Is it painful?', answer: 'No — it feels like a deep tissue massage. Most clients find it very relaxing.' },
+      { question: 'How many sessions are needed?', answer: 'A minimum of 6 sessions is recommended. 12 sessions deliver the most dramatic results.' },
+    ],
+    shopSlug: 'endosphere-therapy-12-sessions',
+  },
+  {
+    slug:     'lpg',
+    name:     'LPG® Endermologie',
+    tagline:  'The original cellulite and skin firming treatment — made in France',
+    category: 'Body Contouring',
+    categorySlug: 'body-contouring',
+    machine:  'LPG® Endermologie',
+    machineDescription: 'LPG Endermologie is the original FDA-cleared mechanical massage treatment, invented in France. It uses motorized rollers and suction to deeply massage the connective tissue, reactivating sluggish cellular activity.',
+    overview: 'LPG® Endermologie is a clinically proven treatment that targets cellulite, localized fat, and skin laxity using patented mechanical massage technology. It stimulates natural biological processes to naturally reactivate fat release, boost collagen and elastin production, and smooth the skin.',
+    benefits: [
+      'Clinically proven cellulite reduction',
+      'Slims localized fat deposits',
+      'Firms and tones the skin',
+      'Improves circulation and lymphatic drainage',
+      'Natural, non-invasive approach',
+    ],
+    howItWorks: [
+      { step: 'Endermo-Suit', description: 'You wear a thin bodysuit to allow smooth gliding of the treatment head.' },
+      { step: 'Mechanical Massage', description: 'The LPG handpiece uses patented roll-in and roll-out motions to lift and knead the tissue.' },
+      { step: 'Biological Stimulation', description: 'The mechanical stimulation reactivates fibroblasts to produce collagen, elastin, and hyaluronic acid.' },
+    ],
+    whoIsItFor: 'LPG is suitable for all body types and skin tones. It\'s particularly effective for post-pregnancy body reshaping, cellulite reduction, and skin firming.',
+    faqs: [
+      { question: 'How many sessions do I need?', answer: 'A series of 6–10 sessions is recommended for optimal results, followed by monthly maintenance.' },
+      { question: 'Is it painful?', answer: 'Not at all — it feels like a vigorous massage.' },
+    ],
+    shopSlug: 'lpg-endermologie',
+  },
+
+  // ── Injectables ───────────────────────────────────────────────────────────
+  {
+    slug:     'botox',
+    name:     'Botox',
+    tagline:  'The world\'s most popular cosmetic treatment — expertly administered',
+    category: 'Injectables',
+    categorySlug: 'injectables',
+    overview: 'Botox (botulinum toxin type A) is an FDA-approved injectable that temporarily relaxes the muscles responsible for dynamic wrinkles — lines that form from repeated facial expressions. Results are natural-looking, with no surgery or downtime.',
+    benefits: [
+      'Smooths forehead lines, frown lines, and crow\'s feet',
+      'Results in 3–7 days, lasting 3–4 months',
+      'No downtime — return to normal activities immediately',
+      'Preventative use slows the formation of new lines',
+      'Can also treat migraines, jaw clenching (TMJ), and excessive sweating',
+    ],
+    howItWorks: [
+      { step: 'Consultation', description: 'Your provider maps your facial expressions and identifies target muscles.' },
+      { step: 'Injection', description: 'A fine needle delivers precise amounts of Botox into the targeted muscles.' },
+      { step: 'Results', description: 'Muscles gradually relax over 3–7 days. Full effect is visible by 2 weeks.' },
+    ],
+    whoIsItFor: 'Anyone 18+ looking to soften expression lines or prevent new ones from forming. Botox is the most popular cosmetic treatment in the world for good reason.',
+    faqs: [
+      { question: 'Does it hurt?', answer: 'The needles are very fine and the procedure takes just a few minutes. Mild discomfort is possible.' },
+      { question: 'Will I look frozen?', answer: 'Never — our providers use conservative, natural-looking dosing. You\'ll still look like you, just refreshed.' },
+      { question: 'How long does it last?', answer: '3–4 months on average. With regular treatments, results can last longer.' },
+    ],
+    shopSlug: 'botox-1-unit',
+  },
+  {
+    slug:     'dermal-fillers',
+    name:     'Dermal Fillers',
+    tagline:  'Restore volume, sculpt contours, and smooth deep lines',
+    category: 'Injectables',
+    categorySlug: 'injectables',
+    overview: 'Dermal fillers are injectable gels — primarily made of hyaluronic acid — that restore lost volume, smooth deep folds, and enhance facial contours. We use the Juvederm family of fillers, the most trusted brand in the world.',
+    benefits: [
+      'Instant results that last 12–24 months',
+      'Restores cheek volume and lifts the face',
+      'Plumps and defines the lips',
+      'Smooths nasolabial folds and marionette lines',
+      'Fully reversible with hyaluronidase if needed',
+    ],
+    howItWorks: [
+      { step: 'Consultation', description: 'We assess your facial anatomy and discuss your goals to create a tailored treatment plan.' },
+      { step: 'Numbing', description: 'Topical numbing cream is applied for comfort. Juvederm fillers also contain built-in lidocaine.' },
+      { step: 'Injection', description: 'Filler is injected using a fine needle or blunt-tipped cannula for precision and safety.' },
+      { step: 'Sculpting', description: 'The provider gently molds the filler into the desired shape for natural results.' },
+    ],
+    whoIsItFor: 'Anyone looking to restore youthful volume, enhance features, or smooth deep lines without surgery.',
+    faqs: [
+      { question: 'Which filler is right for me?', answer: 'Different Juvederm formulas are used for different areas — Voluma for cheeks, Ultra Plus for nasolabial folds, Volbella for lips.' },
+      { question: 'Is it reversible?', answer: 'Yes — hyaluronic acid fillers can be dissolved with hyaluronidase at any time.' },
+    ],
+    shopSlug: '1-syringe-of-juvederm-ultra-plus',
+  },
+  {
+    slug:     'kybella',
+    name:     'Kybella',
+    tagline:  'Permanently eliminate your double chin — no surgery required',
+    category: 'Injectables',
+    categorySlug: 'injectables',
+    overview: 'Kybella is the only FDA-approved injectable that permanently destroys fat cells under the chin (submental fat). Its active ingredient, deoxycholic acid, is a naturally occurring molecule that breaks down and absorbs dietary fat.',
+    benefits: [
+      'Permanently destroys submental fat cells',
+      'No surgery or liposuction',
+      'Defined, contoured jawline',
+      'Once fat cells are gone, they cannot return',
+    ],
+    howItWorks: [
+      { step: 'Mapping', description: 'Your provider maps the injection sites under the chin for precise targeting.' },
+      { step: 'Injections', description: 'Multiple small injections deliver Kybella into the fat tissue.' },
+      { step: 'Fat Destruction', description: 'Deoxycholic acid destroys the fat cell membrane, and the body naturally eliminates the cellular debris.' },
+    ],
+    whoIsItFor: 'Adults with moderate to severe submental fullness ("double chin") who prefer a non-surgical approach.',
+    faqs: [
+      { question: 'How many treatments are needed?', answer: 'Most clients need 2–4 sessions spaced 4–6 weeks apart.' },
+      { question: 'Is there swelling?', answer: 'Yes — swelling under the chin for 1–2 weeks is expected and is part of the fat destruction process.' },
+    ],
+    shopSlug: 'kybella-per-vial',
+  },
+  {
+    slug:     'pdo-thread-lift',
+    name:     'PDO Thread Lift',
+    tagline:  'A non-surgical facelift using dissolvable sutures',
+    category: 'Injectables',
+    categorySlug: 'injectables',
+    overview: 'A PDO Thread Lift uses polydioxanone (PDO) sutures — the same material used in cardiac surgery — inserted under the skin to physically lift sagging tissue and stimulate collagen production for long-lasting tightening.',
+    benefits: [
+      'Immediate lift with no surgery or general anesthesia',
+      'Stimulates natural collagen production',
+      'Lifts jowls, cheeks, brows, and neck',
+      'Threads dissolve naturally within 6 months',
+      'Results last 1–2 years',
+    ],
+    howItWorks: [
+      { step: 'Numbing', description: 'Local anesthetic is applied for a comfortable procedure.' },
+      { step: 'Thread Insertion', description: 'Fine cannulas insert PDO threads under the skin in precise patterns.' },
+      { step: 'Lifting', description: 'The threads are anchored and gently pulled to lift and reposition tissue.' },
+      { step: 'Collagen Stimulation', description: 'As the threads dissolve, they trigger a collagen response that maintains the lift.' },
+    ],
+    whoIsItFor: 'Clients with mild to moderate skin laxity who want a visible lift without the risks or recovery of surgery.',
+    faqs: [
+      { question: 'Is there downtime?', answer: 'Mild swelling and bruising for 3–5 days. Most clients return to normal activities within a week.' },
+      { question: 'How long do results last?', answer: 'The lift is immediate and lasts 12–18 months. Collagen stimulation extends the benefit further.' },
+    ],
+    shopSlug: 'pdo-thread-lift-full-face',
+  },
+  {
+    slug:     'prp-facelift',
+    name:     'PRP Facelift',
+    tagline:  'Harness your own growth factors to rejuvenate your skin',
+    category: 'Injectables',
+    categorySlug: 'injectables',
+    overview: 'The PRP Facelift (Platelet-Rich Plasma) uses your body\'s own growth factors to stimulate collagen production, improve skin texture, and restore a youthful glow. Blood is drawn, spun in a centrifuge to concentrate the platelets, and injected into the face.',
+    benefits: [
+      '100% natural — uses your own blood',
+      'Improves skin texture, tone, and luminosity',
+      'Reduces fine lines and dark circles',
+      'Stimulates long-term collagen and elastin production',
+      'No risk of allergic reaction',
+    ],
+    howItWorks: [
+      { step: 'Blood Draw', description: 'A small amount of your blood is drawn — similar to a routine blood test.' },
+      { step: 'Centrifuge', description: 'The blood is spun in a centrifuge to separate and concentrate the platelets.' },
+      { step: 'Injection', description: 'PRP is injected into targeted areas of the face using fine needles.' },
+      { step: 'Growth Factor Activation', description: 'Platelets release growth factors that stimulate cellular repair and collagen production.' },
+    ],
+    whoIsItFor: 'Anyone looking for a natural approach to skin rejuvenation. Especially effective for under-eye hollows, skin texture, and overall glow.',
+    faqs: [
+      { question: 'How many sessions do I need?', answer: '3 sessions spaced 4–6 weeks apart, followed by annual maintenance.' },
+      { question: 'When will I see results?', answer: 'Initial glow in 1–2 weeks. Full collagen remodeling over 3–6 months.' },
+    ],
+    shopSlug: 'prp-facelift',
+  },
+
+  // ── Skin Care ─────────────────────────────────────────────────────────────
+  {
+    slug:     'hydrafacial',
+    name:     'HydraFacial',
+    tagline:  'The most popular facial in the world — cleanse, extract, hydrate',
+    category: 'Skin Care',
+    categorySlug: 'skin-care',
+    machine:  'HydraFacial MD',
+    machineDescription: 'The HydraFacial MD device uses patented Vortex-Fusion technology to simultaneously cleanse, exfoliate, extract, and hydrate the skin — infusing it with nourishing serums in a single treatment.',
+    overview: 'The HydraFacial is a multi-step facial treatment that cleanses, exfoliates, removes impurities, and delivers a boost of hydration all in one 30-minute session. It\'s suitable for all skin types and delivers an immediate, visible glow.',
+    benefits: [
+      'Deeply cleanses and unclogs pores',
+      'Removes blackheads and dead skin cells',
+      'Infuses skin with hyaluronic acid, peptides, and antioxidants',
+      'Immediate glow — no downtime',
+      'Customizable with boosters for specific concerns',
+    ],
+    howItWorks: [
+      { step: 'Cleanse & Peel', description: 'A gentle exfoliating peel removes dead skin and reveals a fresh layer.' },
+      { step: 'Extract & Hydrate', description: 'Painless suction removes blackheads and debris from pores.' },
+      { step: 'Fuse & Protect', description: 'Skin is saturated with antioxidants and peptides to maximize glow.' },
+    ],
+    whoIsItFor: 'Literally everyone. The HydraFacial is safe for all skin types, including sensitive skin, and is a perfect maintenance treatment for any skin concern.',
+    faqs: [
+      { question: 'How often should I get a HydraFacial?', answer: 'Monthly treatments maintain healthy, glowing skin. More frequent sessions can be done for acne or anti-aging concerns.' },
+      { question: 'Is there downtime?', answer: 'None — you can apply makeup and go about your day immediately after.' },
+    ],
+    shopSlug: 'hydrafacial-1-session',
+  },
+  {
+    slug:     'microneedling',
+    name:     'Microneedling',
+    tagline:  'Stimulate your skin\'s natural repair process for lasting rejuvenation',
+    category: 'Skin Care',
+    categorySlug: 'skin-care',
+    overview: 'Microneedling creates thousands of microscopic channels in the skin, triggering the body\'s natural wound-healing response. The result is a flood of new collagen and elastin that thickens and tightens the skin, reducing scars, fine lines, and uneven texture.',
+    benefits: [
+      'Reduces acne scars, surgical scars, and stretch marks',
+      'Minimizes fine lines and wrinkles',
+      'Tightens and firms the skin',
+      'Minimizes pore size',
+      'Enhances absorption of topical treatments',
+    ],
+    howItWorks: [
+      { step: 'Numbing', description: 'Topical numbing cream is applied for 30–45 minutes before treatment.' },
+      { step: 'Needling', description: 'A sterile needle tip creates controlled micro-injuries across the treatment area.' },
+      { step: 'Healing', description: 'The body responds by producing collagen and new tissue to repair the micro-channels.' },
+    ],
+    whoIsItFor: 'Those with acne scars, fine lines, uneven texture, or anyone who wants to boost collagen production and maintain youthful skin.',
+    faqs: [
+      { question: 'How many sessions do I need?', answer: 'A series of 3–6 sessions spaced 4–6 weeks apart for maximum results.' },
+      { question: 'What is the downtime?', answer: 'Skin looks pink/red for 24–48 hours, similar to a mild sunburn.' },
+    ],
+    shopSlug: 'microneedling-1-session',
+  },
+  {
+    slug:     'jetpeel',
+    name:     'JetPeel',
+    tagline:  'Supersonic jet infusion — the needle-free facial upgrade',
+    category: 'Skin Care',
+    categorySlug: 'skin-care',
+    machine:  'JetPeel',
+    machineDescription: 'The JetPeel machine uses supersonic pressurized gas to create a jet stream of saline and oxygen that exfoliates the skin and drives serums deep into the dermis — without needles.',
+    overview: 'JetPeel is a revolutionary non-invasive treatment that uses supersonic jet technology to exfoliate, oxygenate, and infuse the skin with customized serums. It delivers nutrients deeper than any topical application — all without needles or discomfort.',
+    benefits: [
+      'Deep serum infusion without needles',
+      'Exfoliates and oxygenates simultaneously',
+      'Instantly plumps and hydrates',
+      'No downtime — perfectly comfortable',
+      'Customizable serums for any skin concern',
+    ],
+    howItWorks: [
+      { step: 'Exfoliation', description: 'A jet of pressurized oxygen and saline removes dead skin cells.' },
+      { step: 'Infusion', description: 'Customized serums are driven into the dermis via the supersonic jet stream.' },
+      { step: 'Oxygenation', description: 'Pure oxygen boosts circulation and cellular metabolism for a radiant glow.' },
+    ],
+    whoIsItFor: 'Anyone who wants a comfortable, needle-free alternative to traditional injections or peels. Great for sensitive skin.',
+    faqs: [
+      { question: 'Does it hurt?', answer: 'Not at all — it feels like a gentle, refreshing breeze on the skin.' },
+      { question: 'Can I combine it with other treatments?', answer: 'Yes — JetPeel pairs beautifully with microneedling, laser treatments, and more.' },
+    ],
+    shopSlug: 'jetpeel',
+  },
+  {
+    slug:     'prx-t33',
+    name:     'PRX-T33 Red Carpet Peel',
+    tagline:  'A no-downtime chemical peel with dramatic results',
+    category: 'Skin Care',
+    categorySlug: 'skin-care',
+    overview: 'PRX-T33 is a revolutionary bio-revitalizing peel made with 33% TCA and hydrogen peroxide. Unlike traditional peels, it does not cause visible peeling — yet stimulates deep dermal collagen production for a plumper, tighter, more luminous complexion.',
+    benefits: [
+      'Visible skin tightening and lifting',
+      'No peeling, no downtime',
+      'Immediate and lasting radiance',
+      'Reduces fine lines, scars, and stretch marks',
+      'Safe for all skin tones',
+    ],
+    howItWorks: [
+      { step: 'Application', description: 'PRX-T33 solution is massaged into the skin using a specific technique.' },
+      { step: 'Stimulation', description: 'TCA stimulates deep dermal activity without reaching the epidermis, preventing visible peeling.' },
+      { step: 'Neutralization', description: 'Hydrogen peroxide neutralizes the TCA before it reaches the outer skin layer.' },
+    ],
+    whoIsItFor: 'Anyone who wants the benefits of a deep peel without the downtime. Excellent for pre-event prep or ongoing collagen stimulation.',
+    faqs: [
+      { question: 'How many sessions are needed?', answer: 'A series of 4 sessions spaced 1–2 weeks apart is the standard protocol.' },
+      { question: 'Will I peel?', answer: 'No visible peeling — that\'s what makes PRX-T33 unique. You can apply makeup immediately.' },
+    ],
+    shopSlug: 'prx-t33-red-carpet-peel',
+  },
+
+  // ── Wellness & IV Therapy ─────────────────────────────────────────────────
+  {
+    slug:     'iv-therapy',
+    name:     'IV Therapy',
+    tagline:  'Direct nutrient delivery for energy, immunity, recovery, and glow',
+    category: 'Wellness & IV Therapy',
+    categorySlug: 'wellness-iv-therapy',
+    overview: 'IV Therapy delivers vitamins, minerals, antioxidants, and hydration directly into your bloodstream — bypassing the digestive system for 100% absorption. Our customized drips address everything from fatigue and immunity to athletic recovery and skin radiance.',
+    benefits: [
+      '100% bioavailability — far superior to oral supplements',
+      'Instant energy and hydration',
+      'Boosts immune function',
+      'Speeds up athletic recovery',
+      'Brightens skin from the inside out',
+    ],
+    howItWorks: [
+      { step: 'Consultation', description: 'We review your health goals and recommend the ideal drip formula.' },
+      { step: 'IV Placement', description: 'A small IV catheter is placed in your arm — quick and minimally uncomfortable.' },
+      { step: 'Infusion', description: 'Your customized nutrient formula drips over 30–60 minutes while you relax.' },
+    ],
+    whoIsItFor: 'Anyone looking to boost energy, recover from illness or a big night out, improve athletic performance, or enhance skin radiance.',
+    faqs: [
+      { question: 'Is it safe?', answer: 'Yes — all drips are administered by trained medical professionals using pharmaceutical-grade nutrients.' },
+      { question: 'How often should I get IV therapy?', answer: 'Weekly for optimal wellness, or as needed for recovery and hydration.' },
+    ],
+    shopCategory: 147,
+  },
+  {
+    slug:     'prp-hair-restoration',
+    name:     'PRP Hair Restoration',
+    tagline:  'Stimulate natural hair regrowth with your own growth factors',
+    category: 'Wellness & IV Therapy',
+    categorySlug: 'wellness-iv-therapy',
+    overview: 'PRP (Platelet-Rich Plasma) Hair Restoration is a clinically proven treatment that uses concentrated growth factors from your own blood to reactivate dormant hair follicles and stimulate new hair growth — naturally.',
+    benefits: [
+      'Stimulates natural hair regrowth',
+      'Thickens existing thinning hair',
+      'All-natural — uses your own blood',
+      'No surgery or medications',
+      'Effective for both men and women',
+    ],
+    howItWorks: [
+      { step: 'Blood Draw', description: 'A small amount of blood is drawn and spun in a centrifuge to concentrate the platelets.' },
+      { step: 'Scalp Prep', description: 'The scalp is numbed with topical anesthetic for a comfortable procedure.' },
+      { step: 'PRP Injection', description: 'PRP is injected into the scalp at the level of the hair follicles across thinning areas.' },
+      { step: 'Follicle Activation', description: 'Growth factors stimulate dormant follicles and extend the active growth phase of hair.' },
+    ],
+    whoIsItFor: 'Anyone experiencing hair thinning or early hair loss — both men and women. Most effective when started early in the hair loss process.',
+    faqs: [
+      { question: 'How many sessions are needed?', answer: '3 sessions spaced 4–6 weeks apart, followed by maintenance every 4–6 months.' },
+      { question: 'When will I see results?', answer: 'Initial results in 3–6 months. Hair continues to improve for up to a year.' },
+    ],
+    shopSlug: 'prp-hair-restoration-1-procedure',
+  },
+  {
+    slug:     'weight-loss',
+    name:     'Medical Weight Loss',
+    tagline:  'Physician-guided weight loss programs tailored to you',
+    category: 'Wellness & IV Therapy',
+    categorySlug: 'wellness-iv-therapy',
+    overview: 'Our medical weight loss program combines personalized nutrition guidance, metabolic support, and evidence-based treatments to help you achieve and maintain your ideal weight safely and effectively.',
+    benefits: [
+      'Medically supervised for safe, effective results',
+      'Personalized to your metabolism and lifestyle',
+      'Combines nutrition, supplementation, and treatments',
+      'Ongoing support and accountability',
+    ],
+    howItWorks: [
+      { step: 'Assessment', description: 'A full metabolic and health assessment is completed to understand your unique needs.' },
+      { step: 'Custom Program', description: 'A personalized plan is created combining nutrition, supplementation, and supportive treatments.' },
+      { step: 'Ongoing Support', description: 'Regular check-ins and adjustments ensure you stay on track toward your goals.' },
+    ],
+    whoIsItFor: 'Anyone looking for a medically guided approach to sustainable weight loss.',
+    faqs: [
+      { question: 'Is this a quick fix?', answer: 'No — our programs are designed for sustainable, long-term results through lifestyle change and medical support.' },
+    ],
+    shopCategory: 147,
+  },
+]
+
+export function getServiceData(slug: string): ServicePageData | undefined {
+  return servicesData.find(s => s.slug === slug)
+}
+
+export function getAllServicePageSlugs(): string[] {
+  return servicesData.map(s => s.slug)
+}
