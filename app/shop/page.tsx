@@ -29,7 +29,7 @@ export default async function ShopPage({ searchParams }: Props) {
   return (
     <div className="min-h-screen bg-cream">
       {/* Hero */}
-      <div className="bg-dark pt-32 pb-16">
+      <div className="bg-dark pt-40 pb-24">
         <Container>
           <p className="eyebrow mb-4">Treatments & Packages</p>
           <h1 className="display-xl text-white max-w-2xl">

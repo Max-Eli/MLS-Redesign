@@ -40,7 +40,7 @@ export async function getServices(params?: {
     per_page: String(params?.perPage ?? 24),
     page:     String(params?.page ?? 1),
     status:   'publish',
-    orderby:  'menu_order',
+    orderby:  'title',
     order:    'asc',
     ...(params?.category ? { mls_service_cat: String(params.category) } : {}),
     ...(params?.search   ? { search: params.search } : {}),
