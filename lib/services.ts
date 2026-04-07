@@ -1,6 +1,23 @@
 import type { MLSService, MLSServiceCategory } from '@/types/services'
+import { servicePrices } from '@/lib/servicePrices'
 
 const WP_URL = process.env.WORDPRESS_URL || 'https://manhattanlaserspa.com'
+
+function injectPrices(service: MLSService): MLSService {
+  const p = servicePrices[service.slug]
+  if (!p) return service
+  return {
+    ...service,
+    meta: {
+      mls_price:           p.price        ?? '',
+      mls_sale_price:      p.salePrice    ?? '',
+      mls_duration:        p.duration     ?? '',
+      mls_badge:           p.badge        ?? '',
+      mls_is_featured:     service.meta?.mls_is_featured ?? false,
+      mls_stripe_price_id: service.meta?.mls_stripe_price_id ?? '',
+    },
+  }
+}
 const API    = `${WP_URL}/wp-json/wp/v2`
 
 async function apiFetch<T>(endpoint: string, revalidate = 3600): Promise<{ data: T; headers: Headers }> {
@@ -51,7 +68,7 @@ export async function getServices(params?: {
       next: { revalidate: 3600 },
     })
     if (!res.ok) throw new Error(`${res.status}`)
-    const data     = await res.json() as MLSService[]
+    const data     = (await res.json() as MLSService[]).map(injectPrices)
     const total      = parseInt(res.headers.get('x-wp-total')      ?? '0')
     const totalPages = parseInt(res.headers.get('x-wp-totalpages') ?? '1')
     return { services: data, total, totalPages }
@@ -66,7 +83,8 @@ export async function getServiceBySlug(slug: string): Promise<MLSService | null>
       `/mls_service?slug=${slug}&_embed=true&status=publish`,
       3600
     )
-    return (data as MLSService[])[0] ?? null
+    const service = (data as MLSService[])[0] ?? null
+    return service ? injectPrices(service) : null
   } catch {
     return null
   }
