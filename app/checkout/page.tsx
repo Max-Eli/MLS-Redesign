@@ -8,7 +8,8 @@ import { Container } from '@/components/ui/Container'
 import { Button } from '@/components/ui/Button'
 import { Lock, ShieldCheck } from 'lucide-react'
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? ''
+const stripePromise = stripeKey ? loadStripe(stripeKey) : null
 
 function CheckoutForm() {
   const stripe = useStripe()
@@ -144,7 +145,12 @@ function CheckoutPageInner() {
             ))}
           </div>
         )}
-        {clientSecret && (
+        {!stripeKey && (
+          <div className="rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">
+            Payment is not configured yet. Please contact us at 305-705-3997 to book.
+          </div>
+        )}
+        {clientSecret && stripePromise && (
           <Elements
             stripe={stripePromise}
             options={{
