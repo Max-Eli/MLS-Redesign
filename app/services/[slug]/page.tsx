@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, CheckCircle2, ChevronDown, ChevronRight } from 'lucide-react'
+import Image from 'next/image'
+import { CheckCircle2, ChevronRight } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 import { Button } from '@/components/ui/Button'
 import { getServiceData, getAllServicePageSlugs } from '@/lib/servicesData'
@@ -38,7 +39,18 @@ export default function ServicePage({ params }: Props) {
     <div className="min-h-screen bg-cream">
       {/* Hero */}
       <div className="bg-dark pt-36 pb-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-mauve/20 via-transparent to-transparent pointer-events-none" />
+        {service.image && (
+          <Image
+            src={service.image}
+            alt={service.name}
+            fill
+            className="object-cover opacity-20"
+            priority
+            sizes="100vw"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-r from-dark via-dark/80 to-dark/40 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-dark/60 to-transparent pointer-events-none" />
         <Container className="relative">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-2xs font-medium tracking-widest uppercase text-white/40 mb-8">

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { MapPin, Phone, Mail, Instagram, Facebook } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 
@@ -90,7 +91,7 @@ export function Footer() {
             </div>
             <div className="flex gap-4 mt-6">
               <a
-                href="https://www.instagram.com/manhattanlaserspa"
+                href="https://www.instagram.com/manhattanlaserspa_sunnyisles"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -184,14 +185,14 @@ export function Footer() {
               className="inline-flex flex-col gap-2 group"
             >
               <div className="flex items-center gap-3">
-                {/* Cherry logo */}
                 <div className="bg-white rounded-lg px-3 py-2 group-hover:opacity-90 transition-opacity">
-                  <svg width="64" height="20" viewBox="0 0 120 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Cherry">
-                    <circle cx="18" cy="18" r="18" fill="#E31C5F"/>
-                    <path d="M11 18C11 14.134 14.134 11 18 11C21.866 11 25 14.134 25 18C25 21.866 21.866 25 18 25C14.134 25 11 21.866 11 18Z" fill="white"/>
-                    <path d="M18 13.5C18 13.5 20.5 16 20.5 18.5C20.5 19.881 19.381 21 18 21C16.619 21 15.5 19.881 15.5 18.5C15.5 16 18 13.5 18 13.5Z" fill="#E31C5F"/>
-                    <text x="40" y="24" fontFamily="Arial, sans-serif" fontWeight="700" fontSize="18" fill="#1a1a1a">cherry</text>
-                  </svg>
+                  <Image
+                    src="https://cdn.prod.website-files.com/681bf1d6f7dea459fe255c59/68252146834983973a92051f_cherry-logo-primary.svg"
+                    alt="Cherry Financing"
+                    width={80}
+                    height={24}
+                    className="h-6 w-auto"
+                  />
                 </div>
                 <span className="text-2xs text-white/30 group-hover:text-white/50 transition-colors">Official Partner</span>
               </div>
