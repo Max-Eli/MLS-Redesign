@@ -81,6 +81,7 @@ const services = [
 const navLinks = [
   { label: 'Services', href: '/services', hasDropdown: true },
   { label: 'Shop', href: '/shop' },
+  { label: 'Promotions', href: '/promotions' },
   { label: 'Blog', href: '/blog' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
