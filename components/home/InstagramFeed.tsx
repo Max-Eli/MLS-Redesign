@@ -5,26 +5,25 @@ import { Container } from '@/components/ui/Container'
 
 interface IGPost {
   id: string
-  media_url: string
+  mediaUrl: string
   permalink: string
   caption?: string
+  prunedCaption?: string
 }
 
 async function getInstagramPosts(): Promise<IGPost[]> {
-  const token = process.env.INSTAGRAM_ACCESS_TOKEN
-  if (!token) return []
+  const feedId = process.env.BEHOLD_FEED_ID
+  if (!feedId) return []
 
   try {
-    const fields = 'id,media_type,media_url,permalink,caption'
     const res = await fetch(
-      `https://graph.instagram.com/me/media?fields=${fields}&limit=6&access_token=${token}`,
+      `https://feeds.behold.so/${feedId}`,
       { next: { revalidate: 3600 } }
     )
     if (!res.ok) return []
     const data = await res.json()
-    return (data.data ?? [])
-      .filter((p: any) => p.media_type === 'IMAGE' || p.media_type === 'CAROUSEL_ALBUM')
-      .slice(0, 6)
+    const posts = Array.isArray(data) ? data : (data.posts ?? [])
+    return posts.slice(0, 6)
   } catch {
     return []
   }
@@ -68,12 +67,11 @@ export async function InstagramFeed() {
               className="group relative aspect-square rounded-2xl overflow-hidden bg-cream-200 block"
             >
               <Image
-                src={post.media_url}
+                src={post.mediaUrl}
                 alt={post.caption ? post.caption.slice(0, 80) : 'Manhattan Laser Spa on Instagram'}
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
                 sizes="(max-width: 768px) 50vw, 33vw"
-                // First post eager, rest lazy
                 priority={i === 0}
               />
 
@@ -81,9 +79,9 @@ export async function InstagramFeed() {
               <div className="absolute inset-0 bg-dark/0 group-hover:bg-dark/50 transition-all duration-400 flex items-center justify-center">
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center gap-3 p-5 text-center">
                   <Instagram size={22} className="text-white" />
-                  {post.caption && (
+                  {(post.prunedCaption || post.caption) && (
                     <p className="text-white text-xs leading-relaxed line-clamp-3 max-w-[180px]">
-                      {post.caption}
+                      {post.prunedCaption || post.caption}
                     </p>
                   )}
                 </div>
