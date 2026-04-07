@@ -12,7 +12,7 @@ const featured = [
     name: 'Laser Hair Removal',
     tagline: 'Permanent smoothness, redefined.',
     description:
-      'State-of-the-art laser technology delivering permanent hair reduction on all skin types. Safe, fast, and virtually painless.',
+      'The Candela GentleMax Pro delivers permanent hair reduction on all skin types — safe, fast, and virtually painless.',
     href: '/services/laser-hair-removal',
     shopHref: '/shop?category=laser-hair-removal',
     image: '/images/featured/laser-hair.jpg',
@@ -22,18 +22,18 @@ const featured = [
     name: 'CoolSculpting Elite',
     tagline: 'Sculpt your ideal shape — no surgery.',
     description:
-      'FDA-cleared cryolipolysis technology that targets and eliminates stubborn fat cells permanently. Two applicators, double the results.',
+      'FDA-cleared fat-freezing technology that permanently eliminates stubborn fat cells. Two applicators, double the results.',
     href: '/services/coolsculpting',
-    shopHref: '/shop?category=coolsculpting',
+    shopHref: '/shop?category=body-treatments',
     image: '/images/featured/coolsculpting.jpg',
-    badge: 'Body Contouring',
+    badge: 'Body Treatments',
   },
   {
     name: 'Botox & Fillers',
     tagline: 'Natural results, expertly crafted.',
     description:
-      'Precision injectable treatments administered by our board-certified medical professionals for subtle, beautiful, natural-looking enhancement.',
-    href: '/services/injectables',
+      'Precision injectable treatments by our board-certified medical professionals for subtle, beautiful enhancement.',
+    href: '/services/botox',
     shopHref: '/shop?category=injectables',
     image: '/images/featured/injectables.jpg',
     badge: 'Injectables',
