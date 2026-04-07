@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ShoppingBag } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 import { ServiceCard } from '@/components/shop/ServiceCard'
+import { ShopSearch } from '@/components/shop/ShopSearch'
 import { getServices, getServiceCategories } from '@/lib/services'
 
 export const metadata: Metadata = {
@@ -18,9 +19,10 @@ interface Props {
 export default async function ShopPage({ searchParams }: Props) {
   const page       = parseInt(searchParams.page ?? '1')
   const categoryId = searchParams.category
+  const search     = searchParams.search
 
   const [{ services, total, totalPages }, categories] = await Promise.all([
-    getServices({ page, perPage: 24, category: categoryId }),
+    getServices({ page, perPage: 24, category: categoryId, search }),
     getServiceCategories(),
   ])
 
@@ -39,6 +41,11 @@ export default async function ShopPage({ searchParams }: Props) {
             Book individual treatments or save with packages. Pay in full or split
             into installments with Affirm or Klarna.
           </p>
+
+          {/* Search */}
+          <div className="mt-8 max-w-md">
+            <ShopSearch defaultValue={search} />
+          </div>
 
           {/* Payment badges */}
           <div className="flex flex-wrap gap-2 mt-6">
@@ -93,6 +100,7 @@ export default async function ShopPage({ searchParams }: Props) {
             <p className="text-sm text-dark-50/40 mb-8">
               {total} treatment{total !== 1 ? 's' : ''}
               {activeCategory ? ` in ${activeCategory.name}` : ''}
+              {search ? ` matching "${search}"` : ''}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

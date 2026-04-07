@@ -24,7 +24,7 @@ export function AddToCartButton({ service, compact = false }: Props) {
   if (!price || isNaN(price)) {
     return (
       <Button variant="outline" size={compact ? 'sm' : 'lg'} asChild className={compact ? '' : 'w-full'}>
-        <a href="tel:+13057053997">Call to Book</a>
+        <a href="/contact">Book Now</a>
       </Button>
     )
   }
