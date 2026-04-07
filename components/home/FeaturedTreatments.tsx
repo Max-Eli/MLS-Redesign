@@ -15,7 +15,7 @@ const featured = [
       'The Candela GentleMax Pro delivers permanent hair reduction on all skin types — safe, fast, and virtually painless.',
     href: '/services/laser-hair-removal',
     shopHref: '/shop?category=laser-hair-removal',
-    image: '/images/featured/laser-hair.jpg',
+    image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&q=80',
     badge: 'Most Popular',
   },
   {
@@ -25,7 +25,7 @@ const featured = [
       'FDA-cleared fat-freezing technology that permanently eliminates stubborn fat cells. Two applicators, double the results.',
     href: '/services/coolsculpting',
     shopHref: '/shop?category=body-treatments',
-    image: '/images/featured/coolsculpting.jpg',
+    image: '/bodytreatments.png',
     badge: 'Body Treatments',
   },
   {
@@ -35,7 +35,7 @@ const featured = [
       'Precision injectable treatments by our board-certified medical professionals for subtle, beautiful enhancement.',
     href: '/services/botox',
     shopHref: '/shop?category=injectables',
-    image: '/images/featured/injectables.jpg',
+    image: '/injectables.png',
     badge: 'Injectables',
   },
 ]
