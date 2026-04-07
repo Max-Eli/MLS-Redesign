@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
 
-    const { items, email }: { items: CartItem[]; email?: string } = await req.json()
+    const { items, email, promoCode }: { items: CartItem[]; email?: string; promoCode?: string } = await req.json()
 
     if (!items?.length) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 })
@@ -60,11 +60,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Too many items' }, { status: 400 })
     }
 
-    const { valid, amount, error } = await verifyPrices(items)
+    const { valid, amount: verifiedAmount, error } = await verifyPrices(items)
     if (!valid) {
       return NextResponse.json({ error: error ?? 'Price verification failed' }, { status: 400 })
     }
-    if (amount < 50) {
+
+    // Apply promo code discount server-side — never trust client-sent discount amounts
+    const PROMO_CODES: Record<string, number> = { MLS100OFF: 10000 }
+    let discountCents = 0
+    let appliedPromo: string | undefined
+    if (promoCode) {
+      const normalized = promoCode.trim().toUpperCase()
+      if (PROMO_CODES[normalized] !== undefined) {
+        discountCents = PROMO_CODES[normalized]
+        appliedPromo = normalized
+      }
+    }
+
+    const amount = Math.max(50, verifiedAmount - discountCents)
+
+    if (verifiedAmount < 50) {
       return NextResponse.json({ error: 'Order total too low' }, { status: 400 })
     }
 
@@ -78,6 +93,7 @@ export async function POST(req: Request) {
       metadata: {
         items: itemsSummary,
         ...(email ? { customer_email: email } : {}),
+        ...(appliedPromo ? { promo_code: appliedPromo, discount: `$${(discountCents / 100).toFixed(2)}` } : {}),
       },
     })
 

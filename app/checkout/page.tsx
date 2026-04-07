@@ -11,7 +11,7 @@ import { Lock, ShieldCheck } from 'lucide-react'
 const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? ''
 const stripePromise = stripeKey ? loadStripe(stripeKey) : null
 
-function CheckoutForm() {
+function CheckoutForm({ finalTotal }: { finalTotal: number }) {
   const stripe = useStripe()
   const elements = useElements()
   const { items, total, clearCart } = useCart()
@@ -62,7 +62,7 @@ function CheckoutForm() {
         disabled={!stripe || status === 'processing'}
       >
         <Lock size={16} />
-        Pay ${total.toFixed(2)}
+        Pay ${finalTotal.toFixed(2)}
       </Button>
 
       <div className="flex items-center justify-center gap-2 text-2xs text-dark-50/40">
@@ -77,6 +77,37 @@ function CheckoutPageInner() {
   const { items, total, itemCount } = useCart()
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [promoInput, setPromoInput] = useState('')
+  const [promoApplied, setPromoApplied] = useState<{ code: string; discountCents: number; label: string } | null>(null)
+  const [promoError, setPromoError] = useState<string | null>(null)
+  const [promoLoading, setPromoLoading] = useState(false)
+
+  const discountDollars = promoApplied ? promoApplied.discountCents / 100 : 0
+  const finalTotal = Math.max(0, total - discountDollars)
+
+  async function applyPromo() {
+    if (!promoInput.trim()) return
+    setPromoLoading(true)
+    setPromoError(null)
+    try {
+      const res = await fetch('/api/validate-promo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoInput.trim() }),
+      })
+      const data = await res.json()
+      if (data.valid) {
+        setPromoApplied({ code: promoInput.trim().toUpperCase(), discountCents: data.discountCents, label: data.label })
+        setPromoInput('')
+      } else {
+        setPromoError(data.error ?? 'Invalid promo code')
+      }
+    } catch {
+      setPromoError('Could not validate code. Please try again.')
+    } finally {
+      setPromoLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (!items.length) return
@@ -84,7 +115,7 @@ function CheckoutPageInner() {
     fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items }),
+      body: JSON.stringify({ items, promoCode: promoApplied?.code }),
     })
       .then((r) => r.json())
       .then(({ clientSecret }) => {
@@ -92,7 +123,9 @@ function CheckoutPageInner() {
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [items])
+  // Re-fetch payment intent when promo changes so Stripe reflects the new amount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, promoApplied])
 
   if (!itemCount) {
     return (
@@ -122,9 +155,62 @@ function CheckoutPageInner() {
             </li>
           ))}
         </ul>
-        <div className="border-t border-cream-200 pt-4 flex justify-between">
-          <span className="font-medium text-dark-50">Total</span>
-          <span className="font-display text-3xl font-light text-dark-50">${total.toFixed(2)}</span>
+        {/* Promo code input */}
+        <div className="border-t border-cream-200 pt-4 mb-2">
+          {promoApplied ? (
+            <div className="flex items-center justify-between bg-mauve-50 rounded-xl px-4 py-3">
+              <div>
+                <p className="text-xs font-semibold text-mauve tracking-wide">{promoApplied.code}</p>
+                <p className="text-xs text-mauve/70">{promoApplied.label}</p>
+              </div>
+              <button
+                onClick={() => setPromoApplied(null)}
+                className="text-xs text-dark-50/40 hover:text-dark-50 underline transition-colors"
+              >
+                Remove
+              </button>
+            </div>
+          ) : (
+            <div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Promo code"
+                  value={promoInput}
+                  onChange={(e) => { setPromoInput(e.target.value); setPromoError(null) }}
+                  onKeyDown={(e) => e.key === 'Enter' && applyPromo()}
+                  className="flex-1 px-3 py-2.5 rounded-xl border border-cream-300 bg-cream text-sm text-dark-50 placeholder:text-dark-50/30 focus:outline-none focus:ring-2 focus:ring-mauve/20 focus:border-mauve/40 transition-all"
+                />
+                <button
+                  onClick={applyPromo}
+                  disabled={promoLoading || !promoInput.trim()}
+                  className="px-4 py-2.5 rounded-xl bg-dark-50 hover:bg-dark text-white text-xs font-medium tracking-widest uppercase transition-colors disabled:opacity-40"
+                >
+                  {promoLoading ? '...' : 'Apply'}
+                </button>
+              </div>
+              {promoError && (
+                <p className="mt-1.5 text-xs text-red-500 pl-1">{promoError}</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="border-t border-cream-200 pt-4 space-y-2">
+          <div className="flex justify-between text-sm text-dark-50/60">
+            <span>Subtotal</span>
+            <span>${total.toFixed(2)}</span>
+          </div>
+          {promoApplied && (
+            <div className="flex justify-between text-sm text-mauve font-medium">
+              <span>Discount ({promoApplied.code})</span>
+              <span>−${discountDollars.toFixed(2)}</span>
+            </div>
+          )}
+          <div className="flex justify-between pt-2 border-t border-cream-200">
+            <span className="font-medium text-dark-50">Total</span>
+            <span className="font-display text-3xl font-light text-dark-50">${finalTotal.toFixed(2)}</span>
+          </div>
         </div>
 
         <div className="mt-6 bg-mauve-50 rounded-xl p-4">
@@ -169,7 +255,7 @@ function CheckoutPageInner() {
               },
             }}
           >
-            <CheckoutForm />
+            <CheckoutForm finalTotal={finalTotal} />
           </Elements>
         )}
       </div>
