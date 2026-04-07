@@ -141,7 +141,7 @@ export function Header() {
                 305-705-3997
               </a>
               <a
-                href="https://withcherry.com"
+                href="https://pay.withcherry.com/manhattanlaserspa?utm_source=merchant&utm_medium=website"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(

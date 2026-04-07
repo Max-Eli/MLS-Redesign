@@ -181,7 +181,7 @@ export function Footer() {
               Financing Partner
             </h3>
             <a
-              href="https://withcherry.com"
+              href="https://pay.withcherry.com/manhattanlaserspa?utm_source=merchant&utm_medium=website"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex flex-col gap-2 group"
