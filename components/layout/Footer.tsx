@@ -213,6 +213,7 @@ export function Footer() {
             {[
               { label: 'Privacy Policy', href: '/privacy' },
               { label: 'Terms of Service', href: '/terms' },
+              { label: 'Refund Policy', href: '/refund-policy' },
               { label: 'HIPAA Notice', href: '/hipaa' },
             ].map((l) => (
               <Link key={l.label} href={l.href} className="text-xs text-white/30 hover:text-white/60 transition-colors">
