@@ -5,15 +5,15 @@ import { Container } from '@/components/ui/Container'
 
 const footerServices = [
   { label: 'Laser Hair Removal', href: '/services/laser-hair-removal' },
-  { label: 'CoolSculpting Elite', href: '/services/coolsculpting' },
-  { label: 'Botox & Fillers', href: '/services/injectables' },
+  { label: 'CO2 Laser (Helix)', href: '/services/co2-laser' },
+  { label: 'Laser Genesis', href: '/services/laser-genesis' },
   { label: 'HydraFacial', href: '/services/hydrafacial' },
+  { label: 'CoolSculpting', href: '/services/coolsculpting' },
   { label: 'EMSculpt', href: '/services/emsculpt' },
+  { label: 'Botox & Fillers', href: '/services/botox' },
   { label: 'Microneedling', href: '/services/microneedling' },
   { label: 'IV Therapy', href: '/services/iv-therapy' },
-  { label: 'Chemical Peels', href: '/services/chemical-peels' },
-  { label: 'Laser Skin Resurfacing', href: '/services/laser-skin-resurfacing' },
-  { label: 'PRP Facelift', href: '/services/prp-facelift' },
+  { label: 'PRP Hair Restoration', href: '/shop?category=hair-restoration' },
 ]
 
 const footerLinks = [

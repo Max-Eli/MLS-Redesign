@@ -29,10 +29,8 @@ export default function ServicePage({ params }: Props) {
   const service = getServiceData(params.slug)
   if (!service) notFound()
 
-  const shopHref = service.shopSlug
-    ? `/product/${service.shopSlug}`
-    : service.shopCategory
-    ? `/shop?category=${service.shopCategory}`
+  const shopHref = service.categorySlug
+    ? `/shop?category=${service.categorySlug}`
     : '/shop'
 
   return (
