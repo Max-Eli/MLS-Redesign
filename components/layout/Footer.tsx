@@ -81,11 +81,11 @@ export function Footer() {
                 305-705-3997
               </a>
               <a
-                href="mailto:info@manhattanlaserspa.com"
+                href="mailto:florida@manhattanlaserspa.com"
                 className="flex items-center gap-3 text-sm text-white/50 hover:text-mauve transition-colors"
               >
                 <Mail size={16} />
-                info@manhattanlaserspa.com
+                florida@manhattanlaserspa.com
               </a>
             </div>
             <div className="flex gap-4 mt-6">
@@ -155,8 +155,7 @@ export function Footer() {
             </h3>
             <ul className="space-y-2 mb-8">
               {[
-                { day: 'Mon – Fri', hours: '9:00 AM – 6:00 PM' },
-                { day: 'Saturday', hours: '10:00 AM – 4:00 PM' },
+                { day: 'Mon – Sat', hours: '10:00 AM – 6:00 PM' },
                 { day: 'Sunday', hours: 'Closed' },
               ].map(({ day, hours }) => (
                 <li key={day} className="flex justify-between text-sm">
@@ -172,9 +171,7 @@ export function Footer() {
             <p className="text-xs text-white/40 leading-relaxed mb-6">
               Visa · Mastercard · Amex · Discover
               <br />
-              Stripe · Affirm · Klarna
-              <br />
-              HSA/FSA accepted for eligible treatments
+              Affirm · Klarna · Cherry Financing
             </p>
 
             <h3 className="text-2xs font-semibold tracking-widest2 uppercase text-mauve mb-4">
@@ -186,9 +183,15 @@ export function Footer() {
               rel="noopener noreferrer"
               className="inline-flex flex-col gap-2 group"
             >
-              <div className="flex items-center gap-2">
-                <div className="bg-white/8 border border-white/10 rounded-lg px-3 py-2 group-hover:border-mauve/40 transition-colors">
-                  <span className="text-sm font-semibold text-white tracking-wide">Cherry</span>
+              <div className="flex items-center gap-3">
+                {/* Cherry logo */}
+                <div className="bg-white rounded-lg px-3 py-2 group-hover:opacity-90 transition-opacity">
+                  <svg width="64" height="20" viewBox="0 0 120 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Cherry">
+                    <circle cx="18" cy="18" r="18" fill="#E31C5F"/>
+                    <path d="M11 18C11 14.134 14.134 11 18 11C21.866 11 25 14.134 25 18C25 21.866 21.866 25 18 25C14.134 25 11 21.866 11 18Z" fill="white"/>
+                    <path d="M18 13.5C18 13.5 20.5 16 20.5 18.5C20.5 19.881 19.381 21 18 21C16.619 21 15.5 19.881 15.5 18.5C15.5 16 18 13.5 18 13.5Z" fill="#E31C5F"/>
+                    <text x="40" y="24" fontFamily="Arial, sans-serif" fontWeight="700" fontSize="18" fill="#1a1a1a">cherry</text>
+                  </svg>
                 </div>
                 <span className="text-2xs text-white/30 group-hover:text-white/50 transition-colors">Official Partner</span>
               </div>
