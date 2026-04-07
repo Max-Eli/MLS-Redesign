@@ -12,7 +12,7 @@ import { useCart } from '@/hooks/useCart'
 const services = [
   {
     label: 'Laser Treatments',
-    href: '/shop?category=143',
+    href: '/shop?category=laser-treatments',
     items: [
       { label: 'Laser Hair Removal',    href: '/services/laser-hair-removal' },
       { label: 'CO2 Laser',             href: '/services/co2-laser' },
@@ -22,7 +22,7 @@ const services = [
   },
   {
     label: 'Body Contouring',
-    href: '/shop?category=144',
+    href: '/shop?category=body-contouring',
     items: [
       { label: 'CoolSculpting', href: '/services/coolsculpting' },
       { label: 'EMSculpt',      href: '/services/emsculpt' },
@@ -32,7 +32,7 @@ const services = [
   },
   {
     label: 'Injectables',
-    href: '/shop?category=145',
+    href: '/shop?category=injectables',
     items: [
       { label: 'Botox',          href: '/services/botox' },
       { label: 'Dermal Fillers', href: '/services/dermal-fillers' },
@@ -43,7 +43,7 @@ const services = [
   },
   {
     label: 'Skin Care',
-    href: '/shop?category=146',
+    href: '/shop?category=skin-care',
     items: [
       { label: 'HydraFacial',   href: '/services/hydrafacial' },
       { label: 'Microneedling', href: '/services/microneedling' },
@@ -53,7 +53,7 @@ const services = [
   },
   {
     label: 'Wellness & IV Therapy',
-    href: '/shop?category=147',
+    href: '/shop?category=wellness-iv-therapy',
     items: [
       { label: 'IV Therapy',           href: '/services/iv-therapy' },
       { label: 'PRP Hair Restoration', href: '/services/prp-hair-restoration' },
@@ -62,13 +62,13 @@ const services = [
   },
   {
     label: 'Gift Cards',
-    href: '/shop?category=166',
+    href: '/shop?category=gift-cards',
     items: [
       { label: '$50 Gift Card',   href: '/product/gift-card-50' },
       { label: '$100 Gift Card',  href: '/product/gift-card-100' },
       { label: '$200 Gift Card',  href: '/product/gift-card-200' },
       { label: '$500 Gift Card',  href: '/product/gift-card-500' },
-      { label: 'View All',        href: '/shop?category=166' },
+      { label: 'View All',        href: '/shop?category=gift-cards' },
     ],
   },
 ]

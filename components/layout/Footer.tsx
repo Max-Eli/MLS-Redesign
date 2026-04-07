@@ -23,7 +23,7 @@ const footerLinks = [
   { label: 'Contact', href: '/contact' },
   { label: 'Financing', href: '/financing' },
   { label: 'Membership', href: '/membership' },
-  { label: 'Gift Cards', href: '/shop?category=166' },
+  { label: 'Gift Cards', href: '/shop?category=gift-cards' },
   { label: 'Referral Program', href: '/referral' },
 ]
 

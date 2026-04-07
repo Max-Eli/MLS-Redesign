@@ -91,13 +91,16 @@ export async function fetchAllServiceSlugs(): Promise<string[]> {
   return data.map((r: { slug: string }) => r.slug)
 }
 
-export async function fetchCategories(): Promise<CategoryRow[]> {
+export async function fetchCategories(): Promise<(CategoryRow & { count: number })[]> {
   if (!supabase) return []
   const { data, error } = await supabase
     .from('service_categories')
-    .select('*')
+    .select('*, services(count)')
     .eq('active', true)
     .order('sort_order', { ascending: true })
   if (error || !data) return []
-  return data
+  return data.map((row: CategoryRow & { services: [{ count: number }] }) => ({
+    ...row,
+    count: row.services?.[0]?.count ?? 0,
+  }))
 }

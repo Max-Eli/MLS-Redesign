@@ -50,12 +50,12 @@ function rowToService(row: ServiceRow): MLSService {
   }
 }
 
-function rowToCategory(row: CategoryRow): MLSServiceCategory {
+function rowToCategory(row: CategoryRow & { count?: number }): MLSServiceCategory {
   return {
     id:          row.id,
     name:        row.name,
     slug:        row.slug,
-    count:       0,
+    count:       row.count ?? 0,
     description: row.description ?? '',
   }
 }

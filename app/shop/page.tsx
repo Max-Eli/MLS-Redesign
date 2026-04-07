@@ -17,16 +17,16 @@ interface Props {
 }
 
 export default async function ShopPage({ searchParams }: Props) {
-  const page       = parseInt(searchParams.page ?? '1')
-  const categoryId = searchParams.category
-  const search     = searchParams.search
+  const page         = parseInt(searchParams.page ?? '1')
+  const categorySlug = searchParams.category
+  const search       = searchParams.search
 
   const [{ services, total, totalPages }, categories] = await Promise.all([
-    getServices({ page, perPage: 24, category: categoryId, search }),
+    getServices({ page, perPage: 24, category: categorySlug, search }),
     getServiceCategories(),
   ])
 
-  const activeCategory = categories.find(c => String(c.id) === categoryId)
+  const activeCategory = categories.find(c => c.slug === categorySlug)
 
   return (
     <div className="min-h-screen bg-cream">
@@ -68,7 +68,7 @@ export default async function ShopPage({ searchParams }: Props) {
             <Link
               href="/shop"
               className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-medium tracking-widest uppercase transition-all duration-200 ${
-                !categoryId
+                !categorySlug
                   ? 'bg-mauve text-white'
                   : 'bg-cream-100 text-dark-50/60 hover:bg-cream-200 hover:text-dark-50'
               }`}
@@ -78,9 +78,9 @@ export default async function ShopPage({ searchParams }: Props) {
             {categories.map(cat => (
               <Link
                 key={cat.id}
-                href={`/shop?category=${cat.id}`}
+                href={`/shop?category=${cat.slug}`}
                 className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-medium tracking-widest uppercase transition-all duration-200 whitespace-nowrap ${
-                  String(cat.id) === categoryId
+                  cat.slug === categorySlug
                     ? 'bg-mauve text-white'
                     : 'bg-cream-100 text-dark-50/60 hover:bg-cream-200 hover:text-dark-50'
                 }`}
@@ -101,6 +101,7 @@ export default async function ShopPage({ searchParams }: Props) {
               {total} treatment{total !== 1 ? 's' : ''}
               {activeCategory ? ` in ${activeCategory.name}` : ''}
               {search ? ` matching "${search}"` : ''}
+
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -114,7 +115,7 @@ export default async function ShopPage({ searchParams }: Props) {
               <div className="flex items-center justify-center gap-2 mt-14">
                 {page > 1 && (
                   <Link
-                    href={`/shop?page=${page - 1}${categoryId ? `&category=${categoryId}` : ''}`}
+                    href={`/shop?page=${page - 1}${categorySlug ? `&category=${categorySlug}` : ''}`}
                     className="px-5 py-2.5 text-xs font-medium tracking-widest uppercase border border-cream-300 rounded-full text-dark-50/60 hover:text-mauve hover:border-mauve transition-colors"
                   >
                     Previous
@@ -123,7 +124,7 @@ export default async function ShopPage({ searchParams }: Props) {
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
                   <Link
                     key={p}
-                    href={`/shop?page=${p}${categoryId ? `&category=${categoryId}` : ''}`}
+                    href={`/shop?page=${p}${categorySlug ? `&category=${categorySlug}` : ''}`}
                     className={`size-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
                       p === page
                         ? 'bg-mauve text-white'
@@ -135,7 +136,7 @@ export default async function ShopPage({ searchParams }: Props) {
                 ))}
                 {page < totalPages && (
                   <Link
-                    href={`/shop?page=${page + 1}${categoryId ? `&category=${categoryId}` : ''}`}
+                    href={`/shop?page=${page + 1}${categorySlug ? `&category=${categorySlug}` : ''}`}
                     className="px-5 py-2.5 text-xs font-medium tracking-widest uppercase border border-cream-300 rounded-full text-dark-50/60 hover:text-mauve hover:border-mauve transition-colors"
                   >
                     Next
