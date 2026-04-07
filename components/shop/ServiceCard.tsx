@@ -6,6 +6,7 @@ import {
   getServiceImage,
   getServiceCategories_fromPost,
   formatServicePrice,
+  affirmMonthly,
   isOnSale,
   safeMeta,
   stripHtml,
@@ -19,6 +20,7 @@ export function ServiceCard({ service, href }: { service: MLSService; href?: str
   const onSale     = isOnSale(service)
   const price      = formatServicePrice(meta.mls_sale_price || meta.mls_price)
   const origPrice  = onSale ? formatServicePrice(meta.mls_price) : null
+  const monthly    = affirmMonthly(meta.mls_sale_price || meta.mls_price)
   const badge      = meta.mls_badge
   const duration   = meta.mls_duration
   const category   = categories[0]
@@ -98,12 +100,19 @@ export function ServiceCard({ service, href }: { service: MLSService; href?: str
         <div className="flex items-center justify-between gap-3 pt-4 border-t border-cream-100 mt-auto">
           <div>
             {price ? (
-              <div className="flex items-baseline gap-2">
-                <span className="font-display text-xl font-light text-dark-50">{price}</span>
-                {origPrice && (
-                  <span className="text-xs text-dark-50/30 line-through">{origPrice}</span>
+              <>
+                <div className="flex items-baseline gap-2">
+                  <span className="font-display text-xl font-light text-dark-50">{price}</span>
+                  {origPrice && (
+                    <span className="text-xs text-dark-50/30 line-through">{origPrice}</span>
+                  )}
+                </div>
+                {monthly && (
+                  <p className="text-2xs text-dark-50/40 mt-0.5">
+                    or ${monthly}/mo with Affirm
+                  </p>
                 )}
-              </div>
+              </>
             ) : (
               <span className="text-xs text-dark-50/40 italic">Contact for pricing</span>
             )}

@@ -15,6 +15,7 @@ import {
   getServiceImage,
   getServiceCategories_fromPost,
   formatServicePrice,
+  affirmMonthly,
   isOnSale,
   safeMeta,
   stripHtml,
@@ -58,6 +59,7 @@ export default async function ProductPage({ params }: Props) {
   const onSale     = isOnSale(service)
   const price      = formatServicePrice(safeMeta(service).mls_sale_price || safeMeta(service).mls_price)
   const origPrice  = onSale ? formatServicePrice(safeMeta(service).mls_price) : null
+  const monthly    = affirmMonthly(safeMeta(service).mls_sale_price || safeMeta(service).mls_price)
   const badge      = safeMeta(service).mls_badge
   const duration   = safeMeta(service).mls_duration
   const hasPrice   = !!safeMeta(service).mls_price
@@ -136,13 +138,20 @@ export default async function ProductPage({ params }: Props) {
 
               {/* Price */}
               {hasPrice && (
-                <div className="flex items-baseline gap-3 mb-8">
-                  <span className="font-display text-4xl font-light text-dark-50">{price}</span>
-                  {origPrice && (
-                    <>
-                      <span className="text-xl text-dark-50/30 line-through">{origPrice}</span>
-                      <Badge variant="gold">Sale</Badge>
-                    </>
+                <div className="mb-8">
+                  <div className="flex items-baseline gap-3">
+                    <span className="font-display text-4xl font-light text-dark-50">{price}</span>
+                    {origPrice && (
+                      <>
+                        <span className="text-xl text-dark-50/30 line-through">{origPrice}</span>
+                        <Badge variant="gold">Sale</Badge>
+                      </>
+                    )}
+                  </div>
+                  {monthly && (
+                    <p className="mt-1.5 text-sm text-dark-50/40">
+                      or <span className="text-dark-50/60 font-medium">${monthly}/mo</span> with Affirm or Klarna
+                    </p>
                   )}
                 </div>
               )}

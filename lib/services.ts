@@ -163,6 +163,14 @@ export function formatServicePrice(price: string | undefined | null): string {
   }).format(num)
 }
 
+/** Returns Affirm monthly estimate (price ÷ 12, rounded up) or null if price too low */
+export function affirmMonthly(price: string | undefined | null): number | null {
+  if (!price) return null
+  const num = parseFloat(price)
+  if (isNaN(num) || num < 50) return null
+  return Math.ceil(num / 12)
+}
+
 export function isOnSale(service: MLSService): boolean {
   return !!service.meta?.mls_sale_price && service.meta.mls_sale_price !== ''
 }
