@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Image from 'next/image'
+
 import { CheckCircle2 } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 import { Button } from '@/components/ui/Button'
@@ -163,25 +163,6 @@ export default function ReferralPage() {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Program flyer image */}
-        <div className="mb-20">
-          <div className="text-center mb-8">
-            <p className="eyebrow mb-3">Program Overview</p>
-            <h2 className="display-sm text-dark-50">Full Program Details</h2>
-          </div>
-          <div className="max-w-lg mx-auto">
-            <div className="rounded-3xl overflow-hidden shadow-luxury-lg">
-              <Image
-                src="/IMG_0301.jpeg"
-                alt="Manhattan Laser Spa Tiered Referral Program"
-                width={600}
-                height={800}
-                className="w-full h-auto"
-              />
-            </div>
-          </div>
         </div>
 
         {/* CTA */}
