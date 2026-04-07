@@ -1,57 +1,70 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Gift, Users, Star, ChevronRight } from 'lucide-react'
+import Image from 'next/image'
+import { CheckCircle2 } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 import { Button } from '@/components/ui/Button'
 
 export const metadata: Metadata = {
-  title: 'Referral Program | Earn Rewards at Manhattan Laser Spa',
+  title: 'Tiered Referral Program | Earn Rewards at Manhattan Laser Spa',
   description:
-    'Refer a friend to Manhattan Laser Spa and earn $50 toward your next treatment. Your friend gets $50 off too. Everyone wins.',
+    'Refer friends to Manhattan Laser Spa and unlock tiered rewards — from a free laser facial to a full year of unlimited laser hair removal. The more you refer, the bigger the reward.',
   alternates: { canonical: 'https://manhattanlaserspa.com/referral' },
 }
 
-const steps = [
+const tiers = [
   {
-    icon: Users,
-    title: 'Refer a Friend',
-    description:
-      'Share your unique referral link or simply tell a friend to mention your name when they book.',
+    tier: 1,
+    label: 'Refer 1 Friend',
+    color: 'bg-mauve',
+    lightColor: 'bg-mauve/8',
+    borderColor: 'border-mauve/20',
+    rewards: [
+      'Manhattan Laser Facial',
+      '1 Session of Laser Hair Removal on any area',
+      '1 Endosphere Therapy Treatment',
+      '1 IV Vitamin Infusion',
+    ],
   },
   {
-    icon: Star,
-    title: 'They Book & Visit',
-    description:
-      'Your friend books any treatment at Manhattan Laser Spa and completes their first appointment.',
+    tier: 2,
+    label: 'Refer 3 Friends',
+    color: 'bg-mauve-600',
+    lightColor: 'bg-mauve/10',
+    borderColor: 'border-mauve/25',
+    rewards: [
+      'Signature Facial',
+      '20 Units of Botox',
+      '2 Endosphere Therapy Treatments',
+      '1 Full Body Laser Hair Removal Session',
+      '1 Session of IPL',
+    ],
   },
   {
-    icon: Gift,
-    title: 'You Both Earn $50',
-    description:
-      'You receive $50 in spa credit toward any future service. Your friend gets $50 off their first treatment.',
-  },
-]
-
-const faqs = [
-  {
-    q: 'Who can participate?',
-    a: 'Any existing Manhattan Laser Spa client can refer friends and family. There is no limit to how many people you can refer.',
-  },
-  {
-    q: 'When do I receive my credit?',
-    a: 'Your $50 spa credit is added to your account within 7 days of your referred friend completing their first paid appointment.',
+    tier: 3,
+    label: 'Refer 5 Friends',
+    color: 'bg-dark-50',
+    lightColor: 'bg-dark-50/5',
+    borderColor: 'border-dark-50/15',
+    rewards: [
+      '50 Units of Botox',
+      'Full EMSculpt Treatment (4 Sessions)',
+      '1 Syringe of Lip Filler',
+      '1 Session of RF Microneedling',
+      '1 Session of Clear + Brilliant',
+    ],
   },
   {
-    q: 'Does my credit expire?',
-    a: 'Spa credits are valid for 12 months from the date they are issued.',
-  },
-  {
-    q: 'Can I combine my credit with other offers?',
-    a: 'Referral credits can be used toward any service but cannot be combined with other promotional discounts or gift cards.',
-  },
-  {
-    q: 'Is there a limit on referral rewards?',
-    a: 'No limit — refer as many friends as you like and earn $50 for each one who completes a visit.',
+    tier: 4,
+    label: 'Refer 10 Friends',
+    color: 'bg-gold-400',
+    lightColor: 'bg-gold/8',
+    borderColor: 'border-gold/25',
+    rewards: [
+      '1 Year of Unlimited Laser Hair Removal',
+      'Botox Every 3 Months',
+      '5 Treatments of Your Choice',
+    ],
   },
 ]
 
@@ -65,17 +78,15 @@ export default function ReferralPage() {
         <Container className="relative">
           <p className="eyebrow mb-4 text-mauve-300">Referral Program</p>
           <h1 className="display-xl text-white max-w-2xl leading-tight mb-6">
-            Share the Glow,<br />
-            <em className="not-italic text-mauve">Earn Rewards</em>
+            Earn More with<br />
+            <em className="not-italic text-mauve">Every Referral</em>
           </h1>
           <p className="text-lg text-white/50 max-w-xl leading-relaxed mb-10">
-            Love your results? Refer a friend and you'll both receive{' '}
-            <span className="text-white/80 font-medium">$50 in spa credit</span> — no limits,
-            no expiration tricks, just our way of saying thank you.
+            Share your unique referral code with friends and family. Once they book and complete their first appointment, you unlock rewards. The more referrals you make, the bigger the reward.
           </p>
           <div className="flex flex-wrap gap-3">
             <Button variant="primary" size="lg" asChild>
-              <Link href="/contact">Refer a Friend</Link>
+              <Link href="/contact">Get My Referral Code</Link>
             </Button>
             <Button variant="outline" size="lg" asChild>
               <Link href="/shop">Browse Treatments</Link>
@@ -84,72 +95,92 @@ export default function ReferralPage() {
         </Container>
       </div>
 
-      {/* Reward callout */}
+      {/* How it works strip */}
       <div className="bg-mauve">
         <Container>
-          <div className="py-10 grid grid-cols-1 sm:grid-cols-2 gap-6 text-white">
-            <div className="flex items-center gap-5">
-              <div className="size-14 rounded-2xl bg-white/10 flex items-center justify-center flex-shrink-0">
-                <span className="font-display text-2xl font-light">$50</span>
+          <div className="py-8 flex flex-wrap items-center justify-center gap-x-12 gap-y-4 text-white text-center">
+            {['Share your code', 'Friend books & visits', 'You unlock rewards'].map((step, i) => (
+              <div key={step} className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="size-7 rounded-full bg-white/15 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                    {i + 1}
+                  </span>
+                  <span className="text-sm font-medium tracking-wide">{step}</span>
+                </div>
+                {i < 2 && <span className="hidden sm:block text-white/30 text-lg">→</span>}
               </div>
-              <div>
-                <p className="font-semibold tracking-wide">You Receive</p>
-                <p className="text-sm text-white/60">$50 spa credit added to your account</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-5 sm:border-l sm:border-white/20 sm:pl-6">
-              <div className="size-14 rounded-2xl bg-white/10 flex items-center justify-center flex-shrink-0">
-                <span className="font-display text-2xl font-light">$50</span>
-              </div>
-              <div>
-                <p className="font-semibold tracking-wide">Your Friend Receives</p>
-                <p className="text-sm text-white/60">$50 off their first treatment</p>
-              </div>
-            </div>
+            ))}
           </div>
         </Container>
       </div>
 
       <Container className="py-20">
-        {/* How it works */}
-        <div className="mb-20">
-          <div className="text-center mb-12">
-            <p className="eyebrow mb-3">How It Works</p>
-            <h2 className="display-md text-dark-50">Three Simple Steps</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {steps.map((step, i) => (
-              <div key={step.title} className="relative bg-white rounded-3xl p-8 shadow-luxury">
-                {/* Step number */}
-                <span className="absolute top-6 right-6 font-display text-5xl font-light text-cream-200 leading-none select-none">
-                  {i + 1}
-                </span>
-                <div className="size-12 rounded-2xl bg-mauve/10 flex items-center justify-center mb-6">
-                  <step.icon size={22} className="text-mauve" />
-                </div>
-                <h3 className="font-display text-xl font-light text-dark-50 mb-3">
-                  {step.title}
-                </h3>
-                <p className="text-sm text-dark-50/60 leading-relaxed">{step.description}</p>
-              </div>
-            ))}
-          </div>
+        {/* Tier cards */}
+        <div className="text-center mb-12">
+          <p className="eyebrow mb-3">Choose Your Reward</p>
+          <h2 className="display-md text-dark-50">
+            Four Tiers, Bigger Rewards
+          </h2>
+          <p className="mt-3 text-sm text-dark-50/50 max-w-lg mx-auto leading-relaxed">
+            Each tier lets you choose <strong>one reward</strong> from the options listed. Unlock higher tiers by referring more friends.
+          </p>
         </div>
 
-        {/* FAQs */}
-        <div className="max-w-2xl mx-auto mb-20">
-          <div className="text-center mb-10">
-            <p className="eyebrow mb-3">Questions</p>
-            <h2 className="display-md text-dark-50">Program Details</h2>
-          </div>
-          <div className="space-y-3">
-            {faqs.map((faq) => (
-              <div key={faq.q} className="bg-white rounded-2xl p-6 shadow-luxury">
-                <h3 className="font-medium text-dark-50 mb-2">{faq.q}</h3>
-                <p className="text-sm text-dark-50/60 leading-relaxed">{faq.a}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-20">
+          {tiers.map((t) => (
+            <div
+              key={t.tier}
+              className={`relative bg-white rounded-3xl shadow-luxury border ${t.borderColor} overflow-hidden`}
+            >
+              {/* Tier badge */}
+              <div className={`${t.color} px-8 py-5 flex items-center justify-between`}>
+                <div>
+                  <p className="text-white/60 text-2xs font-semibold tracking-widest uppercase mb-0.5">
+                    Tier {t.tier}
+                  </p>
+                  <h3 className="font-display text-2xl font-light text-white">
+                    {t.label}
+                  </h3>
+                </div>
+                <span className="font-display text-6xl font-light text-white/15 leading-none select-none">
+                  {t.tier}
+                </span>
               </div>
-            ))}
+
+              {/* Rewards */}
+              <div className="p-8">
+                <p className="text-2xs font-semibold tracking-widest uppercase text-dark-50/40 mb-4">
+                  Choose One Reward
+                </p>
+                <ul className="space-y-3">
+                  {t.rewards.map((reward) => (
+                    <li key={reward} className="flex items-start gap-3">
+                      <CheckCircle2 size={16} className="text-mauve flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-dark-50/70 leading-relaxed">{reward}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Program flyer image */}
+        <div className="mb-20">
+          <div className="text-center mb-8">
+            <p className="eyebrow mb-3">Program Overview</p>
+            <h2 className="display-sm text-dark-50">Full Program Details</h2>
+          </div>
+          <div className="max-w-lg mx-auto">
+            <div className="rounded-3xl overflow-hidden shadow-luxury-lg">
+              <Image
+                src="/IMG_0301.jpeg"
+                alt="Manhattan Laser Spa Tiered Referral Program"
+                width={600}
+                height={800}
+                className="w-full h-auto"
+              />
+            </div>
           </div>
         </div>
 
@@ -158,17 +189,14 @@ export default function ReferralPage() {
           <div className="absolute inset-0 bg-noise opacity-[0.03] pointer-events-none" />
           <div className="absolute -top-20 left-1/2 -translate-x-1/2 size-80 rounded-full bg-mauve/20 blur-3xl pointer-events-none" />
           <div className="relative">
-            <p className="eyebrow mb-4 text-mauve-300">Ready to Share?</p>
-            <h2 className="display-md text-white mb-4">
-              Start Earning Today
-            </h2>
+            <p className="eyebrow mb-4 text-mauve-300">Ready to Start?</p>
+            <h2 className="display-md text-white mb-4">Get Your Referral Code</h2>
             <p className="text-white/50 max-w-md mx-auto mb-8 leading-relaxed">
-              Contact us to get your referral set up, or simply tell your friend to mention
-              your name when they call or book online.
+              Contact us to receive your unique referral code. Track your referrals and unlock rewards as your friends visit.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               <Button variant="primary" size="lg" asChild>
-                <Link href="/contact">Get Started</Link>
+                <Link href="/contact">Contact Us</Link>
               </Button>
               <a
                 href="tel:+13057053997"
