@@ -20,6 +20,15 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'cdn.prod.website-files.com',
       },
+      // Instagram CDN domains
+      {
+        protocol: 'https',
+        hostname: '*.cdninstagram.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.fbcdn.net',
+      },
     ],
   },
   async redirects() {

@@ -6,6 +6,7 @@ import { FeaturedTreatments } from '@/components/home/FeaturedTreatments'
 import { Testimonials } from '@/components/home/Testimonials'
 import { BlogPreview } from '@/components/home/BlogPreview'
 import { CTABanner } from '@/components/home/CTABanner'
+import { InstagramFeed } from '@/components/home/InstagramFeed'
 
 export const metadata: Metadata = {
   title: 'Manhattan Laser Spa | Luxury Medical Spa in Sunny Isles Beach, FL',
@@ -23,6 +24,7 @@ export default function HomePage() {
       <FeaturedTreatments />
       <Testimonials />
       <BlogPreview />
+      <InstagramFeed />
       <CTABanner />
     </>
   )
