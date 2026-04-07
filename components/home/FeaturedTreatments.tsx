@@ -15,7 +15,7 @@ const featured = [
       'The Candela GentleMax Pro delivers permanent hair reduction on all skin types — safe, fast, and virtually painless.',
     href: '/services/laser-hair-removal',
     shopHref: '/shop?category=laser-hair-removal',
-    image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&q=80',
+    image: '/laserhairremoval.jpg',
     badge: 'Most Popular',
   },
   {
