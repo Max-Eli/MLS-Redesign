@@ -1,46 +1,71 @@
 import type { MLSService, MLSServiceCategory } from '@/types/services'
-import { fetchPrices } from '@/lib/supabase'
-import { servicePrices } from '@/lib/servicePrices' // fallback
+import {
+  fetchServices,
+  fetchServiceBySlug,
+  fetchAllServiceSlugs,
+  fetchCategories,
+  type ServiceRow,
+  type CategoryRow,
+} from '@/lib/supabase'
 
-const WP_URL = process.env.WORDPRESS_URL || 'https://manhattanlaserspa.com'
+// ─── Adapters: Supabase rows → MLSService shape ───────────────────────────────
+// Keeps all downstream components (ServiceCard, product page, etc.) unchanged
 
-type PriceMap = Record<string, { price: string; salePrice?: string; sale_price?: string | null; duration?: string | null; badge?: string | null }>
-
-function injectPricesFromMap(service: MLSService, prices: PriceMap): MLSService {
-  const p = prices[service.slug]
-  if (!p) return service
+function rowToService(row: ServiceRow): MLSService {
   return {
-    ...service,
+    id:               row.id,
+    slug:             row.slug,
+    status:           'publish',
+    date:             '',
+    modified:         '',
+    mls_service_cat:  [],
+    title:            { rendered: row.title },
+    excerpt:        { rendered: row.excerpt ? `<p>${row.excerpt}</p>` : '' },
+    content:        { rendered: row.content ?? '' },
+    featured_media: 0,
     meta: {
-      mls_price:           p.price                                ?? '',
-      mls_sale_price:      (p.salePrice ?? p.sale_price)         ?? '',
-      mls_duration:        p.duration                            ?? '',
-      mls_badge:           p.badge                               ?? '',
-      mls_is_featured:     service.meta?.mls_is_featured         ?? false,
-      mls_stripe_price_id: service.meta?.mls_stripe_price_id     ?? '',
+      mls_price:           row.price          ?? '',
+      mls_sale_price:      row.sale_price      ?? '',
+      mls_duration:        row.duration        ?? '',
+      mls_badge:           row.badge           ?? '',
+      mls_is_featured:     row.is_featured     ?? false,
+      mls_stripe_price_id: row.stripe_price_id ?? '',
+    },
+    _embedded: {
+      ...(row.image_url ? {
+        'wp:featuredmedia': [{
+          id:           0,
+          source_url:   row.image_url,
+          alt_text:     row.title,
+          media_details: { sizes: {} },
+        }],
+      } : {}),
+      'wp:term': [[{
+        id:       0,
+        name:     row.category_slug ?? '',
+        slug:     row.category_slug ?? '',
+        taxonomy: 'mls_service_cat',
+      }]],
     },
   }
 }
-const API    = `${WP_URL}/wp-json/wp/v2`
 
-async function apiFetch<T>(endpoint: string, revalidate = 3600): Promise<{ data: T; headers: Headers }> {
-  const res = await fetch(`${API}${endpoint}`, {
-    next: { revalidate },
-    headers: { 'Content-Type': 'application/json' },
-  })
-  if (!res.ok) throw new Error(`Services API error ${res.status}: ${endpoint}`)
-  return { data: await res.json() as T, headers: res.headers }
+function rowToCategory(row: CategoryRow): MLSServiceCategory {
+  return {
+    id:          row.id,
+    name:        row.name,
+    slug:        row.slug,
+    count:       0,
+    description: row.description ?? '',
+  }
 }
 
 // ─── Categories ───────────────────────────────────────────────────────────────
 
 export async function getServiceCategories(): Promise<MLSServiceCategory[]> {
   try {
-    const { data } = await apiFetch<MLSServiceCategory[]>(
-      '/mls_service_cat?per_page=100&orderby=count&order=desc',
-      86400
-    )
-    return data.filter(c => c.count > 0)
+    const rows = await fetchCategories()
+    return rows.map(rowToCategory)
   } catch {
     return []
   }
@@ -55,29 +80,29 @@ export async function getServices(params?: {
   search?: string
   featured?: boolean
 }): Promise<{ services: MLSService[]; total: number; totalPages: number }> {
-  const qs = new URLSearchParams({
-    _embed:   'true',
-    per_page: String(params?.perPage ?? 24),
-    page:     String(params?.page ?? 1),
-    status:   'publish',
-    orderby:  'title',
-    order:    'asc',
-    ...(params?.category ? { mls_service_cat: String(params.category) } : {}),
-    ...(params?.search   ? { search: params.search } : {}),
-  })
-
   try {
-    const res = await fetch(`${API}/mls_service?${qs}`, {
-      next: { revalidate: 3600 },
+    // Resolve category slug from id if needed
+    let categorySlug: string | undefined
+    if (params?.category) {
+      const cats = await fetchCategories()
+      const cat  = cats.find(c => String(c.id) === String(params.category) || c.slug === String(params.category))
+      categorySlug = cat?.slug
+    }
+
+    const perPage = params?.perPage ?? 24
+    const { services: rows, total } = await fetchServices({
+      categorySlug,
+      search:   params?.search,
+      featured: params?.featured,
+      page:     params?.page ?? 1,
+      perPage,
     })
-    if (!res.ok) throw new Error(`${res.status}`)
-    const raw        = await res.json() as MLSService[]
-    const prices     = await fetchPrices().catch(() => ({}))
-    const priceMap   = Object.keys(prices).length > 0 ? prices : servicePrices
-    const data       = raw.map(s => injectPricesFromMap(s, priceMap))
-    const total      = parseInt(res.headers.get('x-wp-total')      ?? '0')
-    const totalPages = parseInt(res.headers.get('x-wp-totalpages') ?? '1')
-    return { services: data, total, totalPages }
+
+    return {
+      services:   rows.map(rowToService),
+      total,
+      totalPages: Math.ceil(total / perPage),
+    }
   } catch {
     return { services: [], total: 0, totalPages: 0 }
   }
@@ -85,15 +110,8 @@ export async function getServices(params?: {
 
 export async function getServiceBySlug(slug: string): Promise<MLSService | null> {
   try {
-    const { data } = await apiFetch<MLSService[]>(
-      `/mls_service?slug=${slug}&_embed=true&status=publish`,
-      3600
-    )
-    const service  = (data as MLSService[])[0] ?? null
-    if (!service) return null
-    const prices   = await fetchPrices().catch(() => ({}))
-    const priceMap = Object.keys(prices).length > 0 ? prices : servicePrices
-    return injectPricesFromMap(service, priceMap)
+    const row = await fetchServiceBySlug(slug)
+    return row ? rowToService(row) : null
   } catch {
     return null
   }
@@ -101,10 +119,8 @@ export async function getServiceBySlug(slug: string): Promise<MLSService | null>
 
 export async function getFeaturedServices(limit = 3): Promise<MLSService[]> {
   try {
-    // Get services marked as featured via meta
-    const { services } = await getServices({ perPage: 100 })
-    const featured = services.filter(s => s.meta.mls_is_featured === true || s.meta.mls_is_featured === '1')
-    return featured.slice(0, limit)
+    const { services } = await fetchServices({ featured: true, perPage: limit })
+    return services.map(rowToService)
   } catch {
     return []
   }
@@ -112,17 +128,13 @@ export async function getFeaturedServices(limit = 3): Promise<MLSService[]> {
 
 export async function getAllServiceSlugs(): Promise<string[]> {
   try {
-    const { data } = await apiFetch<Array<{ slug: string }>>(
-      '/mls_service?per_page=100&status=publish&_fields=slug',
-      86400
-    )
-    return (data as Array<{ slug: string }>).map(s => s.slug)
+    return await fetchAllServiceSlugs()
   } catch {
     return []
   }
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Helpers (unchanged — all components use these) ──────────────────────────
 
 export function getServiceImage(service: MLSService): { src: string; alt: string } | null {
   const media = service._embedded?.['wp:featuredmedia']?.[0]
@@ -131,6 +143,7 @@ export function getServiceImage(service: MLSService): { src: string; alt: string
     media.media_details?.sizes?.large?.source_url ??
     media.media_details?.sizes?.medium_large?.source_url ??
     media.source_url
+  if (!src) return null
   return { src, alt: media.alt_text || service.title.rendered }
 }
 
@@ -143,8 +156,8 @@ export function formatServicePrice(price: string | undefined | null): string {
   const num = parseFloat(price)
   if (isNaN(num) || num <= 0) return ''
   return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+    style:                 'currency',
+    currency:              'USD',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(num)
@@ -156,11 +169,11 @@ export function isOnSale(service: MLSService): boolean {
 
 export function safeMeta(service: MLSService): MLSService['meta'] {
   return service.meta ?? {
-    mls_price: '',
-    mls_sale_price: '',
-    mls_duration: '',
-    mls_badge: '',
-    mls_is_featured: false,
+    mls_price:           '',
+    mls_sale_price:      '',
+    mls_duration:        '',
+    mls_badge:           '',
+    mls_is_featured:     false,
     mls_stripe_price_id: '',
   }
 }
