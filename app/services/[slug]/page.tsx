@@ -30,7 +30,7 @@ export default function ServicePage({ params }: Props) {
   if (!service) notFound()
 
   const shopHref = service.categorySlug
-    ? `/shop?category=${service.categorySlug}`
+    ? `/treatments/${service.categorySlug}`
     : '/shop'
 
   return (
@@ -54,7 +54,7 @@ export default function ServicePage({ params }: Props) {
           <div className="flex items-center gap-2 text-2xs font-medium tracking-widest uppercase text-white/40 mb-8">
             <Link href="/shop" className="hover:text-white/70 transition-colors">Services</Link>
             <ChevronRight size={10} />
-            <Link href={`/shop?category=${service.categorySlug}`} className="hover:text-white/70 transition-colors">
+            <Link href={`/treatments/${service.categorySlug}`} className="hover:text-white/70 transition-colors">
               {service.category}
             </Link>
             <ChevronRight size={10} />

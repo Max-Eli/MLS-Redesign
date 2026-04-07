@@ -12,7 +12,7 @@ import {
 } from '@/lib/services'
 import type { MLSService } from '@/types/services'
 
-export function ServiceCard({ service }: { service: MLSService }) {
+export function ServiceCard({ service, href }: { service: MLSService; href?: string }) {
   const image      = getServiceImage(service)
   const categories = getServiceCategories_fromPost(service)
   const meta       = safeMeta(service)
@@ -26,7 +26,7 @@ export function ServiceCard({ service }: { service: MLSService }) {
   return (
     <div className="group flex flex-col bg-white rounded-2xl overflow-hidden shadow-luxury hover:shadow-luxury-lg transition-all duration-500 ease-luxury hover:-translate-y-1">
       {/* Image */}
-      <Link href={`/product/${service.slug}`} className="relative block h-56 overflow-hidden bg-cream-200 flex-shrink-0">
+      <Link href={href ?? `/product/${service.slug}`} className="relative block h-56 overflow-hidden bg-cream-200 flex-shrink-0">
         {image ? (
           <Image
             src={image.src}
@@ -74,7 +74,7 @@ export function ServiceCard({ service }: { service: MLSService }) {
           </p>
         )}
 
-        <Link href={`/product/${service.slug}`}>
+        <Link href={href ?? `/product/${service.slug}`}>
           <h3
             className="font-display text-lg font-light text-dark-50 leading-snug mb-2 group-hover:text-mauve transition-colors duration-300 line-clamp-2"
             dangerouslySetInnerHTML={{ __html: service.title.rendered }}
