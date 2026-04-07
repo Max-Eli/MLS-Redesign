@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { CartProvider } from '@/components/providers/CartProvider'
 import { CartDrawer } from '@/components/shop/CartDrawer'
+import { PromoPopup } from '@/components/ui/PromoPopup'
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -64,6 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main>{children}</main>
           <Footer />
           <CartDrawer />
+          <PromoPopup />
         </CartProvider>
 
         {/* LocalBusiness Schema — Sunny Isles Beach only */}
