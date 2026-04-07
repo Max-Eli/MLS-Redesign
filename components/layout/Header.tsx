@@ -84,6 +84,54 @@ const navLinks = [
   { label: 'Contact', href: '/contact' },
 ]
 
+function MobileServicesAccordion({ pathname }: { pathname: string }) {
+  const [open, setOpen] = useState(false)
+  const isActive = pathname.startsWith('/services') || pathname.startsWith('/shop')
+
+  return (
+    <div className="border-b border-cream-100">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className={cn(
+          'w-full flex items-center justify-between py-3 text-sm font-medium tracking-widest uppercase transition-colors',
+          isActive ? 'text-mauve' : 'text-dark-50/70'
+        )}
+      >
+        Services
+        <ChevronDown
+          size={16}
+          className={cn('transition-transform duration-300', open ? 'rotate-180' : '')}
+        />
+      </button>
+
+      <div className={cn('overflow-hidden transition-all duration-300', open ? 'max-h-screen pb-3' : 'max-h-0')}>
+        {services.map(cat => (
+          <div key={cat.label} className="mb-4">
+            <Link
+              href={cat.href}
+              className="block text-2xs font-semibold tracking-widest uppercase text-mauve mb-1.5 pl-3"
+            >
+              {cat.label}
+            </Link>
+            <ul>
+              {cat.items.map(item => (
+                <li key={item.label}>
+                  <Link
+                    href={item.href}
+                    className="block pl-3 py-1.5 text-sm text-dark-50/60 hover:text-dark-50 transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -335,18 +383,22 @@ export function Header() {
       >
         <Container>
           <nav className="py-6 space-y-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className={cn(
-                  'block py-3 text-sm font-medium tracking-widest uppercase border-b border-cream-100 transition-colors',
-                  pathname === link.href ? 'text-mauve' : 'text-dark-50/70'
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) =>
+              link.hasDropdown ? (
+                <MobileServicesAccordion key={link.label} pathname={pathname} />
+              ) : (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className={cn(
+                    'block py-3 text-sm font-medium tracking-widest uppercase border-b border-cream-100 transition-colors',
+                    pathname === link.href ? 'text-mauve' : 'text-dark-50/70'
+                  )}
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
             <div className="pt-4">
               <Button variant="primary" size="lg" className="w-full">
                 <Link href="/contact">Book a Consultation</Link>
