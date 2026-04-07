@@ -24,12 +24,19 @@ export function ServiceCard({ service, href }: { service: MLSService; href?: str
   const badge      = meta.mls_badge
   const duration   = meta.mls_duration
   const category   = categories[0]
+  const isGiftCard = category?.slug === 'gift-cards'
 
   return (
     <div className="group flex flex-col bg-white rounded-2xl overflow-hidden shadow-luxury hover:shadow-luxury-lg transition-all duration-500 ease-luxury hover:-translate-y-1">
       {/* Image */}
       <Link href={href ?? `/product/${service.slug}`} className="relative block h-56 overflow-hidden bg-cream-200 flex-shrink-0">
-        {image ? (
+        {isGiftCard ? (
+          <div className="absolute inset-0 bg-gradient-to-br from-dark via-dark-50 to-mauve flex flex-col items-center justify-center gap-2 px-6">
+            <p className="text-gold/60 text-2xs font-medium tracking-[0.3em] uppercase">Manhattan Laser Spa</p>
+            <p className="font-display text-5xl font-light text-white">{price || 'Gift Card'}</p>
+            <p className="text-white/40 text-2xs tracking-widest uppercase">Gift Card</p>
+          </div>
+        ) : image ? (
           <Image
             src={image.src}
             alt={image.alt}

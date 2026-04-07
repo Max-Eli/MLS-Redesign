@@ -23,6 +23,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://manhattanlaserspa.com'),
+  icons: {
+    icon: '/mlsfavicon.png',
+    shortcut: '/mlsfavicon.png',
+    apple: '/mlsfavicon.png',
+  },
   title: {
     default: 'Manhattan Laser Spa | Luxury Medical Spa in Sunny Isles Beach, FL',
     template: '%s | Manhattan Laser Spa',

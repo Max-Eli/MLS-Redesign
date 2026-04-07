@@ -51,8 +51,15 @@ export function PromoPopup() {
     setErrors({})
     setSubmitting(true)
     localStorage.setItem(STORAGE_KEY, '1')
-    // TODO: POST to your SMS/CRM platform (Klaviyo, Attentive, etc.)
-    await new Promise((r) => setTimeout(r, 700))
+    try {
+      await fetch('/api/promo-lead', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(form),
+      })
+    } catch {
+      // silently continue — user still gets the code
+    }
     setSubmitting(false)
     setSubmitted(true)
   }

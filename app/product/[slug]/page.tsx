@@ -63,6 +63,7 @@ export default async function ProductPage({ params }: Props) {
   const badge      = safeMeta(service).mls_badge
   const duration   = safeMeta(service).mls_duration
   const hasPrice   = !!safeMeta(service).mls_price
+  const isGiftCard = category?.slug === 'gift-cards'
 
   // Related services from same category
   const { services: related } = category
@@ -89,7 +90,13 @@ export default async function ProductPage({ params }: Props) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20 items-start">
             {/* Image */}
             <div className="relative aspect-[4/3] lg:aspect-square rounded-3xl overflow-hidden bg-cream-200 shadow-luxury">
-              {image ? (
+              {isGiftCard ? (
+                <div className="absolute inset-0 bg-gradient-to-br from-dark via-dark-50 to-mauve flex flex-col items-center justify-center gap-3">
+                  <p className="text-gold/60 text-xs font-medium tracking-[0.3em] uppercase">Manhattan Laser Spa</p>
+                  <p className="font-display text-8xl font-light text-white">{price || 'Gift Card'}</p>
+                  <p className="text-white/40 text-xs tracking-[0.2em] uppercase">Gift Certificate</p>
+                </div>
+              ) : image ? (
                 <Image
                   src={image.src}
                   alt={image.alt}
