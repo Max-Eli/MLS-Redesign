@@ -140,6 +140,20 @@ export function Header() {
                 <Phone size={11} />
                 305-705-3997
               </a>
+              <a
+                href="https://withcherry.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  'flex items-center gap-1.5 text-2xs font-medium tracking-wider transition-colors border-r pr-6',
+                  scrolled || !isHome
+                    ? 'text-dark-50/50 hover:text-mauve border-cream-200'
+                    : 'text-white/40 hover:text-white/70 border-white/10'
+                )}
+              >
+                <span className="font-semibold">Cherry</span>
+                <span>Financing — Apply Now</span>
+              </a>
               <Link
                 href="/shop"
                 className={cn(

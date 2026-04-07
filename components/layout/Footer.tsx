@@ -22,7 +22,7 @@ const footerLinks = [
   { label: 'Contact', href: '/contact' },
   { label: 'Financing', href: '/financing' },
   { label: 'Membership', href: '/membership' },
-  { label: 'Gift Cards', href: '/shop?category=gift-cards' },
+  { label: 'Gift Cards', href: '/shop?category=166' },
   { label: 'Referral Program', href: '/referral' },
 ]
 
@@ -169,13 +169,34 @@ export function Footer() {
             <h3 className="text-2xs font-semibold tracking-widest2 uppercase text-mauve mb-4">
               We Accept
             </h3>
-            <p className="text-xs text-white/40 leading-relaxed">
+            <p className="text-xs text-white/40 leading-relaxed mb-6">
               Visa · Mastercard · Amex · Discover
               <br />
               Stripe · Affirm · Klarna
               <br />
               HSA/FSA accepted for eligible treatments
             </p>
+
+            <h3 className="text-2xs font-semibold tracking-widest2 uppercase text-mauve mb-4">
+              Financing Partner
+            </h3>
+            <a
+              href="https://withcherry.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex flex-col gap-2 group"
+            >
+              <div className="flex items-center gap-2">
+                <div className="bg-white/8 border border-white/10 rounded-lg px-3 py-2 group-hover:border-mauve/40 transition-colors">
+                  <span className="text-sm font-semibold text-white tracking-wide">Cherry</span>
+                </div>
+                <span className="text-2xs text-white/30 group-hover:text-white/50 transition-colors">Official Partner</span>
+              </div>
+              <p className="text-xs text-white/40 leading-relaxed">
+                0% APR financing available.<br />
+                Apply in seconds — no hard credit pull.
+              </p>
+            </a>
           </div>
         </div>
 
