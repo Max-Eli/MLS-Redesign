@@ -20,7 +20,7 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'cdn.prod.website-files.com',
       },
-      // Instagram CDN domains
+      // Instagram / Behold CDN domains
       {
         protocol: 'https',
         hostname: '*.cdninstagram.com',
@@ -28,6 +28,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '*.fbcdn.net',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.behold.pictures',
       },
     ],
   },
