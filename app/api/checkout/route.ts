@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createPaymentIntent } from '@/lib/stripe'
 import { fetchServiceBySlug } from '@/lib/supabase'
+import { validatePromoCode } from '@/lib/promos'
 import type { CartItem } from '@/types/cart'
 
 // Simple in-memory rate limiter — max 10 requests per IP per minute
@@ -66,14 +67,13 @@ export async function POST(req: Request) {
     }
 
     // Apply promo code discount server-side — never trust client-sent discount amounts
-    const PROMO_CODES: Record<string, number> = { MLS100OFF: 10000 }
     let discountCents = 0
     let appliedPromo: string | undefined
     if (promoCode) {
-      const normalized = promoCode.trim().toUpperCase()
-      if (PROMO_CODES[normalized] !== undefined) {
-        discountCents = PROMO_CODES[normalized]
-        appliedPromo = normalized
+      const promo = await validatePromoCode(promoCode)
+      if (promo) {
+        discountCents = promo.discountCents
+        appliedPromo = promoCode.trim().toUpperCase()
       }
     }
 
