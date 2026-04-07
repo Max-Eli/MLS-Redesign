@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server'
 import { constructWebhookEvent } from '@/lib/stripe'
-import { createOrder, updateOrderStatus } from '@/lib/woocommerce'
 import type Stripe from 'stripe'
 
 export async function POST(req: Request) {
-  const payload = Buffer.from(await req.arrayBuffer())
+  const payload   = Buffer.from(await req.arrayBuffer())
   const signature = req.headers.get('stripe-signature')
 
   if (!signature) {
@@ -22,22 +21,17 @@ export async function POST(req: Request) {
 
   if (event.type === 'payment_intent.succeeded') {
     const intent = event.data.object as Stripe.PaymentIntent
-    const { items, customer_email, wc_order_id } = intent.metadata as {
+    const { items, customer_email } = intent.metadata as {
       items?: string
       customer_email?: string
-      wc_order_id?: string
     }
+    console.log(`✅ Payment succeeded: ${intent.id} | ${customer_email ?? 'guest'} | ${items ?? ''}`)
+    // TODO: send confirmation email, create booking record, etc.
+  }
 
-    // Update existing WooCommerce order if ID was stored in metadata
-    if (wc_order_id) {
-      try {
-        await updateOrderStatus(parseInt(wc_order_id), 'processing', intent.id)
-      } catch (err) {
-        console.error('Failed to update WC order:', err)
-      }
-    }
-
-    console.log(`Payment succeeded: ${intent.id} — ${customer_email ?? 'guest'}`)
+  if (event.type === 'payment_intent.payment_failed') {
+    const intent = event.data.object as Stripe.PaymentIntent
+    console.error(`❌ Payment failed: ${intent.id} | ${intent.last_payment_error?.message ?? 'unknown'}`)
   }
 
   return NextResponse.json({ received: true })
