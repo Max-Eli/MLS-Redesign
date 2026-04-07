@@ -1,20 +1,23 @@
 import type { MLSService, MLSServiceCategory } from '@/types/services'
-import { servicePrices } from '@/lib/servicePrices'
+import { fetchPrices } from '@/lib/supabase'
+import { servicePrices } from '@/lib/servicePrices' // fallback
 
 const WP_URL = process.env.WORDPRESS_URL || 'https://manhattanlaserspa.com'
 
-function injectPrices(service: MLSService): MLSService {
-  const p = servicePrices[service.slug]
+type PriceMap = Record<string, { price: string; salePrice?: string; sale_price?: string | null; duration?: string | null; badge?: string | null }>
+
+function injectPricesFromMap(service: MLSService, prices: PriceMap): MLSService {
+  const p = prices[service.slug]
   if (!p) return service
   return {
     ...service,
     meta: {
-      mls_price:           p.price        ?? '',
-      mls_sale_price:      p.salePrice    ?? '',
-      mls_duration:        p.duration     ?? '',
-      mls_badge:           p.badge        ?? '',
-      mls_is_featured:     service.meta?.mls_is_featured ?? false,
-      mls_stripe_price_id: service.meta?.mls_stripe_price_id ?? '',
+      mls_price:           p.price                                ?? '',
+      mls_sale_price:      (p.salePrice ?? p.sale_price)         ?? '',
+      mls_duration:        p.duration                            ?? '',
+      mls_badge:           p.badge                               ?? '',
+      mls_is_featured:     service.meta?.mls_is_featured         ?? false,
+      mls_stripe_price_id: service.meta?.mls_stripe_price_id     ?? '',
     },
   }
 }
@@ -68,7 +71,10 @@ export async function getServices(params?: {
       next: { revalidate: 3600 },
     })
     if (!res.ok) throw new Error(`${res.status}`)
-    const data     = (await res.json() as MLSService[]).map(injectPrices)
+    const raw        = await res.json() as MLSService[]
+    const prices     = await fetchPrices().catch(() => ({}))
+    const priceMap   = Object.keys(prices).length > 0 ? prices : servicePrices
+    const data       = raw.map(s => injectPricesFromMap(s, priceMap))
     const total      = parseInt(res.headers.get('x-wp-total')      ?? '0')
     const totalPages = parseInt(res.headers.get('x-wp-totalpages') ?? '1')
     return { services: data, total, totalPages }
@@ -83,8 +89,11 @@ export async function getServiceBySlug(slug: string): Promise<MLSService | null>
       `/mls_service?slug=${slug}&_embed=true&status=publish`,
       3600
     )
-    const service = (data as MLSService[])[0] ?? null
-    return service ? injectPrices(service) : null
+    const service  = (data as MLSService[])[0] ?? null
+    if (!service) return null
+    const prices   = await fetchPrices().catch(() => ({}))
+    const priceMap = Object.keys(prices).length > 0 ? prices : servicePrices
+    return injectPricesFromMap(service, priceMap)
   } catch {
     return null
   }
