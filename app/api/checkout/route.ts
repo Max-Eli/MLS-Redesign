@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createPaymentIntent } from '@/lib/stripe'
+import { fetchServiceBySlug } from '@/lib/supabase'
 import type { CartItem } from '@/types/cart'
 
 // Simple in-memory rate limiter — max 10 requests per IP per minute
@@ -17,9 +18,8 @@ function isRateLimited(ip: string): boolean {
   return false
 }
 
-// Verify prices server-side against WordPress
+// Verify prices server-side against Supabase — never trust client-sent prices
 async function verifyPrices(items: CartItem[]): Promise<{ valid: boolean; amount: number; error?: string }> {
-  const WP_URL = process.env.WORDPRESS_URL || 'https://manhattanlaserspa.com'
   let verifiedTotal = 0
 
   for (const item of items) {
@@ -27,17 +27,10 @@ async function verifyPrices(items: CartItem[]): Promise<{ valid: boolean; amount
     if (item.quantity < 1 || item.quantity > 20) return { valid: false, amount: 0, error: 'Invalid quantity' }
 
     try {
-      const res = await fetch(
-        `${WP_URL}/wp-json/wp/v2/mls_service?slug=${item.slug}&_fields=meta&status=publish`,
-        { next: { revalidate: 60 } }
-      )
-      if (!res.ok) return { valid: false, amount: 0, error: `Could not verify item: ${item.name}` }
+      const service = await fetchServiceBySlug(item.slug)
+      if (!service) return { valid: false, amount: 0, error: `Item not found: ${item.name}` }
 
-      const [service] = await res.json()
-      if (!service?.meta) return { valid: false, amount: 0, error: `Item not found: ${item.name}` }
-
-      const meta = service.meta
-      const price = parseFloat(meta.mls_sale_price || meta.mls_price || '0')
+      const price = parseFloat(service.sale_price || service.price || '0')
       if (!price || isNaN(price) || price <= 0) {
         return { valid: false, amount: 0, error: `No valid price for: ${item.name}` }
       }
@@ -53,7 +46,6 @@ async function verifyPrices(items: CartItem[]): Promise<{ valid: boolean; amount
 
 export async function POST(req: Request) {
   try {
-    // Rate limiting
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
     if (isRateLimited(ip)) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
@@ -64,17 +56,14 @@ export async function POST(req: Request) {
     if (!items?.length) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 })
     }
-
     if (items.length > 20) {
       return NextResponse.json({ error: 'Too many items' }, { status: 400 })
     }
 
-    // Verify prices server-side — never trust client prices
     const { valid, amount, error } = await verifyPrices(items)
     if (!valid) {
       return NextResponse.json({ error: error ?? 'Price verification failed' }, { status: 400 })
     }
-
     if (amount < 50) {
       return NextResponse.json({ error: 'Order total too low' }, { status: 400 })
     }
