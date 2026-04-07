@@ -151,6 +151,11 @@ export function Header() {
     setMobileOpen(false)
   }, [pathname])
 
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [mobileOpen])
+
   const isHome = pathname === '/'
 
   return (
@@ -379,8 +384,8 @@ export function Header() {
       {/* Mobile menu */}
       <div
         className={cn(
-          'lg:hidden overflow-hidden transition-all duration-500 ease-luxury bg-white border-t border-cream-200',
-          mobileOpen ? 'max-h-screen' : 'max-h-0'
+          'lg:hidden transition-all duration-500 ease-luxury bg-white border-t border-cream-200 overflow-y-auto',
+          mobileOpen ? 'max-h-[calc(100dvh-5rem)]' : 'max-h-0 overflow-hidden'
         )}
       >
         <Container>
