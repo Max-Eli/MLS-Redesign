@@ -1,11 +1,8 @@
 import type { Metadata } from 'next'
 import { Cormorant_Garamond, Inter } from 'next/font/google'
 import './globals.css'
-import { Header } from '@/components/layout/Header'
-import { Footer } from '@/components/layout/Footer'
 import { CartProvider } from '@/components/providers/CartProvider'
-import { CartDrawer } from '@/components/shop/CartDrawer'
-import { PromoPopup } from '@/components/ui/PromoPopup'
+import { SiteLayout } from '@/components/layout/SiteLayout'
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -66,11 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
       <body>
         <CartProvider>
-          <Header />
-          <main>{children}</main>
-          <Footer />
-          <CartDrawer />
-          <PromoPopup />
+          <SiteLayout>{children}</SiteLayout>
         </CartProvider>
 
         {/* LocalBusiness Schema — Sunny Isles Beach only */}
