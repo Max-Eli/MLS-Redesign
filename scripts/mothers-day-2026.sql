@@ -40,7 +40,7 @@ insert into services (slug, title, excerpt, category_slug, price, sale_price, du
    'injectables',
    '13', '8.99', 'Per unit',
    'Mother''s Day', true, true, 1,
-   '/injectables.png'),
+   '/mothersdaypromosite.png'),
 
   ('mothers-day-lip-filler',
    'Mother''s Day Lip Filler',
@@ -48,7 +48,7 @@ insert into services (slug, title, excerpt, category_slug, price, sale_price, du
    'injectables',
    '650', '399', '30–45 min',
    'Mother''s Day', true, true, 2,
-   '/injectables.png'),
+   '/mothersdaypromosite.png'),
 
   ('mothers-day-co2-eye-rejuvenation',
    'Mother''s Day CO2 Eye Rejuvenation',
@@ -56,7 +56,7 @@ insert into services (slug, title, excerpt, category_slug, price, sale_price, du
    'laser-skin-treatments',
    '500', '299', '45 min',
    'Mother''s Day', true, true, 3,
-   '/laserskintreatments.png'),
+   '/mothersdaypromosite.png'),
 
   ('mothers-day-deep-cleansing-facial',
    'Mother''s Day Deep Cleansing Facial',
@@ -64,7 +64,7 @@ insert into services (slug, title, excerpt, category_slug, price, sale_price, du
    'facial-treatments',
    '175', '120', '60 min',
    'Mother''s Day', true, true, 4,
-   '/facialtreaments.png')
+   '/mothersdaypromosite.png')
 on conflict (slug) do update set
   title       = excluded.title,
   excerpt     = excluded.excerpt,
@@ -89,7 +89,7 @@ insert into promotions (title, description, services, original_price, promo_pric
    'Botox by the unit',
    13, 8.99,
    'Mother''s Day',
-   '/injectables.png',
+   '/mothersdaypromosite.png',
    'mothers-day-botox-per-unit',
    true, '2026-04-17', '2026-05-12', 1),
 
@@ -98,7 +98,7 @@ insert into promotions (title, description, services, original_price, promo_pric
    'Full lip filler session',
    650, 399,
    'Mother''s Day',
-   '/injectables.png',
+   '/mothersdaypromosite.png',
    'mothers-day-lip-filler',
    true, '2026-04-17', '2026-05-12', 2),
 
@@ -107,7 +107,7 @@ insert into promotions (title, description, services, original_price, promo_pric
    'CO2 fractional laser around the eyes',
    500, 299,
    'Mother''s Day',
-   '/laserskintreatments.png',
+   '/mothersdaypromosite.png',
    'mothers-day-co2-eye-rejuvenation',
    true, '2026-04-17', '2026-05-12', 3),
 
@@ -116,6 +116,6 @@ insert into promotions (title, description, services, original_price, promo_pric
    'Deep cleansing facial with extractions',
    175, 120,
    'Mother''s Day',
-   '/facialtreaments.png',
+   '/mothersdaypromosite.png',
    'mothers-day-deep-cleansing-facial',
    true, '2026-04-17', '2026-05-12', 4);
