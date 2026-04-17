@@ -5,9 +5,9 @@ import type Stripe from 'stripe'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-// Pull billing_details from the latest charge — Stripe PaymentElement collects
-// email + name when the customer pays, and the checkout page doesn't ask up-front.
-async function getBillingDetails(intent: Stripe.PaymentIntent): Promise<{ email?: string; name?: string }> {
+// Fallback for email/name/phone if the checkout page didn't collect them
+// (it does now, but older intents and Stripe-collected values stay as backup).
+async function getBillingDetails(intent: Stripe.PaymentIntent): Promise<{ email?: string; name?: string; phone?: string }> {
   const chargeId = typeof intent.latest_charge === 'string' ? intent.latest_charge : intent.latest_charge?.id
   if (!chargeId) return {}
   try {
@@ -15,6 +15,7 @@ async function getBillingDetails(intent: Stripe.PaymentIntent): Promise<{ email?
     return {
       email: charge.billing_details.email ?? undefined,
       name:  charge.billing_details.name  ?? undefined,
+      phone: charge.billing_details.phone ?? undefined,
     }
   } catch (err) {
     console.error('Failed to fetch charge billing details:', err)
@@ -41,18 +42,28 @@ export async function POST(req: Request) {
 
   if (event.type === 'payment_intent.succeeded') {
     const intent = event.data.object as Stripe.PaymentIntent
-    const { items, customer_email: metaEmail, customer_name: metaName, promo_code, discount } = intent.metadata as {
+    const {
+      items,
+      customer_email: metaEmail,
+      customer_name:  metaName,
+      customer_phone: metaPhone,
+      promo_code,
+      discount,
+    } = intent.metadata as {
       items?:          string
       customer_email?: string
       customer_name?:  string
+      customer_phone?: string
       promo_code?:     string
       discount?:       string
     }
 
-    // Prefer Stripe billing_details over metadata (metadata is rarely set for this checkout flow)
+    // Prefer metadata (collected on the checkout page) and fall back to Stripe's
+    // billing_details so older orders and Stripe-collected fields still populate.
     const billing        = await getBillingDetails(intent)
     const customer_email = metaEmail ?? billing.email
     const customer_name  = metaName  ?? billing.name
+    const customer_phone = metaPhone ?? billing.phone
 
     const amountFormatted = new Intl.NumberFormat('en-US', {
       style: 'currency', currency: 'USD', minimumFractionDigits: 0,
@@ -141,6 +152,10 @@ export async function POST(req: Request) {
             ${customer_email ? `<tr>
               <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#9b8ea0;">Email</td>
               <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:14px;color:#1a1a2e;"><a href="mailto:${customer_email}" style="color:#9b8ea0;">${customer_email}</a></td>
+            </tr>` : ''}
+            ${customer_phone ? `<tr>
+              <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#9b8ea0;">Phone</td>
+              <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:14px;color:#1a1a2e;"><a href="tel:${customer_phone}" style="color:#9b8ea0;">${customer_phone}</a></td>
             </tr>` : ''}
             <tr>
               <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#9b8ea0;">Total</td>

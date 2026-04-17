@@ -6,15 +6,30 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 import { useCart } from '@/hooks/useCart'
 import { Container } from '@/components/ui/Container'
 import { Button } from '@/components/ui/Button'
-import { Lock, ShieldCheck } from 'lucide-react'
+import { Lock, ShieldCheck, User, Mail, Phone, ChevronRight, Check } from 'lucide-react'
 
 const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? ''
 const stripePromise = stripeKey ? loadStripe(stripeKey) : null
 
-function CheckoutForm({ finalTotal }: { finalTotal: number }) {
+type Contact = {
+  firstName: string
+  lastName:  string
+  email:     string
+  phone:     string
+}
+
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+}
+
+function isValidPhone(phone: string): boolean {
+  const digits = phone.replace(/\D/g, '')
+  return digits.length >= 10
+}
+
+function CheckoutForm({ finalTotal, contact }: { finalTotal: number; contact: Contact }) {
   const stripe = useStripe()
   const elements = useElements()
-  const { items, total, clearCart } = useCart()
   const [status, setStatus] = useState<'idle' | 'processing' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
@@ -29,6 +44,13 @@ function CheckoutForm({ finalTotal }: { finalTotal: number }) {
       elements,
       confirmParams: {
         return_url: `${window.location.origin}/checkout/success`,
+        payment_method_data: {
+          billing_details: {
+            name:  `${contact.firstName} ${contact.lastName}`.trim(),
+            email: contact.email.trim(),
+            phone: contact.phone.trim(),
+          },
+        },
       },
     })
 
@@ -44,6 +66,13 @@ function CheckoutForm({ finalTotal }: { finalTotal: number }) {
         options={{
           layout: 'tabs',
           paymentMethodOrder: ['card', 'affirm', 'klarna'],
+          fields: {
+            billingDetails: {
+              name:  'never',
+              email: 'never',
+              phone: 'never',
+            },
+          },
         }}
       />
 
@@ -73,10 +102,137 @@ function CheckoutForm({ finalTotal }: { finalTotal: number }) {
   )
 }
 
+function ContactStep({
+  contact,
+  setContact,
+  onContinue,
+}: {
+  contact: Contact
+  setContact: (c: Contact) => void
+  onContinue: () => void
+}) {
+  const [errors, setErrors] = useState<Partial<Record<keyof Contact, string>>>({})
+
+  function handleContinue(e: React.FormEvent) {
+    e.preventDefault()
+    const next: Partial<Record<keyof Contact, string>> = {}
+    if (!contact.firstName.trim()) next.firstName = 'Required'
+    if (!contact.lastName.trim())  next.lastName  = 'Required'
+    if (!isValidEmail(contact.email)) next.email = 'Enter a valid email'
+    if (!isValidPhone(contact.phone)) next.phone = 'Enter a valid phone number'
+    setErrors(next)
+    if (Object.keys(next).length === 0) onContinue()
+  }
+
+  return (
+    <form onSubmit={handleContinue} className="space-y-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-2xs font-medium tracking-widest uppercase text-dark-50/50 mb-2">
+            First Name
+          </label>
+          <input
+            type="text"
+            autoComplete="given-name"
+            value={contact.firstName}
+            onChange={(e) => setContact({ ...contact, firstName: e.target.value })}
+            className="w-full h-12 px-4 bg-cream-50 border border-cream-200 rounded-xl text-sm text-dark-50 placeholder:text-dark-50/30 focus:outline-none focus:border-mauve focus:ring-1 focus:ring-mauve transition-colors"
+            placeholder="Sofia"
+          />
+          {errors.firstName && <p className="mt-1.5 text-2xs text-red-500 pl-1">{errors.firstName}</p>}
+        </div>
+        <div>
+          <label className="block text-2xs font-medium tracking-widest uppercase text-dark-50/50 mb-2">
+            Last Name
+          </label>
+          <input
+            type="text"
+            autoComplete="family-name"
+            value={contact.lastName}
+            onChange={(e) => setContact({ ...contact, lastName: e.target.value })}
+            className="w-full h-12 px-4 bg-cream-50 border border-cream-200 rounded-xl text-sm text-dark-50 placeholder:text-dark-50/30 focus:outline-none focus:border-mauve focus:ring-1 focus:ring-mauve transition-colors"
+            placeholder="Martinez"
+          />
+          {errors.lastName && <p className="mt-1.5 text-2xs text-red-500 pl-1">{errors.lastName}</p>}
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-2xs font-medium tracking-widest uppercase text-dark-50/50 mb-2">
+          Email Address
+        </label>
+        <input
+          type="email"
+          autoComplete="email"
+          value={contact.email}
+          onChange={(e) => setContact({ ...contact, email: e.target.value })}
+          className="w-full h-12 px-4 bg-cream-50 border border-cream-200 rounded-xl text-sm text-dark-50 placeholder:text-dark-50/30 focus:outline-none focus:border-mauve focus:ring-1 focus:ring-mauve transition-colors"
+          placeholder="sofia@example.com"
+        />
+        {errors.email && <p className="mt-1.5 text-2xs text-red-500 pl-1">{errors.email}</p>}
+        <p className="mt-1.5 text-2xs text-dark-50/40 pl-1">We'll send your receipt here.</p>
+      </div>
+
+      <div>
+        <label className="block text-2xs font-medium tracking-widest uppercase text-dark-50/50 mb-2">
+          Phone Number
+        </label>
+        <input
+          type="tel"
+          autoComplete="tel"
+          value={contact.phone}
+          onChange={(e) => setContact({ ...contact, phone: e.target.value })}
+          className="w-full h-12 px-4 bg-cream-50 border border-cream-200 rounded-xl text-sm text-dark-50 placeholder:text-dark-50/30 focus:outline-none focus:border-mauve focus:ring-1 focus:ring-mauve transition-colors"
+          placeholder="(305) 000-0000"
+        />
+        {errors.phone && <p className="mt-1.5 text-2xs text-red-500 pl-1">{errors.phone}</p>}
+        <p className="mt-1.5 text-2xs text-dark-50/40 pl-1">So our team can reach you to schedule.</p>
+      </div>
+
+      <Button type="submit" variant="primary" size="xl" className="w-full">
+        Continue to Payment
+        <ChevronRight size={16} />
+      </Button>
+    </form>
+  )
+}
+
+function ContactSummary({ contact, onEdit }: { contact: Contact; onEdit: () => void }) {
+  return (
+    <div className="rounded-2xl bg-cream-50 border border-cream-200 p-5 mb-6">
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1.5 min-w-0">
+          <div className="flex items-center gap-2 text-sm text-dark-50">
+            <User size={14} className="text-mauve flex-shrink-0" />
+            <span className="font-medium truncate">{contact.firstName} {contact.lastName}</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-dark-50/70">
+            <Mail size={14} className="text-mauve flex-shrink-0" />
+            <span className="truncate">{contact.email}</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-dark-50/70">
+            <Phone size={14} className="text-mauve flex-shrink-0" />
+            <span>{contact.phone}</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={onEdit}
+          className="text-2xs font-medium tracking-widest uppercase text-mauve-700 hover:text-mauve-800 transition-colors flex-shrink-0"
+        >
+          Edit
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function CheckoutPageInner() {
   const { items, total, itemCount } = useCart()
+  const [step, setStep] = useState<'contact' | 'payment'>('contact')
+  const [contact, setContact] = useState<Contact>({ firstName: '', lastName: '', email: '', phone: '' })
   const [clientSecret, setClientSecret] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [promoInput, setPromoInput] = useState('')
   const [promoApplied, setPromoApplied] = useState<{ code: string; discountCents: number; label: string } | null>(null)
   const [promoError, setPromoError] = useState<string | null>(null)
@@ -109,13 +265,23 @@ function CheckoutPageInner() {
     }
   }
 
+  // Only create the PaymentIntent after the customer has submitted contact info —
+  // re-runs if the promo changes so Stripe reflects the new amount.
   useEffect(() => {
-    if (!items.length) return
+    if (step !== 'payment' || !items.length) return
 
+    setLoading(true)
     fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items, promoCode: promoApplied?.code }),
+      body: JSON.stringify({
+        items,
+        promoCode: promoApplied?.code,
+        firstName: contact.firstName,
+        lastName:  contact.lastName,
+        email:     contact.email,
+        phone:     contact.phone,
+      }),
     })
       .then((r) => r.json())
       .then(({ clientSecret }) => {
@@ -123,9 +289,8 @@ function CheckoutPageInner() {
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  // Re-fetch payment intent when promo changes so Stripe reflects the new amount
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, promoApplied])
+  }, [step, items, promoApplied])
 
   if (!itemCount) {
     return (
@@ -178,10 +343,11 @@ function CheckoutPageInner() {
                   placeholder="Promo code"
                   value={promoInput}
                   onChange={(e) => { setPromoInput(e.target.value); setPromoError(null) }}
-                  onKeyDown={(e) => e.key === 'Enter' && applyPromo()}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyPromo())}
                   className="flex-1 px-3 py-2.5 rounded-xl border border-cream-300 bg-cream text-sm text-dark-50 placeholder:text-dark-50/30 focus:outline-none focus:ring-2 focus:ring-mauve/20 focus:border-mauve/40 transition-all"
                 />
                 <button
+                  type="button"
                   onClick={applyPromo}
                   disabled={promoLoading || !promoInput.trim()}
                   className="px-4 py-2.5 rounded-xl bg-dark-50 hover:bg-dark text-white text-xs font-medium tracking-widest uppercase transition-colors disabled:opacity-40"
@@ -221,42 +387,90 @@ function CheckoutPageInner() {
         </div>
       </div>
 
-      {/* Payment form */}
+      {/* Right column — contact + payment */}
       <div className="bg-white rounded-3xl shadow-luxury p-8">
-        <h2 className="font-display text-2xl font-light text-dark-50 mb-6">Payment</h2>
-        {loading && (
-          <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-12 rounded-xl bg-cream-200 animate-pulse" />
-            ))}
+        {/* Step indicator */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-2">
+            <div className={`size-7 rounded-full flex items-center justify-center text-2xs font-semibold transition-colors ${
+              step === 'contact' ? 'bg-mauve text-white' : 'bg-mauve-100 text-mauve-700'
+            }`}>
+              {step === 'payment' ? <Check size={14} /> : '1'}
+            </div>
+            <span className={`text-xs tracking-widest uppercase transition-colors ${
+              step === 'contact' ? 'text-dark-50 font-semibold' : 'text-dark-50/50'
+            }`}>
+              Your Info
+            </span>
           </div>
-        )}
-        {!stripeKey && (
-          <div className="rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">
-            Payment is not configured yet. Please contact us at 305-705-3997 to book.
+          <div className="flex-1 h-px bg-cream-200" />
+          <div className="flex items-center gap-2">
+            <div className={`size-7 rounded-full flex items-center justify-center text-2xs font-semibold transition-colors ${
+              step === 'payment' ? 'bg-mauve text-white' : 'bg-cream-200 text-dark-50/40'
+            }`}>
+              2
+            </div>
+            <span className={`text-xs tracking-widest uppercase transition-colors ${
+              step === 'payment' ? 'text-dark-50 font-semibold' : 'text-dark-50/50'
+            }`}>
+              Payment
+            </span>
           </div>
-        )}
-        {clientSecret && stripePromise && (
-          <Elements
-            stripe={stripePromise}
-            options={{
-              clientSecret,
-              appearance: {
-                theme: 'flat',
-                variables: {
-                  colorPrimary: '#BA7587',
-                  colorBackground: '#FAFAF8',
-                  colorText: '#1A1A1A',
-                  colorDanger: '#ef4444',
-                  fontFamily: 'Inter, system-ui, sans-serif',
-                  borderRadius: '12px',
-                  spacingUnit: '4px',
-                },
-              },
-            }}
-          >
-            <CheckoutForm finalTotal={finalTotal} />
-          </Elements>
+        </div>
+
+        {step === 'contact' ? (
+          <>
+            <h2 className="font-display text-2xl font-light text-dark-50 mb-2">Your Information</h2>
+            <p className="text-sm text-dark-50/50 mb-6">
+              We'll use this to send your receipt and schedule your appointment.
+            </p>
+            <ContactStep
+              contact={contact}
+              setContact={setContact}
+              onContinue={() => setStep('payment')}
+            />
+          </>
+        ) : (
+          <>
+            <h2 className="font-display text-2xl font-light text-dark-50 mb-6">Payment</h2>
+
+            <ContactSummary contact={contact} onEdit={() => setStep('contact')} />
+
+            {loading && (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-12 rounded-xl bg-cream-200 animate-pulse" />
+                ))}
+              </div>
+            )}
+            {!stripeKey && (
+              <div className="rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">
+                Payment is not configured yet. Please contact us at 305-705-3997 to book.
+              </div>
+            )}
+            {clientSecret && stripePromise && (
+              <Elements
+                stripe={stripePromise}
+                options={{
+                  clientSecret,
+                  appearance: {
+                    theme: 'flat',
+                    variables: {
+                      colorPrimary: '#BA7587',
+                      colorBackground: '#FAFAF8',
+                      colorText: '#1A1A1A',
+                      colorDanger: '#ef4444',
+                      fontFamily: 'Inter, system-ui, sans-serif',
+                      borderRadius: '12px',
+                      spacingUnit: '4px',
+                    },
+                  },
+                }}
+              >
+                <CheckoutForm finalTotal={finalTotal} contact={contact} />
+              </Elements>
+            )}
+          </>
         )}
       </div>
     </div>

@@ -60,7 +60,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
 
-    const { items, email, promoCode }: { items: CartItem[]; email?: string; promoCode?: string } = await req.json()
+    const {
+      items,
+      promoCode,
+      firstName,
+      lastName,
+      email,
+      phone,
+    }: {
+      items:      CartItem[]
+      promoCode?: string
+      firstName?: string
+      lastName?:  string
+      email?:     string
+      phone?:     string
+    } = await req.json()
 
     if (!items?.length) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 })
@@ -95,11 +109,15 @@ export async function POST(req: Request) {
     let itemsJson = JSON.stringify(lines)
     if (itemsJson.length > 500) itemsJson = itemsJson.slice(0, 497) + '...'
 
+    const customerName = [firstName?.trim(), lastName?.trim()].filter(Boolean).join(' ')
+
     const paymentIntent = await createPaymentIntent({
       amount,
       metadata: {
         items: itemsJson,
-        ...(email ? { customer_email: email } : {}),
+        ...(email?.trim()    ? { customer_email: email.trim() } : {}),
+        ...(customerName     ? { customer_name:  customerName } : {}),
+        ...(phone?.trim()    ? { customer_phone: phone.trim() } : {}),
         ...(appliedPromo ? { promo_code: appliedPromo, discount: `$${(discountCents / 100).toFixed(2)}` } : {}),
       },
     })
