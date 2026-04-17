@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { X, ShoppingBag, Minus, Plus, Trash2 } from 'lucide-react'
+import { X, ShoppingBag, Minus, Plus, Trash2, Zap } from 'lucide-react'
 import { useCart } from '@/hooks/useCart'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
@@ -128,9 +128,12 @@ export function CartDrawer() {
         {items.length > 0 && (
           <div className="px-6 py-6 border-t border-cream-200 space-y-4">
             {/* Affirm/Klarna note */}
-            <p className="text-2xs text-dark-50/40 text-center">
-              Pay in installments with Affirm or Klarna at checkout
-            </p>
+            <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-mauve-50 border border-mauve-100">
+              <Zap size={12} className="text-mauve-600 flex-shrink-0" fill="currentColor" />
+              <p className="text-2xs text-dark-50/70">
+                Pay in installments with <span className="font-semibold text-mauve-700">Affirm</span> or <span className="font-semibold text-mauve-700">Klarna</span>
+              </p>
+            </div>
 
             {/* Total */}
             <div className="flex items-center justify-between">

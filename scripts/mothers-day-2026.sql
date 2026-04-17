@@ -1,7 +1,31 @@
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Mother's Day 2026 campaign
 -- Run in: Supabase → SQL Editor
+-- Self-contained: creates the promotions table if it doesn't already exist.
 -- ─────────────────────────────────────────────────────────────────────────────
+
+-- 0. Ensure the promotions table exists (from create-promotions-table.sql)
+create table if not exists promotions (
+  id              serial primary key,
+  title           text not null,
+  description     text,
+  services        text,
+  original_price  numeric(10,2),
+  promo_price     numeric(10,2),
+  badge           text,
+  image_url       text,
+  active          boolean not null default true,
+  starts_at       timestamptz,
+  ends_at         timestamptz,
+  sort_order      int not null default 0,
+  created_at      timestamptz not null default now()
+);
+
+alter table promotions enable row level security;
+drop policy if exists "public read promotions" on promotions;
+create policy "public read promotions" on promotions for select using (true);
+drop policy if exists "service role full access promotions" on promotions;
+create policy "service role full access promotions" on promotions for all using (auth.role() = 'service_role');
 
 -- 1. Add product_slug column so promotions can link to a purchasable service
 alter table promotions add column if not exists product_slug text;
@@ -54,7 +78,11 @@ on conflict (slug) do update set
   image_url   = excluded.image_url;
 
 
--- 3. Insert the 4 promotions that appear on /promotions and drive the popup
+-- 3. Clear any prior Mother's Day promotions so re-running this script is
+--    idempotent (only targets rows this script created — leaves other promos alone).
+delete from promotions where product_slug like 'mothers-day-%';
+
+-- 4. Insert the 4 promotions that appear on /promotions and drive the popup
 insert into promotions (title, description, services, original_price, promo_price, badge, image_url, product_slug, active, starts_at, ends_at, sort_order) values
   ('Botox for Mom',
    'Celebrate her with a refreshed, radiant look. Licensed injector, premium product, Mother''s Day pricing.',

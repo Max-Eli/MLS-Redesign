@@ -115,9 +115,10 @@ export function ServiceCard({ service, href }: { service: MLSService; href?: str
                   )}
                 </div>
                 {monthly && (
-                  <p className="text-2xs text-dark-50/40 mt-0.5">
-                    or ${monthly}/mo with Affirm
-                  </p>
+                  <div className="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-mauve-50 border border-mauve-100">
+                    <span className="text-2xs font-semibold text-mauve-700">${monthly}/mo</span>
+                    <span className="text-2xs text-mauve-600/70">· Affirm</span>
+                  </div>
                 )}
               </>
             ) : (

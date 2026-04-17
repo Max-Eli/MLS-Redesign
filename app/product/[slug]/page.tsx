@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, ShieldCheck, CreditCard, Clock, Phone } from 'lucide-react'
+import { ArrowLeft, ShieldCheck, CreditCard, Clock, Phone, Zap } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 import { Badge } from '@/components/ui/Badge'
 import { AddToCartButton } from '@/components/shop/AddToCartButton'
@@ -156,9 +156,20 @@ export default async function ProductPage({ params }: Props) {
                     )}
                   </div>
                   {monthly && (
-                    <p className="mt-1.5 text-sm text-dark-50/40">
-                      or <span className="text-dark-50/60 font-medium">${monthly}/mo</span> with Affirm or Klarna
-                    </p>
+                    <div className="mt-4 inline-flex items-center gap-2.5 pl-3 pr-4 py-2.5 rounded-xl bg-mauve-50 border border-mauve-100">
+                      <span className="flex items-center justify-center size-7 rounded-lg bg-white/70">
+                        <Zap size={14} className="text-mauve-600" fill="currentColor" />
+                      </span>
+                      <div className="text-left leading-tight">
+                        <p className="text-sm text-dark-50">
+                          <span className="font-semibold">From ${monthly}/mo</span>
+                          <span className="text-dark-50/50"> · 0% interest</span>
+                        </p>
+                        <p className="text-2xs text-dark-50/50 mt-0.5">
+                          Pay over time with <span className="font-medium text-mauve-700">Affirm</span> or <span className="font-medium text-mauve-700">Klarna</span>
+                        </p>
+                      </div>
+                    </div>
                   )}
                 </div>
               )}
