@@ -25,7 +25,7 @@ async function verifyPrices(items: CartItem[]): Promise<{ valid: boolean; amount
 
   for (const item of items) {
     if (!item.slug) return { valid: false, amount: 0, error: 'Missing item slug' }
-    if (item.quantity < 1 || item.quantity > 20) return { valid: false, amount: 0, error: 'Invalid quantity' }
+    if (item.quantity < 1 || item.quantity > 100) return { valid: false, amount: 0, error: 'Invalid quantity' }
 
     try {
       const service = await fetchServiceBySlug(item.slug)
