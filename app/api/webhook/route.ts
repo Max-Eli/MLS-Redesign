@@ -1,9 +1,26 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import { constructWebhookEvent } from '@/lib/stripe'
+import { constructWebhookEvent, stripe } from '@/lib/stripe'
 import type Stripe from 'stripe'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+
+// Pull billing_details from the latest charge — Stripe PaymentElement collects
+// email + name when the customer pays, and the checkout page doesn't ask up-front.
+async function getBillingDetails(intent: Stripe.PaymentIntent): Promise<{ email?: string; name?: string }> {
+  const chargeId = typeof intent.latest_charge === 'string' ? intent.latest_charge : intent.latest_charge?.id
+  if (!chargeId) return {}
+  try {
+    const charge = await stripe.charges.retrieve(chargeId)
+    return {
+      email: charge.billing_details.email ?? undefined,
+      name:  charge.billing_details.name  ?? undefined,
+    }
+  } catch (err) {
+    console.error('Failed to fetch charge billing details:', err)
+    return {}
+  }
+}
 
 export async function POST(req: Request) {
   const payload   = Buffer.from(await req.arrayBuffer())
@@ -24,13 +41,18 @@ export async function POST(req: Request) {
 
   if (event.type === 'payment_intent.succeeded') {
     const intent = event.data.object as Stripe.PaymentIntent
-    const { items, customer_email, customer_name, promo_code, discount } = intent.metadata as {
+    const { items, customer_email: metaEmail, customer_name: metaName, promo_code, discount } = intent.metadata as {
       items?:          string
       customer_email?: string
       customer_name?:  string
       promo_code?:     string
       discount?:       string
     }
+
+    // Prefer Stripe billing_details over metadata (metadata is rarely set for this checkout flow)
+    const billing        = await getBillingDetails(intent)
+    const customer_email = metaEmail ?? billing.email
+    const customer_name  = metaName  ?? billing.name
 
     const amountFormatted = new Intl.NumberFormat('en-US', {
       style: 'currency', currency: 'USD', minimumFractionDigits: 0,

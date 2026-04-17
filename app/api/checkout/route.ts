@@ -19,30 +19,38 @@ function isRateLimited(ip: string): boolean {
   return false
 }
 
+type VerifiedLine = { name: string; price: string; qty: number }
+
 // Verify prices server-side against Supabase — never trust client-sent prices
-async function verifyPrices(items: CartItem[]): Promise<{ valid: boolean; amount: number; error?: string }> {
+async function verifyPrices(items: CartItem[]): Promise<{ valid: boolean; amount: number; lines: VerifiedLine[]; error?: string }> {
   let verifiedTotal = 0
+  const lines: VerifiedLine[] = []
 
   for (const item of items) {
-    if (!item.slug) return { valid: false, amount: 0, error: 'Missing item slug' }
-    if (item.quantity < 1 || item.quantity > 100) return { valid: false, amount: 0, error: 'Invalid quantity' }
+    if (!item.slug) return { valid: false, amount: 0, lines: [], error: 'Missing item slug' }
+    if (item.quantity < 1 || item.quantity > 100) return { valid: false, amount: 0, lines: [], error: 'Invalid quantity' }
 
     try {
       const service = await fetchServiceBySlug(item.slug)
-      if (!service) return { valid: false, amount: 0, error: `Item not found: ${item.name}` }
+      if (!service) return { valid: false, amount: 0, lines: [], error: `Item not found: ${item.name}` }
 
       const price = parseFloat(service.sale_price || service.price || '0')
       if (!price || isNaN(price) || price <= 0) {
-        return { valid: false, amount: 0, error: `No valid price for: ${item.name}` }
+        return { valid: false, amount: 0, lines: [], error: `No valid price for: ${item.name}` }
       }
 
       verifiedTotal += price * item.quantity
+      lines.push({
+        name:  service.title,
+        price: `$${(price * item.quantity).toFixed(2)}`,
+        qty:   item.quantity,
+      })
     } catch {
-      return { valid: false, amount: 0, error: `Verification failed for: ${item.name}` }
+      return { valid: false, amount: 0, lines: [], error: `Verification failed for: ${item.name}` }
     }
   }
 
-  return { valid: true, amount: Math.round(verifiedTotal * 100) }
+  return { valid: true, amount: Math.round(verifiedTotal * 100), lines }
 }
 
 export async function POST(req: Request) {
@@ -61,7 +69,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Too many items' }, { status: 400 })
     }
 
-    const { valid, amount: verifiedAmount, error } = await verifyPrices(items)
+    const { valid, amount: verifiedAmount, lines, error } = await verifyPrices(items)
     if (!valid) {
       return NextResponse.json({ error: error ?? 'Price verification failed' }, { status: 400 })
     }
@@ -83,15 +91,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Order total too low' }, { status: 400 })
     }
 
-    const itemsSummary = items
-      .map(i => `${i.name} x${i.quantity}`)
-      .join(', ')
-      .slice(0, 500)
+    // Stripe metadata values cap at 500 chars — truncate if the JSON overflows
+    let itemsJson = JSON.stringify(lines)
+    if (itemsJson.length > 500) itemsJson = itemsJson.slice(0, 497) + '...'
 
     const paymentIntent = await createPaymentIntent({
       amount,
       metadata: {
-        items: itemsSummary,
+        items: itemsJson,
         ...(email ? { customer_email: email } : {}),
         ...(appliedPromo ? { promo_code: appliedPromo, discount: `$${(discountCents / 100).toFixed(2)}` } : {}),
       },
