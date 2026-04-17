@@ -4,8 +4,11 @@ import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const STORAGE_KEY = 'mls_popup_shown'
-const PROMO_CODE = 'MLS100OFF'
+const STORAGE_KEY       = 'mls_popup_shown'
+const PROMO_CODE        = 'MLS100OFF'
+// While the Mother's Day campaign is running, defer to MothersDayPopup
+const MD_CAMPAIGN_START = '2026-04-17'
+const MD_CAMPAIGN_END   = '2026-05-12'
 
 export function PromoPopup() {
   const [open, setOpen] = useState(false)
@@ -17,6 +20,8 @@ export function PromoPopup() {
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
+    const now = Date.now()
+    if (now >= new Date(MD_CAMPAIGN_START).getTime() && now <= new Date(MD_CAMPAIGN_END).getTime()) return
     try {
       if (localStorage.getItem(STORAGE_KEY)) return
     } catch {}

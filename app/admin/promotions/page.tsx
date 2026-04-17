@@ -7,7 +7,7 @@ import type { Promotion } from '@/lib/promotions'
 const EMPTY = {
   title: '', description: '', services: '',
   original_price: '', promo_price: '', badge: '',
-  image_url: '', starts_at: '', ends_at: '', sort_order: '0',
+  image_url: '', product_slug: '', starts_at: '', ends_at: '', sort_order: '0',
 }
 
 function fmt(n: number | null) {
@@ -56,6 +56,7 @@ export default function AdminPromotionsPage() {
       promo_price:    p.promo_price    != null ? String(p.promo_price)    : '',
       badge:          p.badge          ?? '',
       image_url:      p.image_url      ?? '',
+      product_slug:   p.product_slug   ?? '',
       starts_at:      p.starts_at      ? p.starts_at.slice(0, 10) : '',
       ends_at:        p.ends_at        ? p.ends_at.slice(0, 10)   : '',
       sort_order:     String(p.sort_order),
@@ -78,6 +79,7 @@ export default function AdminPromotionsPage() {
       promo_price:    form.promo_price            ? Number(form.promo_price)    : null,
       badge:          form.badge.trim()           || null,
       image_url:      form.image_url.trim()       || null,
+      product_slug:   form.product_slug.trim()    || null,
       starts_at:      form.starts_at              || null,
       ends_at:        form.ends_at                || null,
       sort_order:     Number(form.sort_order)     || 0,
@@ -168,6 +170,7 @@ export default function AdminPromotionsPage() {
               {field('original_price', 'Original Price ($)', { type: 'number', placeholder: '750' })}
               {field('promo_price',    'Promo Price ($)',    { type: 'number', placeholder: '499' })}
               {field('image_url',      'Image URL',          { span: true, placeholder: '/facialtreaments.png or https://…' })}
+              {field('product_slug',   'Link to Service (optional)', { span: true, placeholder: 'mothers-day-botox-per-unit — makes the card "Shop Now"' })}
               {field('starts_at',      'Start Date',         { type: 'date' })}
               {field('ends_at',        'End Date',           { type: 'date' })}
               {field('sort_order',     'Sort Order',         { type: 'number', placeholder: '0' })}

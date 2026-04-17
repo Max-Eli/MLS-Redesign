@@ -15,7 +15,7 @@ export async function GET() {
 export async function POST(req: Request) {
   if (!supabase) return NextResponse.json({ error: 'No DB' }, { status: 500 })
   const body = await req.json()
-  const { title, description, services, original_price, promo_price, badge, image_url, starts_at, ends_at, sort_order } = body
+  const { title, description, services, original_price, promo_price, badge, image_url, product_slug, starts_at, ends_at, sort_order } = body
 
   if (!title) return NextResponse.json({ error: 'Title is required' }, { status: 400 })
 
@@ -29,6 +29,7 @@ export async function POST(req: Request) {
       promo_price:    promo_price    ? Number(promo_price)    : null,
       badge:          badge          || null,
       image_url:      image_url      || null,
+      product_slug:   product_slug   || null,
       starts_at:      starts_at      || null,
       ends_at:        ends_at        || null,
       sort_order:     sort_order     ? Number(sort_order) : 0,

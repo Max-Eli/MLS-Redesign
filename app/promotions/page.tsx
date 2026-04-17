@@ -105,10 +105,10 @@ function PromotionCard({ promo }: { promo: Promotion }) {
           </div>
 
           <Link
-            href="/contact"
+            href={promo.product_slug ? `/product/${promo.product_slug}` : '/contact'}
             className="flex items-center gap-1.5 text-xs font-medium tracking-widest uppercase text-mauve hover:text-mauve-600 transition-colors"
           >
-            Book Now
+            {promo.product_slug ? 'Shop Now' : 'Book Now'}
             <ArrowRight size={12} />
           </Link>
         </div>

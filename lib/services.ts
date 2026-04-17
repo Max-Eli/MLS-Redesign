@@ -155,11 +155,12 @@ export function formatServicePrice(price: string | undefined | null): string {
   if (!price) return ''
   const num = parseFloat(price)
   if (isNaN(num) || num <= 0) return ''
+  const hasCents = Math.round(num * 100) % 100 !== 0
   return new Intl.NumberFormat('en-US', {
     style:                 'currency',
     currency:              'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: hasCents ? 2 : 0,
+    maximumFractionDigits: hasCents ? 2 : 0,
   }).format(num)
 }
 
