@@ -41,17 +41,25 @@ export async function getPosts(params?: {
     ...(params?.search ? { search: params.search } : {}),
   })
 
-  const res = await fetch(`${WP_API}/posts?${qs}`, {
-    next: { revalidate: 3600 },
-  })
+  try {
+    const res = await fetch(`${WP_API}/posts?${qs}`, {
+      next: { revalidate: 3600 },
+    })
 
-  if (!res.ok) throw new Error(`WP posts error: ${res.status}`)
+    if (!res.ok) {
+      console.error(`WP posts error ${res.status} — returning empty list to avoid build failure`)
+      return { posts: [], total: 0, totalPages: 0 }
+    }
 
-  const posts = (await res.json()) as WPPost[]
-  const total = parseInt(res.headers.get('x-wp-total') ?? '0')
-  const totalPages = parseInt(res.headers.get('x-wp-totalpages') ?? '1')
+    const posts = (await res.json()) as WPPost[]
+    const total = parseInt(res.headers.get('x-wp-total') ?? '0')
+    const totalPages = parseInt(res.headers.get('x-wp-totalpages') ?? '1')
 
-  return { posts, total, totalPages }
+    return { posts, total, totalPages }
+  } catch (err) {
+    console.error('WP posts fetch failed:', err)
+    return { posts: [], total: 0, totalPages: 0 }
+  }
 }
 
 export async function getPostBySlug(slug: string): Promise<WPPost | null> {
