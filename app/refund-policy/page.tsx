@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function RefundPolicyPage() {
   return (
-    <LegalPage eyebrow="Legal" title="Refund Policy" lastUpdated="April 7, 2026">
+    <LegalPage eyebrow="Legal" title="Refund Policy" lastUpdated="April 17, 2026">
       <p>
         At Manhattan Laser Spa, we are committed to delivering exceptional results and service. Please read this Refund Policy carefully before purchasing any service or package. By completing a purchase, you acknowledge and agree to the terms below.
       </p>
@@ -31,12 +31,40 @@ export default function RefundPolicyPage() {
         Packages do not expire, however sessions must be used within <strong>24 months</strong> of the purchase date. Sessions unused after 24 months are forfeited without refund.
       </p>
 
-      <h2>3. Gift Cards</h2>
+      <h2>3. VIP Membership</h2>
+      <p>
+        The VIP Membership includes twelve (12) prepaid service credits valid for twelve (12) months from the date of purchase. Because the membership price reflects a significant value discount relative to purchasing treatments individually, the following terms apply:
+      </p>
+      <ul>
+        <li>
+          <strong>Full refund window:</strong> You may request a full refund within <strong>seven (7) calendar days</strong> of purchase, provided that <strong>no credits have been redeemed</strong> and no services under the membership have been rendered.
+        </li>
+        <li>
+          <strong>Once services begin:</strong> After any credit has been redeemed or any service has been performed under the membership, the membership becomes <strong>non-refundable</strong> in full or in part.
+        </li>
+        <li>
+          <strong>Unused credits:</strong> Credits remaining after the twelve-month validity period are forfeited and carry no cash value. Extensions are not guaranteed but may be granted at our sole discretion in cases of documented medical leave or extended travel.
+        </li>
+        <li>
+          <strong>Non-cash redemption:</strong> Credits may not be exchanged for cash, combined with other promotional discounts, or applied toward retail products, gift cards, or multi-session packages.
+        </li>
+        <li>
+          <strong>Sharing credits:</strong> Credits may be applied to treatments for members of your immediate household at your request. The original member remains the account holder for all records and refund purposes.
+        </li>
+        <li>
+          <strong>Installment purchases:</strong> If the membership was purchased through Affirm, Klarna, or another financing provider, refund eligibility follows the same terms above. Any approved refund will be processed back to the original financing provider; you remain responsible for any accrued financing fees per your agreement with that provider.
+        </li>
+      </ul>
+      <p>
+        To request a refund during the seven-day window, follow the process outlined in Section 6 below and include your purchase confirmation email.
+      </p>
+
+      <h2>4. Gift Cards</h2>
       <p>
         Gift cards are non-refundable and non-redeemable for cash. Lost or stolen gift cards cannot be replaced. Gift cards are valid for 5 years from the date of purchase in accordance with Florida law.
       </p>
 
-      <h2>4. Special Qualifying Circumstances</h2>
+      <h2>5. Special Qualifying Circumstances</h2>
       <p>
         We understand that exceptional circumstances arise. Refund requests <strong>may</strong> be considered — at our sole discretion — under the following limited conditions:
       </p>
@@ -55,7 +83,7 @@ export default function RefundPolicyPage() {
         All qualifying requests require supporting documentation (e.g., a letter from your physician on official letterhead, or evidence of a billing error). Submitting a request does not guarantee approval.
       </p>
 
-      <h2>5. How to Request a Review</h2>
+      <h2>6. How to Request a Review</h2>
       <p>
         Refund requests are accepted <strong>by email only</strong>. We do not accept refund requests by phone, in person, or through third-party chargeback processes before contacting us first.
       </p>
@@ -70,17 +98,17 @@ export default function RefundPolicyPage() {
         We aim to respond to all refund inquiries within <strong>5 business days</strong>. If your request is approved, refunds are issued to the original payment method within 7–10 business days.
       </p>
 
-      <h2>6. Chargebacks</h2>
+      <h2>7. Chargebacks</h2>
       <p>
         If you initiate a chargeback with your bank or credit card issuer without first contacting us and allowing us the opportunity to resolve the matter, we reserve the right to dispute the chargeback and provide evidence of service delivery. Clients who initiate unjustified chargebacks may be suspended from booking future appointments.
       </p>
 
-      <h2>7. Online Purchases</h2>
+      <h2>8. Online Purchases</h2>
       <p>
         Services purchased through our website are subject to this same policy. Completing payment online constitutes your acceptance of these terms.
       </p>
 
-      <h2>8. Questions</h2>
+      <h2>9. Questions</h2>
       <p>
         If you have questions about this policy before making a purchase, please contact us:
       </p>
