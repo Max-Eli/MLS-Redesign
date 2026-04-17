@@ -60,6 +60,12 @@ const nextConfig = {
         protocol: 'https',
         hostname: '*.behold.pictures',
       },
+      // Skincare brand CDNs
+      {
+        protocol: 'https',
+        hostname: 'us.alumiermd.com',
+        pathname: '/cdn/shop/**',
+      },
     ],
   },
   async headers() {

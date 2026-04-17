@@ -19,6 +19,7 @@ const footerServices = [
 const footerLinks = [
   { label: 'About Us', href: '/about' },
   { label: 'Shop Treatments', href: '/shop' },
+  { label: 'Medical Skincare', href: '/skincare' },
   { label: 'Blog', href: '/blog' },
   { label: 'Contact', href: '/contact' },
   { label: 'Financing', href: '/financing' },
