@@ -22,6 +22,7 @@ export interface CartContextValue extends CartState {
   clearCart: () => void
   openCart: () => void
   closeCart: () => void
+  loadCart: (items: CartItem[]) => void
   total: number
   itemCount: number
 }

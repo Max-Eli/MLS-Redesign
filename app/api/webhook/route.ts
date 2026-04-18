@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { constructWebhookEvent, stripe } from '@/lib/stripe'
+import { markAbandonedCartConverted } from '@/lib/abandoned-carts'
 import type Stripe from 'stripe'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -64,6 +65,13 @@ export async function POST(req: Request) {
     const customer_email = metaEmail ?? billing.email
     const customer_name  = metaName  ?? billing.name
     const customer_phone = metaPhone ?? billing.phone
+
+    // Clear any abandoned-cart reminder queued for this customer
+    if (customer_email) {
+      await markAbandonedCartConverted(customer_email).catch(err =>
+        console.error('Failed to mark abandoned cart converted:', err)
+      )
+    }
 
     const amountFormatted = new Intl.NumberFormat('en-US', {
       style: 'currency', currency: 'USD', minimumFractionDigits: 0,

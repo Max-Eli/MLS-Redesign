@@ -99,13 +99,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clearCart = useCallback(() => dispatch({ type: 'CLEAR_CART' }), [])
   const openCart = useCallback(() => dispatch({ type: 'OPEN_CART' }), [])
   const closeCart = useCallback(() => dispatch({ type: 'CLOSE_CART' }), [])
+  const loadCart = useCallback((items: CartItem[]) => dispatch({ type: 'LOAD', items }), [])
 
   const total = state.items.reduce((sum, i) => sum + i.price * i.quantity, 0)
   const itemCount = state.items.reduce((sum, i) => sum + i.quantity, 0)
 
   return (
     <CartContext.Provider
-      value={{ ...state, addItem, removeItem, updateQuantity, clearCart, openCart, closeCart, total, itemCount }}
+      value={{ ...state, addItem, removeItem, updateQuantity, clearCart, openCart, closeCart, loadCart, total, itemCount }}
     >
       {children}
     </CartContext.Provider>

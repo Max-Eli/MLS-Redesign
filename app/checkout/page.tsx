@@ -231,6 +231,22 @@ function CheckoutPageInner() {
   const { items, total, itemCount } = useCart()
   const [step, setStep] = useState<'contact' | 'payment'>('contact')
   const [contact, setContact] = useState<Contact>({ firstName: '', lastName: '', email: '', phone: '' })
+
+  // Rehydrate contact from abandoned-cart recovery link
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('mls-cart-prefill')
+      if (!raw) return
+      const saved = JSON.parse(raw) as Partial<Contact>
+      setContact(c => ({
+        firstName: saved.firstName || c.firstName,
+        lastName:  saved.lastName  || c.lastName,
+        email:     saved.email     || c.email,
+        phone:     saved.phone     || c.phone,
+      }))
+      sessionStorage.removeItem('mls-cart-prefill')
+    } catch {}
+  }, [])
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [promoInput, setPromoInput] = useState('')
@@ -427,7 +443,23 @@ function CheckoutPageInner() {
             <ContactStep
               contact={contact}
               setContact={setContact}
-              onContinue={() => setStep('payment')}
+              onContinue={() => {
+                // Fire-and-forget save so we can recover the cart if they bail on payment
+                fetch('/api/abandoned-cart', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    email:     contact.email,
+                    firstName: contact.firstName,
+                    lastName:  contact.lastName,
+                    phone:     contact.phone,
+                    items,
+                    subtotal:  total,
+                    promoCode: promoApplied?.code ?? null,
+                  }),
+                }).catch(() => {})
+                setStep('payment')
+              }}
             />
           </>
         ) : (
