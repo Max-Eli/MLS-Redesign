@@ -23,3 +23,7 @@ yarn-error.log*
 
 # Vercel
 .vercel
+
+# WordPress migration artifacts (raw data — not source)
+scripts/wp_posts.sql
+scripts/wp-posts.json

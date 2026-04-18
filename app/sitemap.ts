@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { getAllServiceSlugs } from '@/lib/services'
-import { getAllPostSlugs } from '@/lib/wordpress'
+import { fetchAllBlogPostSlugs } from '@/lib/blog'
 import { servicesData } from '@/lib/servicesData'
 
 const BASE = 'https://manhattanlaserspa.com'
@@ -8,7 +8,7 @@ const BASE = 'https://manhattanlaserspa.com'
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [serviceSlugs, postSlugs] = await Promise.all([
     getAllServiceSlugs().catch(() => [] as string[]),
-    getAllPostSlugs().catch(() => [] as string[]),
+    fetchAllBlogPostSlugs().catch(() => [] as string[]),
   ])
 
   const staticPages: MetadataRoute.Sitemap = [

@@ -7,69 +7,63 @@ import { Container } from '@/components/ui/Container'
 import { Badge } from '@/components/ui/Badge'
 import { CTABanner } from '@/components/home/CTABanner'
 import {
-  getPostBySlug,
-  getAllPostSlugs,
-  getPosts,
-  getPostFeaturedImage,
-  getPostCategories,
-  formatDate,
+  fetchBlogPostBySlug,
+  fetchBlogPosts,
+  fetchAllBlogPostSlugs,
+  formatBlogDate,
   stripHtml,
-} from '@/lib/wordpress'
-import { readingTime } from '@/lib/utils'
+} from '@/lib/blog'
+
+export const revalidate = 600
 
 interface Props {
   params: { slug: string }
 }
 
 export async function generateStaticParams() {
-  const slugs = await getAllPostSlugs()
+  const slugs = await fetchAllBlogPostSlugs()
   return slugs.map((slug) => ({ slug }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug)
+  const post = await fetchBlogPostBySlug(params.slug)
   if (!post) return { title: 'Post Not Found' }
 
-  const yoast = post.yoast_head_json
-  const image = getPostFeaturedImage(post)
+  const description = post.excerpt ?? stripHtml(post.content).slice(0, 180)
 
   return {
-    title: yoast?.title ?? post.title.rendered,
-    description: yoast?.description ?? stripHtml(post.excerpt.rendered),
+    title: `${post.title} | Manhattan Laser Spa`,
+    description,
     alternates: { canonical: `https://manhattanlaserspa.com/blog/${post.slug}` },
     openGraph: {
-      title: yoast?.og_title ?? post.title.rendered,
-      description: yoast?.og_description ?? stripHtml(post.excerpt.rendered),
+      title: post.title,
+      description,
       type: 'article',
-      publishedTime: post.date,
-      modifiedTime: post.modified,
-      ...(image ? { images: [{ url: image.src, alt: image.alt }] } : {}),
+      publishedTime: post.published_at,
+      modifiedTime: post.modified_at ?? undefined,
+      ...(post.featured_image ? { images: [{ url: post.featured_image, alt: post.title }] } : {}),
     },
   }
 }
 
 export default async function BlogPostPage({ params }: Props) {
   const [post, { posts: recentPosts }] = await Promise.all([
-    getPostBySlug(params.slug),
-    getPosts({ perPage: 3 }),
+    fetchBlogPostBySlug(params.slug),
+    fetchBlogPosts({ perPage: 4 }),
   ])
 
   if (!post) notFound()
 
-  const image = getPostFeaturedImage(post)
-  const categories = getPostCategories(post)
-
   return (
     <>
-      {/* Article */}
       <article className="min-h-screen bg-cream">
         {/* Hero */}
         <div className="relative bg-dark pt-32 pb-0 overflow-hidden">
-          {image && (
+          {post.featured_image && (
             <div className="absolute inset-0">
               <Image
-                src={image.src}
-                alt={image.alt}
+                src={post.featured_image}
+                alt={post.title}
                 fill
                 className="object-cover opacity-25"
                 priority
@@ -78,7 +72,6 @@ export default async function BlogPostPage({ params }: Props) {
             </div>
           )}
           <Container size="md" className="relative z-10 pb-16">
-            {/* Back */}
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 text-2xs font-medium tracking-widest uppercase text-white/40 hover:text-mauve transition-colors mb-8"
@@ -87,33 +80,25 @@ export default async function BlogPostPage({ params }: Props) {
               All Articles
             </Link>
 
-            {/* Categories */}
-            {categories.length > 0 && (
+            {post.category && (
               <div className="flex flex-wrap gap-2 mb-6">
-                {categories.map((cat) => (
-                  <Badge key={cat.id} variant="mauve">
-                    {cat.name}
-                  </Badge>
-                ))}
+                <Badge variant="mauve">{post.category}</Badge>
               </div>
             )}
 
-            {/* Title */}
-            <h1
-              className="font-display text-4xl md:text-5xl lg:text-6xl font-light text-white leading-tight mb-6"
-              dangerouslySetInnerHTML={{ __html: post.title.rendered }}
-            />
+            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-light text-white leading-tight mb-6">
+              {post.title}
+            </h1>
 
-            {/* Meta */}
             <div className="flex flex-wrap items-center gap-4 text-sm text-white/40">
               <span className="flex items-center gap-1.5">
                 <Calendar size={13} />
-                {formatDate(post.date)}
+                {formatBlogDate(post.published_at)}
               </span>
               <span>·</span>
               <span className="flex items-center gap-1.5">
                 <Clock size={13} />
-                {readingTime(stripHtml(post.content.rendered))} min read
+                {post.reading_minutes ?? 3} min read
               </span>
             </div>
           </Container>
@@ -123,10 +108,9 @@ export default async function BlogPostPage({ params }: Props) {
         <Container size="md" className="py-16">
           <div
             className="wp-content"
-            dangerouslySetInnerHTML={{ __html: post.content.rendered }}
+            dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
-          {/* Article footer */}
           <div className="mt-16 pt-8 border-t border-cream-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <p className="text-xs font-medium tracking-widest uppercase text-dark-50/40 mb-1">
@@ -156,36 +140,33 @@ export default async function BlogPostPage({ params }: Props) {
               {recentPosts
                 .filter((p) => p.slug !== params.slug)
                 .slice(0, 3)
-                .map((p) => {
-                  const img = getPostFeaturedImage(p)
-                  return (
-                    <Link
-                      key={p.id}
-                      href={`/blog/${p.slug}`}
-                      className="group block bg-cream rounded-2xl overflow-hidden hover:shadow-luxury transition-all duration-300"
-                    >
-                      <div className="relative h-44 bg-cream-200 overflow-hidden">
-                        {img ? (
-                          <Image
-                            src={img.src}
-                            alt={img.alt}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            sizes="33vw"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 bg-gradient-to-br from-mauve-50 to-cream-200" />
-                        )}
-                      </div>
-                      <div className="p-5">
-                        <p className="text-2xs text-dark-50/40 mb-2">{formatDate(p.date)}</p>
-                        <h3 className="font-display text-lg font-light text-dark-50 line-clamp-2 group-hover:text-mauve transition-colors">
-                          {p.title.rendered}
-                        </h3>
-                      </div>
-                    </Link>
-                  )
-                })}
+                .map((p) => (
+                  <Link
+                    key={p.id}
+                    href={`/blog/${p.slug}`}
+                    className="group block bg-cream rounded-2xl overflow-hidden hover:shadow-luxury transition-all duration-300"
+                  >
+                    <div className="relative h-44 bg-cream-200 overflow-hidden">
+                      {p.featured_image ? (
+                        <Image
+                          src={p.featured_image}
+                          alt={p.title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          sizes="33vw"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-mauve-50 to-cream-200" />
+                      )}
+                    </div>
+                    <div className="p-5">
+                      <p className="text-2xs text-dark-50/40 mb-2">{formatBlogDate(p.published_at)}</p>
+                      <h3 className="font-display text-lg font-light text-dark-50 line-clamp-2 group-hover:text-mauve transition-colors">
+                        {p.title}
+                      </h3>
+                    </div>
+                  </Link>
+                ))}
             </div>
           </Container>
         </section>
