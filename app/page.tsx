@@ -3,6 +3,7 @@ import { Hero } from '@/components/home/Hero'
 import { StatsBar } from '@/components/home/StatsBar'
 import { ServicesSection } from '@/components/home/ServicesSection'
 import { FeaturedTreatments } from '@/components/home/FeaturedTreatments'
+import { SkincarePreview } from '@/components/home/SkincarePreview'
 import { Testimonials } from '@/components/home/Testimonials'
 import { BlogPreview } from '@/components/home/BlogPreview'
 import { CTABanner } from '@/components/home/CTABanner'
@@ -22,6 +23,7 @@ export default function HomePage() {
       <StatsBar />
       <ServicesSection />
       <FeaturedTreatments />
+      <SkincarePreview />
       <Testimonials />
       <BlogPreview />
       <InstagramFeed />
