@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { ShoppingBag, Check } from 'lucide-react'
 import { useCart } from '@/hooks/useCart'
 import { Button } from '@/components/ui/Button'
+import { BOOK_NOW_URL } from '@/lib/utils'
 import { getServiceImage, getServiceCategories_fromPost, safeMeta } from '@/lib/services'
 import type { MLSService } from '@/types/services'
 
@@ -24,7 +25,7 @@ export function AddToCartButton({ service, compact = false }: Props) {
   if (!price || isNaN(price)) {
     return (
       <Button variant="outline" size={compact ? 'sm' : 'lg'} asChild className={compact ? '' : 'w-full'}>
-        <a href="/contact">Book Now</a>
+        <a href={BOOK_NOW_URL} target="_blank" rel="noopener noreferrer">Book Now</a>
       </Button>
     )
   }

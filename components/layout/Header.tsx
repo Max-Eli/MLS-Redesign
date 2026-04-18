@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ShoppingBag, Phone, Menu, X, ChevronDown } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, BOOK_NOW_URL } from '@/lib/utils'
 import { Container } from '@/components/ui/Container'
 import { Button } from '@/components/ui/Button'
 import { useCart } from '@/hooks/useCart'
@@ -365,7 +365,7 @@ export function Header() {
               asChild
               className="hidden md:inline-flex"
             >
-              <Link href="/contact">Book Now</Link>
+              <a href={BOOK_NOW_URL} target="_blank" rel="noopener noreferrer">Book Now</a>
             </Button>
 
             {/* Mobile menu toggle */}

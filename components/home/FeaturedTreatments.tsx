@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 import { Button } from '@/components/ui/Button'
+import { BOOK_NOW_URL } from '@/lib/utils'
 
 const featured = [
   {
@@ -113,7 +114,7 @@ export function FeaturedTreatments() {
                 </p>
                 <div className="flex gap-3">
                   <Button variant="primary" size="sm" asChild>
-                    <Link href={item.shopHref}>Book Now</Link>
+                    <a href={BOOK_NOW_URL} target="_blank" rel="noopener noreferrer">Book Now</a>
                   </Button>
                   <Button
                     variant="ghost"

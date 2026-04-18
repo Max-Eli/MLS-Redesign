@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { Clock, ArrowRight } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 import { CTABanner } from '@/components/home/CTABanner'
+import { BOOK_NOW_URL } from '@/lib/utils'
 import { fetchActivePromotions } from '@/lib/promotions'
 import type { Promotion } from '@/lib/promotions'
 
@@ -104,13 +105,25 @@ function PromotionCard({ promo }: { promo: Promotion }) {
             )}
           </div>
 
-          <Link
-            href={promo.product_slug ? `/product/${promo.product_slug}` : '/contact'}
-            className="flex items-center gap-1.5 text-xs font-medium tracking-widest uppercase text-mauve hover:text-mauve-600 transition-colors"
-          >
-            {promo.product_slug ? 'Shop Now' : 'Book Now'}
-            <ArrowRight size={12} />
-          </Link>
+          {promo.product_slug ? (
+            <Link
+              href={`/product/${promo.product_slug}`}
+              className="flex items-center gap-1.5 text-xs font-medium tracking-widest uppercase text-mauve hover:text-mauve-600 transition-colors"
+            >
+              Shop Now
+              <ArrowRight size={12} />
+            </Link>
+          ) : (
+            <a
+              href={BOOK_NOW_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs font-medium tracking-widest uppercase text-mauve hover:text-mauve-600 transition-colors"
+            >
+              Book Now
+              <ArrowRight size={12} />
+            </a>
+          )}
         </div>
       </div>
     </div>

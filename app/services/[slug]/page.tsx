@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { CheckCircle2, ChevronRight } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 import { Button } from '@/components/ui/Button'
+import { BOOK_NOW_URL } from '@/lib/utils'
 import { getServiceData, getAllServicePageSlugs } from '@/lib/servicesData'
 
 interface Props {
@@ -180,7 +181,7 @@ export default function ServicePage({ params }: Props) {
               </p>
               <div className="space-y-3">
                 <Button variant="gold" size="lg" className="w-full" asChild>
-                  <Link href={shopHref}>Book Now</Link>
+                  <a href={BOOK_NOW_URL} target="_blank" rel="noopener noreferrer">Book Now</a>
                 </Button>
                 <Link
                   href="/contact"
