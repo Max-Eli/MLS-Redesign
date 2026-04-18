@@ -27,3 +27,6 @@ yarn-error.log*
 # WordPress migration artifacts (raw data — not source)
 scripts/wp_posts.sql
 scripts/wp-posts.json
+scripts/uploads/
+scripts/wp-uploads.zip
+scripts/uploads.zip
