@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 async function adminToken(): Promise<string> {
-  const pass   = process.env.ADMIN_PASSWORD ?? ''
-  const secret = process.env.ADMIN_SECRET   ?? 'mls-admin-secret'
+  const pass   = process.env.ADMIN_PASSWORD || ''
+  const secret = process.env.ADMIN_SECRET   || 'mls-admin-secret'
 
   const key = await crypto.subtle.importKey(
     'raw',

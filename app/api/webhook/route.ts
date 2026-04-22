@@ -143,7 +143,7 @@ export async function POST(req: Request) {
     // Notify the spa
     await resend.emails.send({
       from: 'Manhattan Laser Spa <noreply@send.manhattanlaserspa.com>',
-      to:   'florida@manhattanlaserspa.com',
+      to:   'charmbrooklyn@gmail.com',
       subject: `New Order — ${amountFormatted} from ${customer_name ?? customer_email ?? 'Guest'}`,
       html: `
         <div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;background:#faf9f7;padding:40px 32px;border-radius:12px;">

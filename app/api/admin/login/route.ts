@@ -52,7 +52,7 @@ export async function POST(req: Request) {
   }
 
   const { password } = await req.json()
-  const adminPass    = process.env.ADMIN_PASSWORD ?? ''
+  const adminPass    = process.env.ADMIN_PASSWORD || ''
 
   if (!adminPass || password !== adminPass) {
     return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
   // Clear attempts on successful login
   loginAttempts.delete(ip)
 
-  const secret = process.env.ADMIN_SECRET ?? 'mls-admin-secret'
+  const secret = process.env.ADMIN_SECRET || 'mls-admin-secret'
   const token  = await makeToken(adminPass, secret)
 
   const res = NextResponse.json({ ok: true })
