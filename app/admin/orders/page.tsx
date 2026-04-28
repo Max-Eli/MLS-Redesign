@@ -48,6 +48,7 @@ export default function AdminOrdersPage() {
         o.customer_email?.toLowerCase().includes(q) ||
         o.items?.toLowerCase().includes(q)          ||
         o.promo_code?.toLowerCase().includes(q)     ||
+        o.order_number?.toLowerCase().includes(q)   ||
         o.id.toLowerCase().includes(q)
       )
     })
@@ -105,7 +106,7 @@ export default function AdminOrdersPage() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search name, email, item, promo, ID…"
+            placeholder="Search order #, name, email, item, promo…"
             className="w-full h-10 pl-10 pr-3 bg-cream-50 border border-cream-200 rounded-xl text-sm text-dark-50 placeholder:text-dark-50/30 focus:outline-none focus:border-mauve focus:ring-2 focus:ring-mauve/20 transition-all"
           />
         </div>
@@ -159,7 +160,7 @@ export default function AdminOrdersPage() {
               >
                 <div>
                   <p className="text-sm font-medium text-dark-50">{fmtDate(order.created)}</p>
-                  <p className="text-2xs text-dark-50/30 font-mono mt-0.5">{order.id.slice(-10)}</p>
+                  <p className="text-2xs text-dark-50/40 font-mono mt-0.5">{order.order_number ?? order.id.slice(-10)}</p>
                 </div>
 
                 <p className="hidden md:block text-sm font-medium text-dark-50">{fmt(order.amount)}</p>

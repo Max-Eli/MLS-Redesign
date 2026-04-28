@@ -5,6 +5,7 @@ import { X, Mail, Phone, User, Tag, Receipt, CheckCircle2, Clock, StickyNote, Lo
 
 export interface AdminOrder {
   id:             string
+  order_number:   string | null
   amount:         number
   currency:       string
   created:        number
@@ -129,7 +130,14 @@ export function OrderDetailDrawer({ order, onClose, onUpdated }: Props) {
         <div className="sticky top-0 z-10 flex items-center justify-between bg-white/90 backdrop-blur border-b border-cream-200 px-6 py-4">
           <div>
             <p className="text-2xs font-medium tracking-widest uppercase text-dark-50/40">Order Detail</p>
-            <p className="font-mono text-xs text-dark-50/70 mt-0.5">{order.id}</p>
+            {order.order_number ? (
+              <>
+                <p className="font-display text-lg text-dark-50 mt-0.5 leading-tight">{order.order_number}</p>
+                <p className="font-mono text-2xs text-dark-50/40 mt-0.5">{order.id}</p>
+              </>
+            ) : (
+              <p className="font-mono text-xs text-dark-50/70 mt-0.5">{order.id}</p>
+            )}
           </div>
           <button
             onClick={onClose}

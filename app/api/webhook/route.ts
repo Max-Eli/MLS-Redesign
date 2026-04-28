@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { constructWebhookEvent, stripe } from '@/lib/stripe'
 import { markAbandonedCartConverted } from '@/lib/abandoned-carts'
+import { ensureRedemptionRow, formatOrderNumber } from '@/lib/order-redemptions'
 import type Stripe from 'stripe'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -72,6 +73,12 @@ export async function POST(req: Request) {
 
     console.log(`[webhook] resolved customer | email=${customer_email ?? 'NONE'} name=${customer_name ?? 'NONE'} hasResendKey=${Boolean(process.env.RESEND_API_KEY)}`)
 
+    // Mint an order number (or recover the existing one on Stripe retries) so
+    // both emails and the admin dashboard share the same MLS-##### reference.
+    const redemption    = await ensureRedemptionRow(intent.id)
+    const orderNumber   = formatOrderNumber(redemption?.order_number ?? null)
+    console.log(`[webhook] order number | ${orderNumber ?? 'NONE (supabase unreachable?)'}`)
+
     // Clear any abandoned-cart reminder queued for this customer
     if (customer_email) {
       await markAbandonedCartConverted(customer_email).catch(err =>
@@ -112,6 +119,7 @@ export async function POST(req: Request) {
             <div style="text-align:center;padding-bottom:32px;border-bottom:1px solid #e8e0d8;margin-bottom:32px;">
               <p style="margin:0 0 8px;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9b8ea0;">Manhattan Laser Spa</p>
               <h1 style="margin:0 0 8px;font-size:32px;font-weight:300;color:#1a1a2e;">Order Confirmed</h1>
+              ${orderNumber ? `<p style="margin:0 0 12px;font-size:13px;letter-spacing:0.12em;text-transform:uppercase;color:#bfa45f;font-weight:500;">Order ${orderNumber}</p>` : ''}
               <p style="margin:0;font-size:14px;color:#9b8ea0;">Thank you${customer_name ? `, ${customer_name.split(' ')[0]}` : ''} — we're looking forward to seeing you.</p>
             </div>
 
@@ -159,12 +167,13 @@ export async function POST(req: Request) {
     const spaSend = await resend.emails.send({
       from: 'Manhattan Laser Spa <noreply@send.manhattanlaserspa.com>',
       to:   'florida@manhattanlaserspa.com',
-      subject: `New Order — ${amountFormatted} from ${customer_name ?? customer_email ?? 'Guest'}`,
+      subject: `New Order ${orderNumber ?? ''} — ${amountFormatted} from ${customer_name ?? customer_email ?? 'Guest'}`.replace(/\s+/g, ' ').trim(),
       html: `
         <div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;background:#faf9f7;padding:40px 32px;border-radius:12px;">
           <div style="border-bottom:1px solid #e8e0d8;padding-bottom:24px;margin-bottom:28px;">
             <p style="margin:0;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9b8ea0;">Manhattan Laser Spa</p>
             <h1 style="margin:8px 0 0;font-size:26px;font-weight:300;color:#1a1a2e;">New Order Received</h1>
+            ${orderNumber ? `<p style="margin:10px 0 0;font-size:13px;letter-spacing:0.12em;text-transform:uppercase;color:#bfa45f;font-weight:500;">Order ${orderNumber}</p>` : ''}
           </div>
 
           <table style="width:100%;border-collapse:collapse;">

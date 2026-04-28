@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { fetchRedemptionsByIds } from '@/lib/order-redemptions'
+import { fetchRedemptionsByIds, formatOrderNumber } from '@/lib/order-redemptions'
 
 const stripeKey = process.env.STRIPE_SECRET_KEY || ''
 const stripe = stripeKey ? new Stripe(stripeKey, { apiVersion: '2024-06-20' }) : null
@@ -26,6 +26,7 @@ export async function GET(req: Request) {
       const r = redemptions.get(pi.id)
       return {
         id:             pi.id,
+        order_number:   formatOrderNumber(r?.order_number ?? null),
         amount:         pi.amount,
         currency:       pi.currency,
         created:        pi.created,

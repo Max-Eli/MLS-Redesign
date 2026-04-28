@@ -2,11 +2,44 @@ import { supabase } from './supabase'
 
 export interface OrderRedemption {
   stripe_payment_intent_id: string
+  order_number:             number | null
   redeemed_at:              string | null
   redeemed_by:              string | null
   notes:                    string | null
   created_at:               string
   updated_at:               string
+}
+
+export function formatOrderNumber(n: number | null | undefined): string | null {
+  if (n == null) return null
+  return `MLS-${String(n).padStart(5, '0')}`
+}
+
+// Called from the Stripe webhook on payment_intent.succeeded. Creates a
+// redemption row on first call so the bigserial assigns an order_number
+// we can show on the receipt; idempotent on retries.
+export async function ensureRedemptionRow(paymentIntentId: string): Promise<OrderRedemption | null> {
+  if (!supabase) return null
+
+  const { data: existing } = await supabase
+    .from('order_redemptions')
+    .select('*')
+    .eq('stripe_payment_intent_id', paymentIntentId)
+    .maybeSingle()
+
+  if (existing) return existing as OrderRedemption
+
+  const { data: inserted, error } = await supabase
+    .from('order_redemptions')
+    .insert({ stripe_payment_intent_id: paymentIntentId })
+    .select('*')
+    .single()
+
+  if (error || !inserted) {
+    console.error('[order-redemptions] insert failed:', error)
+    return null
+  }
+  return inserted as OrderRedemption
 }
 
 export async function fetchRedemptionsByIds(ids: string[]): Promise<Map<string, OrderRedemption>> {
