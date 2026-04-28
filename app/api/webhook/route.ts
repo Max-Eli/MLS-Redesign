@@ -41,8 +41,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
+  console.log(`[webhook] received event: ${event.type} (${event.id})`)
+
   if (event.type === 'payment_intent.succeeded') {
     const intent = event.data.object as Stripe.PaymentIntent
+    console.log(`[webhook] payment_intent.succeeded | intent=${intent.id} amount=${intent.amount}`)
+
     const {
       items,
       customer_email: metaEmail,
@@ -66,10 +70,12 @@ export async function POST(req: Request) {
     const customer_name  = metaName  ?? billing.name
     const customer_phone = metaPhone ?? billing.phone
 
+    console.log(`[webhook] resolved customer | email=${customer_email ?? 'NONE'} name=${customer_name ?? 'NONE'} hasResendKey=${Boolean(process.env.RESEND_API_KEY)}`)
+
     // Clear any abandoned-cart reminder queued for this customer
     if (customer_email) {
       await markAbandonedCartConverted(customer_email).catch(err =>
-        console.error('Failed to mark abandoned cart converted:', err)
+        console.error('[webhook] Failed to mark abandoned cart converted:', err)
       )
     }
 
@@ -96,7 +102,8 @@ export async function POST(req: Request) {
 
     // Email to customer
     if (customer_email) {
-      await resend.emails.send({
+      console.log(`[webhook] sending customer confirmation to ${customer_email}`)
+      const customerSend = await resend.emails.send({
         from: 'Manhattan Laser Spa <noreply@send.manhattanlaserspa.com>',
         to:   customer_email,
         subject: `Your order is confirmed — ${amountFormatted} paid`,
@@ -137,13 +144,21 @@ export async function POST(req: Request) {
             </div>
           </div>
         `,
-      }).catch(err => console.error('Failed to send customer confirmation:', err))
+      })
+      if (customerSend.error) {
+        console.error('[webhook] Resend rejected customer confirmation:', customerSend.error)
+      } else {
+        console.log(`[webhook] customer confirmation sent | id=${customerSend.data?.id}`)
+      }
+    } else {
+      console.warn('[webhook] no customer_email resolved — skipping customer confirmation')
     }
 
     // Notify the spa
-    await resend.emails.send({
+    console.log('[webhook] sending spa notification to florida@manhattanlaserspa.com')
+    const spaSend = await resend.emails.send({
       from: 'Manhattan Laser Spa <noreply@send.manhattanlaserspa.com>',
-      to:   'charmbrooklyn@gmail.com',
+      to:   'florida@manhattanlaserspa.com',
       subject: `New Order — ${amountFormatted} from ${customer_name ?? customer_email ?? 'Guest'}`,
       html: `
         <div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;background:#faf9f7;padding:40px 32px;border-radius:12px;">
@@ -186,7 +201,15 @@ export async function POST(req: Request) {
           </div>
         </div>
       `,
-    }).catch(err => console.error('Failed to send spa notification:', err))
+    })
+    if (spaSend.error) {
+      console.error('[webhook] Resend rejected spa notification:', spaSend.error)
+      return NextResponse.json(
+        { error: 'Email send failed', detail: spaSend.error },
+        { status: 500 },
+      )
+    }
+    console.log(`[webhook] spa notification sent | id=${spaSend.data?.id}`)
   }
 
   if (event.type === 'payment_intent.payment_failed') {
