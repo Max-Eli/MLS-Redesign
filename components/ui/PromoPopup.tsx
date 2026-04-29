@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -18,6 +18,8 @@ export function PromoPopup() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState(false)
   const [copied, setCopied] = useState(false)
+  const openedAt = useRef(0)
+  const honeypotRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const now = Date.now()
@@ -25,7 +27,10 @@ export function PromoPopup() {
     try {
       if (localStorage.getItem(STORAGE_KEY)) return
     } catch {}
-    const timer = setTimeout(() => setOpen(true), 2500)
+    const timer = setTimeout(() => {
+      openedAt.current = Date.now()
+      setOpen(true)
+    }, 2500)
     return () => clearTimeout(timer)
   }, [])
 
@@ -60,7 +65,11 @@ export function PromoPopup() {
       await fetch('/api/promo-lead', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(form),
+        body:    JSON.stringify({
+          ...form,
+          website:       honeypotRef.current?.value ?? '',
+          formElapsedMs: Date.now() - openedAt.current,
+        }),
       })
     } catch {
       // silently continue — user still gets the code
@@ -163,6 +172,17 @@ export function PromoPopup() {
                   </div>
 
                   <form onSubmit={handleSubmit} noValidate className="space-y-3.5">
+                    {/* Honeypot — invisible to humans, bots fill it and get silently dropped */}
+                    <input
+                      ref={honeypotRef}
+                      type="text"
+                      name="website"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      aria-hidden="true"
+                      style={{ position: 'absolute', left: '-10000px', width: '1px', height: '1px', overflow: 'hidden' }}
+                    />
+
                     {/* First Name */}
                     <div>
                       <input

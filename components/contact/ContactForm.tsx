@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 export function ContactForm() {
   const [status, setStatus]     = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
+  const mountedAt               = useRef(Date.now())
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -13,12 +14,14 @@ export function ContactForm() {
 
     const fd = new FormData(e.currentTarget)
     const body = {
-      firstName: fd.get('first_name') as string,
-      lastName:  fd.get('last_name')  as string,
-      email:     fd.get('email')      as string,
-      phone:     fd.get('phone')      as string,
-      treatment: fd.get('treatment')  as string,
-      message:   fd.get('message')    as string,
+      firstName:     fd.get('first_name') as string,
+      lastName:      fd.get('last_name')  as string,
+      email:         fd.get('email')      as string,
+      phone:         fd.get('phone')      as string,
+      treatment:     fd.get('treatment')  as string,
+      message:       fd.get('message')    as string,
+      website:       fd.get('website')    as string,
+      formElapsedMs: Date.now() - mountedAt.current,
     }
 
     try {
@@ -52,6 +55,16 @@ export function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Honeypot — invisible to humans, bots fill it and get silently dropped */}
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        style={{ position: 'absolute', left: '-10000px', width: '1px', height: '1px', overflow: 'hidden' }}
+      />
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
           <label className="block text-2xs font-medium tracking-widest uppercase text-dark-50/50 mb-2">

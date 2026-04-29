@@ -3,9 +3,40 @@ import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+// IP rate limit — 3 requests per 10 minutes
+const rateLimit = new Map<string, { count: number; resetAt: number }>()
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now()
+  const entry = rateLimit.get(ip)
+  if (!entry || now > entry.resetAt) {
+    rateLimit.set(ip, { count: 1, resetAt: now + 10 * 60_000 })
+    return false
+  }
+  if (entry.count >= 3) return true
+  entry.count++
+  return false
+}
+
 export async function POST(req: Request) {
   try {
-    const { firstName, phone, email } = await req.json()
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+    if (isRateLimited(ip)) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+    }
+
+    const { firstName, phone, email, website, formElapsedMs } = await req.json()
+
+    // Honeypot — real users can't see this field; bots fill everything.
+    // Return success silently so the bot moves on instead of retrying.
+    if (typeof website === 'string' && website.trim() !== '') {
+      return NextResponse.json({ ok: true })
+    }
+
+    // Time-to-fill — bots submit in milliseconds; humans take >2s.
+    if (typeof formElapsedMs === 'number' && formElapsedMs < 2000) {
+      return NextResponse.json({ ok: true })
+    }
 
     if (!firstName || !phone) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
