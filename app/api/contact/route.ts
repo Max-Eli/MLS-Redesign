@@ -42,7 +42,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    await resend.emails.send({
+    // Push to Zapier in parallel with the email so a CRM outage can't slow down
+    // the user-facing response, and an email failure can't block CRM sync.
+    const webhookUrl = process.env.ZAPIER_CONTACT_WEBHOOK_URL
+    const zapierPromise = webhookUrl
+      ? fetch(webhookUrl, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            firstName,
+            lastName:    lastName  ?? null,
+            email,
+            phone:       phone     ?? null,
+            treatment:   treatment ?? null,
+            message:     message   ?? null,
+            submittedAt: new Date().toISOString(),
+            source:      'manhattanlaserspa.com/contact',
+          }),
+        })
+          .then(res => {
+            if (!res.ok) console.error(`[contact] Zapier webhook returned ${res.status}`)
+          })
+          .catch(err => console.error('[contact] Zapier webhook failed:', err))
+      : null
+
+    const emailPromise = resend.emails.send({
       from: 'Manhattan Laser Spa <noreply@send.manhattanlaserspa.com>',
       to:   'florida@manhattanlaserspa.com',
       replyTo: email,
@@ -83,6 +107,8 @@ export async function POST(req: Request) {
         </div>
       `,
     })
+
+    await Promise.all([emailPromise, zapierPromise])
 
     return NextResponse.json({ ok: true })
   } catch (err) {
