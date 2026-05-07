@@ -29,9 +29,9 @@ export function Hero() {
           sizes="100vw"
         />
         {/* Dark overlays to keep luxury dark theme */}
-        <div className="absolute inset-0 bg-dark/60" />
-        <div className="absolute inset-0 bg-gradient-to-r from-dark/80 via-dark/50 to-dark/20" />
-        <div className="absolute inset-0 bg-gradient-to-t from-dark/70 via-transparent to-dark/30" />
+        <div className="absolute inset-0 bg-dark/45" />
+        <div className="absolute inset-0 bg-gradient-to-r from-dark/65 via-dark/35 to-dark/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-dark/55 via-transparent to-dark/20" />
       </div>
 
       {/* Decorative mauve glow */}
