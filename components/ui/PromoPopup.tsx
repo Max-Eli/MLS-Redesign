@@ -67,6 +67,7 @@ export function PromoPopup() {
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({
           ...form,
+          smsConsent,
           website:       honeypotRef.current?.value ?? '',
           formElapsedMs: Date.now() - openedAt.current,
         }),

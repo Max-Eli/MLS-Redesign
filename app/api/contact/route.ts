@@ -25,7 +25,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
 
-    const { firstName, lastName, email, phone, treatment, message, website, formElapsedMs } = await req.json()
+    const { firstName, lastName, email, phone, treatment, message, smsConsent, website, formElapsedMs } = await req.json()
+    const hasSmsConsent = smsConsent === true
 
     // Honeypot — real users can't see this field; bots fill everything.
     // Return success silently so the bot moves on instead of retrying.
@@ -56,6 +57,7 @@ export async function POST(req: Request) {
             phone:       phone     ?? null,
             treatment:   treatment ?? null,
             message:     message   ?? null,
+            smsConsent:  hasSmsConsent,
             submittedAt: new Date().toISOString(),
             source:      'manhattanlaserspa.com/contact',
           }),
@@ -91,6 +93,10 @@ export async function POST(req: Request) {
               <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#9b8ea0;">Phone</td>
               <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:14px;color:#1a1a2e;"><a href="tel:${phone}" style="color:#9b8ea0;">${phone}</a></td>
             </tr>` : ''}
+            <tr>
+              <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#9b8ea0;">SMS Opt-in</td>
+              <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:14px;color:${hasSmsConsent ? '#1a1a2e' : '#9b8ea0'};font-weight:${hasSmsConsent ? '600' : '400'};">${hasSmsConsent ? 'Yes — consented to SMS/MMS' : 'No — do not text'}</td>
+            </tr>
             ${treatment ? `<tr>
               <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#9b8ea0;">Treatment</td>
               <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:14px;color:#1a1a2e;">${treatment}</td>

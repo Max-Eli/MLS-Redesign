@@ -25,7 +25,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
 
-    const { firstName, phone, email, website, formElapsedMs } = await req.json()
+    const { firstName, phone, email, smsConsent, website, formElapsedMs } = await req.json()
+    const hasSmsConsent = smsConsent === true
 
     // Honeypot — real users can't see this field; bots fill everything.
     // Return success silently so the bot moves on instead of retrying.
@@ -42,8 +43,35 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
+    // Push to Zapier in parallel with the emails so a CRM outage can't slow down
+    // the user-facing response. Reuses the same webhook as /api/contact —
+    // the `source` field distinguishes popup leads from contact form leads.
+    const webhookUrl = process.env.ZAPIER_CONTACT_WEBHOOK_URL
+    const zapierPromise = webhookUrl
+      ? fetch(webhookUrl, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            firstName,
+            lastName:    null,
+            email:       email ?? null,
+            phone,
+            treatment:   null,
+            message:     null,
+            smsConsent:  hasSmsConsent,
+            promoCode:   'MLS100OFF',
+            submittedAt: new Date().toISOString(),
+            source:      'manhattanlaserspa.com/popup',
+          }),
+        })
+          .then(res => {
+            if (!res.ok) console.error(`[promo-lead] Zapier webhook returned ${res.status}`)
+          })
+          .catch(err => console.error('[promo-lead] Zapier webhook failed:', err))
+      : null
+
     // Notify the spa
-    await resend.emails.send({
+    const spaEmailPromise = resend.emails.send({
       from: 'Manhattan Laser Spa <noreply@send.manhattanlaserspa.com>',
       to:   'florida@manhattanlaserspa.com',
       subject: `New VIP Lead — ${firstName} claimed $100 off`,
@@ -78,8 +106,8 @@ export async function POST(req: Request) {
     })
 
     // Send promo code to client (if email provided)
-    if (email) {
-      await resend.emails.send({
+    const customerEmailPromise = email
+      ? resend.emails.send({
         from: 'Manhattan Laser Spa <noreply@send.manhattanlaserspa.com>',
         to:   email,
         subject: 'Your $100 off code is here 🎁',
@@ -113,7 +141,9 @@ export async function POST(req: Request) {
           </div>
         `,
       })
-    }
+      : null
+
+    await Promise.all([zapierPromise, spaEmailPromise, customerEmailPromise])
 
     return NextResponse.json({ ok: true })
   } catch (err) {
