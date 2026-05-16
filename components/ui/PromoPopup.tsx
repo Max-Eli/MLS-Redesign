@@ -99,18 +99,18 @@ export function PromoPopup() {
       />
 
       {/* Dialog */}
-      <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none">
+      <div className="fixed inset-0 z-[101] flex items-start justify-center overflow-y-auto p-3 sm:p-4 pointer-events-none">
         <div
           role="dialog"
           aria-modal="true"
           aria-label="Exclusive welcome offer"
-          className="pointer-events-auto relative w-full max-w-3xl bg-white rounded-3xl shadow-luxury-lg overflow-hidden animate-fade-up"
+          className="pointer-events-auto relative my-3 sm:my-6 w-full max-w-3xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-3rem)] overflow-y-auto bg-white rounded-3xl shadow-luxury-lg animate-fade-up"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close */}
           <button
             onClick={dismiss}
-            className="absolute top-5 right-5 z-20 size-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+            className="absolute top-3 right-3 z-20 size-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-colors"
             aria-label="Close"
           >
             <X size={15} />
@@ -119,7 +119,7 @@ export function PromoPopup() {
           <div className="grid grid-cols-1 md:grid-cols-[1fr_1.1fr]">
 
             {/* ── Left panel – offer ── */}
-            <div className="relative bg-dark flex flex-col justify-between p-8 md:p-10 min-h-[200px] md:min-h-[560px] overflow-hidden">
+            <div className="relative bg-dark flex flex-col justify-between p-7 md:p-10 min-h-[200px] md:min-h-[560px] overflow-hidden">
               {/* Subtle texture */}
               <div className="absolute inset-0 bg-noise opacity-[0.03] pointer-events-none" />
               {/* Soft radial glow */}
@@ -131,7 +131,7 @@ export function PromoPopup() {
 
                 {/* Large display number */}
                 <div className="mb-4">
-                  <span className="font-display text-[7rem] md:text-[8rem] font-light leading-none text-white">
+                  <span className="font-display text-[4.5rem] sm:text-[5.5rem] md:text-[8rem] font-light leading-none text-white">
                     $100
                   </span>
                 </div>

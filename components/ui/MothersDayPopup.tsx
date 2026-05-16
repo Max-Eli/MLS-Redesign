@@ -44,12 +44,12 @@ export function MothersDayPopup() {
         aria-hidden
       />
 
-      <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none">
+      <div className="fixed inset-0 z-[101] flex items-start justify-center overflow-y-auto p-3 sm:p-4 pointer-events-none">
         <div
           role="dialog"
           aria-modal="true"
           aria-label="Mother's Day offers"
-          className="pointer-events-auto relative w-full max-w-xl bg-cream rounded-3xl shadow-luxury-lg overflow-hidden animate-fade-up"
+          className="pointer-events-auto relative my-3 sm:my-6 w-full max-w-xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-3rem)] overflow-y-auto bg-cream rounded-3xl shadow-luxury-lg animate-fade-up"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Soft decorative glows */}
@@ -58,7 +58,7 @@ export function MothersDayPopup() {
 
           <button
             onClick={dismiss}
-            className="absolute top-4 right-4 z-20 size-8 rounded-full bg-dark/5 hover:bg-dark/10 flex items-center justify-center text-dark-50/40 hover:text-dark-50 transition-colors"
+            className="absolute top-3 right-3 z-20 size-9 rounded-full bg-dark/5 hover:bg-dark/10 flex items-center justify-center text-dark-50/40 hover:text-dark-50 transition-colors"
             aria-label="Close"
           >
             <X size={15} />
