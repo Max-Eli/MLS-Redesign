@@ -44,9 +44,9 @@ export async function POST(req: Request) {
     }
 
     // Push to Zapier in parallel with the emails so a CRM outage can't slow down
-    // the user-facing response. Reuses the same webhook as /api/contact —
-    // the `source` field distinguishes popup leads from contact form leads.
-    const webhookUrl = process.env.ZAPIER_CONTACT_WEBHOOK_URL
+    // the user-facing response. Popup leads use their own webhook, separate from
+    // the contact form, so they can route to Zenoti independently.
+    const webhookUrl = process.env.ZAPIER_POPUP_WEBHOOK_URL
     const zapierPromise = webhookUrl
       ? fetch(webhookUrl, {
           method:  'POST',
