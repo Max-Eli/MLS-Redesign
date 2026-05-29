@@ -9,6 +9,10 @@ import { BlogPreview } from '@/components/home/BlogPreview'
 import { CTABanner } from '@/components/home/CTABanner'
 import { InstagramFeed } from '@/components/home/InstagramFeed'
 
+// Refresh featured services and home content every 5 minutes so promotion
+// toggles in /admin/promotions propagate without a manual redeploy.
+export const revalidate = 300
+
 export const metadata: Metadata = {
   title: 'Manhattan Laser Spa | Luxury Medical Spa in Sunny Isles Beach, FL',
   description:

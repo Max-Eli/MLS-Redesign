@@ -25,6 +25,11 @@ interface Props {
   params: { slug: string }
 }
 
+// Re-check the linked promotion every 60 seconds so an admin toggle or a
+// passed `ends_at` removes the page promptly instead of waiting on the
+// build-time static cache.
+export const revalidate = 60
+
 export async function generateStaticParams() {
   const slugs = await getAllServiceSlugs()
   return slugs.map(slug => ({ slug }))

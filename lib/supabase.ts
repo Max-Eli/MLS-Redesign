@@ -38,6 +38,27 @@ export interface CategoryRow {
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
 
+// Slugs of services whose linked promotion has been deactivated, has expired,
+// or hasn't started yet. Campaign services (e.g. Mother's Day) keep their own
+// row in `services` so the catalog stays clean year-round, but the `promotions`
+// table is the source of truth for visibility — toggling a promotion off in
+// /admin/promotions or passing its `ends_at` automatically hides the matching
+// service from the shop, featured list, product detail, and sitemap.
+export async function fetchInactivePromoSlugs(): Promise<string[]> {
+  if (!supabase) return []
+  const now = new Date().toISOString()
+  const { data, error } = await supabase
+    .from('promotions')
+    .select('product_slug')
+    .not('product_slug', 'is', null)
+    .or(`active.eq.false,starts_at.gt.${now},ends_at.lt.${now}`)
+
+  if (error || !data) return []
+  return data
+    .map((r: { product_slug: string | null }) => r.product_slug)
+    .filter((s): s is string => !!s)
+}
+
 export async function fetchServices(params?: {
   categorySlug?: string
   search?: string
@@ -46,6 +67,8 @@ export async function fetchServices(params?: {
   perPage?: number
 }): Promise<{ services: ServiceRow[]; total: number }> {
   if (!supabase) return { services: [], total: 0 }
+
+  const inactiveSlugs = await fetchInactivePromoSlugs()
 
   const perPage = params?.perPage ?? 24
   const page    = params?.page    ?? 1
@@ -63,6 +86,9 @@ export async function fetchServices(params?: {
   if (params?.categorySlug) query = query.eq('category_slug', params.categorySlug)
   if (params?.featured)     query = query.eq('is_featured', true)
   if (params?.search)       query = query.ilike('title', `%${params.search}%`)
+  if (inactiveSlugs.length > 0) {
+    query = query.not('slug', 'in', `(${inactiveSlugs.map(s => `"${s}"`).join(',')})`)
+  }
 
   const { data, error, count } = await query
   if (error || !data) return { services: [], total: 0 }
@@ -71,6 +97,12 @@ export async function fetchServices(params?: {
 
 export async function fetchServiceBySlug(slug: string): Promise<ServiceRow | null> {
   if (!supabase) return null
+
+  // Same visibility rule as fetchServices: if the linked promotion is off
+  // or out of window, the product page returns null (404) too.
+  const inactiveSlugs = await fetchInactivePromoSlugs()
+  if (inactiveSlugs.includes(slug)) return null
+
   const { data, error } = await supabase
     .from('services')
     .select('*')
@@ -83,12 +115,17 @@ export async function fetchServiceBySlug(slug: string): Promise<ServiceRow | nul
 
 export async function fetchAllServiceSlugs(): Promise<string[]> {
   if (!supabase) return []
+
+  const inactiveSlugs = await fetchInactivePromoSlugs()
+
   const { data, error } = await supabase
     .from('services')
     .select('slug')
     .eq('active', true)
   if (error || !data) return []
-  return data.map((r: { slug: string }) => r.slug)
+  return data
+    .map((r: { slug: string }) => r.slug)
+    .filter((slug: string) => !inactiveSlugs.includes(slug))
 }
 
 export async function fetchCategories(): Promise<(CategoryRow & { count: number })[]> {
