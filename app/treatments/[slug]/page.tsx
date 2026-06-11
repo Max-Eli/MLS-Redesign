@@ -33,6 +33,12 @@ const categoryMeta: Record<string, {
     description: 'From the Helix CO2 fractional laser to Laser Genesis and Clear + Brilliant, our laser skin treatments address fine lines, wrinkles, scarring, pigmentation, redness, and uneven texture — with options for every skin type and downtime preference.',
     image:       '/laserskintreatments.png',
   },
+  'tattoo-removal': {
+    name:        'Laser Tattoo Removal',
+    tagline:     'PicoWay laser tattoo removal — every color, every skin tone',
+    description: 'Remove unwanted ink completely with the Candela PicoWay, the gold standard in laser tattoo removal. Picosecond technology shatters every color, including the stubborn blues and greens older lasers leave behind. Safe for all Fitzpatrick skin types. Choose your tattoo size below to see per-session pricing.',
+    image:       '/laserskintreatments.png',
+  },
   'facial-treatments': {
     name:        'Facial Treatments',
     tagline:     'Customized facials for every skin type and concern',

@@ -169,6 +169,43 @@ export const servicesData: ServicePageData[] = [
       { question: 'Is it safe for darker skin tones?',        answer: 'Yes. The 1064nm wavelength is specifically designed for safe treatment of darker Fitzpatrick types (IV–VI) without risk of pigment changes when administered correctly.' },
     ],
   },
+  {
+    slug:     'laser-tattoo-removal',
+    name:     'Laser Tattoo Removal',
+    tagline:  'Complete tattoo removal with the PicoWay — every ink color, every skin tone',
+    category: 'Tattoo Removal',
+    categorySlug: 'tattoo-removal',
+    image:    '/laserskintreatments.png',
+    machine:  'Candela PicoWay',
+    machineDescription: 'The Candela PicoWay uses picosecond-pulse photoacoustic energy — a trillionth of a second — to shatter tattoo ink into particles small enough for the body to clear naturally. Its three wavelengths (532nm, 785nm, 1064nm) target the full color spectrum, including the blues, greens, and pastels that other lasers leave behind. Safe on every Fitzpatrick skin type, I through VI.',
+    overview: 'PicoWay laser tattoo removal is the most advanced way to remove unwanted ink. The picosecond technology breaks pigment into particles so fine that even stubborn colors and old, faded tattoos clear faster and more completely than with older Q-switched lasers — with less heat, less scarring risk, and fewer sessions. Whether you have a small black tattoo, a multi-color sleeve, or a previous removal attempt that didn\'t finish the job, we have a treatment plan for you.',
+    benefits: [
+      'Removes tattoos of all colors — including notoriously stubborn blues, greens, and pastels',
+      'Safe for every skin tone (Fitzpatrick I–VI) thanks to multi-wavelength technology',
+      'Fewer sessions than older Q-switched lasers — most clients see significant fading by session 3',
+      'Lower risk of scarring, blistering, and pigment changes',
+      'Effective on cosmetic tattoos (permanent makeup, microblading), amateur tattoos, and faded older work',
+      'Minimal downtime — most clients return to normal activities the same day',
+      'Treats previously laser-treated tattoos that didn\'t fully clear',
+    ],
+    howItWorks: [
+      { step: 'Consultation',    description: 'We assess your tattoo\'s size, location, colors, age, and ink density alongside your skin tone to give you a personalized estimate of how many sessions you\'ll need.' },
+      { step: 'Numbing',         description: 'Topical numbing cream is applied 20–30 minutes before treatment. For larger tattoos, we use cooled air during the session for added comfort.' },
+      { step: 'Laser Treatment', description: 'The PicoWay delivers ultra-short, targeted pulses across the tattoo. Small tattoos take just minutes; larger pieces are paced to your tolerance.' },
+      { step: 'Aftercare',       description: 'A clean dressing is applied. Mild swelling, redness, or pinpoint bleeding resolves within 24–48 hours. Sessions are spaced 6–8 weeks apart so the body can clear shattered ink between visits.' },
+    ],
+    whoIsItFor: 'Laser tattoo removal is for anyone who wants to remove or significantly fade an unwanted tattoo — a small wrist tattoo, a finger ring, a sleeve, permanent makeup, or a previously laser-treated piece that didn\'t finish clearing. PicoWay is safe on all skin tones (something older lasers couldn\'t offer) and works on every ink color we encounter.',
+    faqs: [
+      { question: 'How many sessions will I need?',                            answer: 'Small black tattoos typically clear in 5–8 sessions. Multi-color or older saturated tattoos can take 8–12 sessions. We give you a personalized estimate at your consultation based on size, colors, ink density, age, and your skin type.' },
+      { question: 'How far apart are sessions?',                                answer: 'Sessions are spaced 6–8 weeks apart. This gives your body time to clear shattered ink and lets the skin fully heal between treatments.' },
+      { question: 'Does it hurt?',                                              answer: 'It\'s more uncomfortable than getting the tattoo. We apply topical numbing cream 20–30 minutes before treatment and use cooling techniques during larger sessions to keep it tolerable. Most clients describe it as a quick snap or hot rubber-band sensation.' },
+      { question: 'Will my tattoo be completely gone?',                         answer: 'In most cases yes — especially for amateur tattoos, finer professional work, and tattoos in their first decade. Older, heavily-pigmented, or repeatedly retouched tattoos may leave a faint shadow even after a full course. We\'ll set realistic expectations at your consultation.' },
+      { question: 'Will it scar?',                                              answer: 'The PicoWay\'s picosecond pulses are designed to minimize thermal damage, so scarring risk is much lower than with older lasers. Following aftercare instructions (no scratching, sun protection, gentle moisturizer) keeps your risk very low.' },
+      { question: 'Can it treat colored tattoos?',                              answer: 'Yes. The PicoWay\'s three wavelengths cover the full spectrum — including the blues, greens, and pastels that older Q-switched lasers struggle with. We can treat virtually any ink color.' },
+      { question: 'Is it safe for darker skin tones?',                          answer: 'Yes. The 1064nm wavelength is specifically designed for safe treatment of Fitzpatrick IV–VI without risk of pigment changes when administered correctly. PicoWay is one of the few lasers genuinely safe for all skin tones.' },
+      { question: 'Can you remove cosmetic tattoos like microblading?',         answer: 'Yes — we treat permanent makeup, including faded or migrated brows, lip blush, and eyeliner. These require careful technique to avoid pigment darkening, which our team is trained to manage.' },
+    ],
+  },
 
   // ── Body Contouring ───────────────────────────────────────────────────────
   {

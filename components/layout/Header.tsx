@@ -30,6 +30,7 @@ const services = [
       { label: 'CO2 Laser (Helix)',  href: '/services/co2-laser' },
       { label: 'IPL Photofacial',    href: '/services/ipl-photofacial' },
       { label: 'PicoWay Laser',      href: '/services/picoway-laser' },
+      { label: 'Tattoo Removal',     href: '/services/laser-tattoo-removal' },
       { label: 'View All',           href: '/treatments/laser-skin-treatments' },
     ],
   },
