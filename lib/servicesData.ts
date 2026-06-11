@@ -134,6 +134,41 @@ export const servicesData: ServicePageData[] = [
     ],
     shopSlug: 'laser-skin-tightening-1-session',
   },
+  {
+    slug:     'picoway-laser',
+    name:     'PicoWay Laser',
+    tagline:  'Advanced picosecond laser for pigmentation, melasma, and complete tattoo removal',
+    category: 'Laser Skin Treatments',
+    categorySlug: 'laser-skin-treatments',
+    image:    '/laserskintreatments.png',
+    machine:  'Candela PicoWay',
+    machineDescription: 'The Candela PicoWay is one of the most advanced picosecond lasers available — its ultra-short pulses (a trillionth of a second) shatter pigment and ink with photoacoustic precision rather than heat, clearing what older Q-switched lasers can\'t. Three wavelengths (532nm, 785nm, and 1064nm) make it safe and effective for every skin tone and every type of pigment.',
+    overview: 'PicoWay is the gold standard for treating stubborn pigmentation and removing tattoos. Unlike traditional lasers that rely on thermal energy, PicoWay uses pressure waves to break pigment into microscopic particles that the body naturally clears — delivering dramatic results on melasma, sun damage, age spots, and uneven skin tone, plus the most effective tattoo removal available across all ink colors.',
+    benefits: [
+      'Clears melasma, sun spots, age spots, and post-inflammatory hyperpigmentation',
+      'Smooths uneven skin tone and refines texture',
+      'Removes tattoos of all colors — including stubborn blues, greens, and pastels',
+      'Safe for all skin tones (Fitzpatrick I–VI) thanks to multi-wavelength technology',
+      'Minimal downtime — most clients return to normal activities the same day',
+      'Bonus collagen stimulation: fine lines, acne scars, and enlarged pores improve too',
+      'Faster results in fewer sessions than older Q-switched lasers',
+    ],
+    howItWorks: [
+      { step: 'Consultation',    description: 'We evaluate your pigmentation or tattoo, assess your skin tone, and map a personalized plan including the number of sessions you\'ll need.' },
+      { step: 'Preparation',     description: 'The treatment area is cleaned. For tattoo removal, topical numbing cream is applied 20–30 minutes beforehand for comfort.' },
+      { step: 'Laser Treatment', description: 'The PicoWay delivers ultra-short pulses precisely targeted at the pigment. Pigmentation sessions take 10–20 minutes; tattoo sessions vary with size.' },
+      { step: 'Recovery',        description: 'Mild redness or pinpoint bleeding (for tattoos) typically resolves within hours. Daily SPF and gentle skincare between sessions are essential for the best outcome.' },
+    ],
+    whoIsItFor: 'PicoWay is ideal for anyone struggling with stubborn pigmentation — melasma, sun damage, age spots, post-acne marks — or looking to remove an unwanted tattoo. Its multi-wavelength technology makes it safe and effective for all skin tones, including darker complexions that older lasers couldn\'t treat without risk.',
+    faqs: [
+      { question: 'How many sessions will I need?',          answer: 'Pigmentation typically clears in 3–6 sessions spaced 4–6 weeks apart. Tattoo removal varies widely — small black tattoos may clear in 5–8 sessions, while large multi-color pieces can take 10 or more. You\'ll get a personalized estimate at your consultation.' },
+      { question: 'Does it hurt?',                            answer: 'Pigmentation treatment feels like a light snap or pinprick and is typically well-tolerated without numbing. For tattoo removal we apply topical numbing cream beforehand to keep it comfortable.' },
+      { question: 'Is there any downtime?',                   answer: 'Pigmentation sessions usually have no downtime beyond light redness for a few hours. Tattoo removal may cause temporary frosting (white discoloration), mild swelling, or pinpoint bleeding that resolves within 24 hours.' },
+      { question: 'Can it treat melasma?',                    answer: 'Yes — PicoWay is one of the most effective lasers for melasma because its pressure-based mechanism avoids the thermal damage that often worsens it. We typically pair it with prescription topicals for the best long-term results.' },
+      { question: 'Will it remove every tattoo color?',       answer: 'PicoWay treats more colors than any other laser, including notoriously difficult blues, greens, and pastels. With enough sessions, almost any tattoo can be significantly faded or fully removed.' },
+      { question: 'Is it safe for darker skin tones?',        answer: 'Yes. The 1064nm wavelength is specifically designed for safe treatment of darker Fitzpatrick types (IV–VI) without risk of pigment changes when administered correctly.' },
+    ],
+  },
 
   // ── Body Contouring ───────────────────────────────────────────────────────
   {
