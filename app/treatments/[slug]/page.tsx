@@ -98,6 +98,13 @@ const categoryMeta: Record<string, {
 // Slugs that have rich content pages at /services/[slug]
 const SERVICE_DETAIL_SLUGS = new Set(getAllServicePageSlugs())
 
+// Categories whose listing should also include services from related
+// sub-categories. The dedicated sub-category pages still exist for focused
+// browsing — this just makes the parent View All inclusive.
+const relatedCategories: Record<string, string[]> = {
+  'laser-skin-treatments': ['tattoo-removal'],
+}
+
 export async function generateStaticParams() {
   return Object.keys(categoryMeta).map(slug => ({ slug }))
 }
@@ -116,7 +123,12 @@ export default async function TreatmentCategoryPage({ params }: Props) {
   const meta = categoryMeta[params.slug]
   if (!meta) notFound()
 
-  const { services } = await getServices({ category: params.slug })
+  const related = relatedCategories[params.slug] ?? []
+  const [primary, ...relatedResults] = await Promise.all([
+    getServices({ category: params.slug, perPage: 100 }),
+    ...related.map(c => getServices({ category: c, perPage: 100 })),
+  ])
+  const services = [...primary.services, ...relatedResults.flatMap(r => r.services)]
 
   return (
     <div className="min-h-screen bg-cream">
