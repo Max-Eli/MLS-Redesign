@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { ArrowRight, MapPin } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 
 const fadeUp = {
@@ -40,22 +40,6 @@ export function Hero() {
       <div className="relative z-10 w-full">
         <div className="mx-auto max-w-7xl px-6 md:px-8 lg:px-12 pt-32 pb-20 md:pt-40">
           <div className="max-w-2xl">
-            {/* Location badge */}
-            <motion.div
-              custom={0}
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              className="flex items-center gap-2 mb-8"
-            >
-              <div className="flex items-center gap-1.5 bg-white/8 backdrop-blur-sm border border-white/12 rounded-full px-4 py-1.5">
-                <MapPin size={12} className="text-mauve" />
-                <span className="text-2xs font-medium tracking-widest uppercase text-white/70">
-                  Sunny Isles Beach, Florida
-                </span>
-              </div>
-            </motion.div>
-
             {/* Headline */}
             <motion.h1
               custom={1}
