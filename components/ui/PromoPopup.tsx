@@ -9,6 +9,9 @@ const PROMO_CODE        = 'MLS100OFF'
 // While the Mother's Day campaign is running, defer to MothersDayPopup
 const MD_CAMPAIGN_START = '2026-04-17'
 const MD_CAMPAIGN_END   = '2026-05-12'
+// While the Independence Day campaign is running, defer to IndependenceDayPopup
+const J4_CAMPAIGN_START = '2026-06-25'
+const J4_CAMPAIGN_END   = '2026-07-06'
 
 export function PromoPopup() {
   const [open, setOpen] = useState(false)
@@ -24,6 +27,7 @@ export function PromoPopup() {
   useEffect(() => {
     const now = Date.now()
     if (now >= new Date(MD_CAMPAIGN_START).getTime() && now <= new Date(MD_CAMPAIGN_END).getTime()) return
+    if (now >= new Date(J4_CAMPAIGN_START).getTime() && now <= new Date(J4_CAMPAIGN_END + 'T23:59:59').getTime()) return
     try {
       if (localStorage.getItem(STORAGE_KEY)) return
     } catch {}

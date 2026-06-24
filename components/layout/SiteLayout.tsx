@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/Footer'
 import { CartDrawer } from '@/components/shop/CartDrawer'
 import { PromoPopup } from '@/components/ui/PromoPopup'
 import { MothersDayPopup } from '@/components/ui/MothersDayPopup'
+import { IndependenceDayPopup } from '@/components/ui/IndependenceDayPopup'
 
 export function SiteLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -20,6 +21,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
       <Footer />
       <CartDrawer />
       <MothersDayPopup />
+      <IndependenceDayPopup />
       <PromoPopup />
     </>
   )
