@@ -31,17 +31,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const description = post.excerpt ?? stripHtml(post.content).slice(0, 180)
 
+  const fullTitle = `${post.title} | Manhattan Laser Spa`
+
   return {
-    title: `${post.title} | Manhattan Laser Spa`,
+    title: fullTitle,
     description,
     alternates: { canonical: `https://manhattanlaserspa.com/blog/${post.slug}` },
     openGraph: {
-      title: post.title,
+      title:         post.title,
       description,
-      type: 'article',
+      type:          'article',
+      url:           `https://manhattanlaserspa.com/blog/${post.slug}`,
       publishedTime: post.published_at,
-      modifiedTime: post.modified_at ?? undefined,
+      modifiedTime:  post.modified_at ?? undefined,
+      authors:       ['Manhattan Laser Spa'],
       ...(post.featured_image ? { images: [{ url: post.featured_image, alt: post.title }] } : {}),
+    },
+    twitter: {
+      card:        'summary_large_image',
+      title:       fullTitle,
+      description,
+      ...(post.featured_image ? { images: [post.featured_image] } : {}),
     },
   }
 }
@@ -54,8 +64,48 @@ export default async function BlogPostPage({ params }: Props) {
 
   if (!post) notFound()
 
+  // Article schema — qualifies the post for rich results, AI-search citation
+  // (Google AI Overviews / Perplexity / ChatGPT favor well-structured articles
+  // with clear author + publisher + publish date metadata), and Top Stories.
+  const articleJsonLd = {
+    '@context':     'https://schema.org',
+    '@type':        'Article',
+    headline:       post.title,
+    description:    post.excerpt ?? stripHtml(post.content).slice(0, 180),
+    datePublished:  post.published_at,
+    dateModified:   post.modified_at ?? post.published_at,
+    author: {
+      '@type': 'Organization',
+      name:    'Manhattan Laser Spa',
+      url:     'https://manhattanlaserspa.com',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name:    'Manhattan Laser Spa',
+      logo: {
+        '@type': 'ImageObject',
+        url:     'https://manhattanlaserspa.com/mlsfavicon.png',
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id':   `https://manhattanlaserspa.com/blog/${post.slug}`,
+    },
+    ...(post.featured_image && {
+      image: post.featured_image.startsWith('http')
+        ? [post.featured_image]
+        : [`https://manhattanlaserspa.com${post.featured_image}`],
+    }),
+    ...(post.category && { articleSection: post.category }),
+    ...(post.tags && post.tags.length > 0 && { keywords: post.tags.join(', ') }),
+  }
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       <article className="min-h-screen bg-cream">
         {/* Hero */}
         <div className="relative bg-dark pt-32 pb-0 overflow-hidden">
