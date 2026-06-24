@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { X, ArrowRight, ArrowLeft } from 'lucide-react'
 
 const STORAGE_KEY    = 'mls_july4_popup_shown_2026'
-const CAMPAIGN_START = '2026-06-25'
+const CAMPAIGN_START = '2026-06-24'
 const CAMPAIGN_END   = '2026-07-06'
 
 type Offer = {

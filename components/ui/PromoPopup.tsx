@@ -10,7 +10,7 @@ const PROMO_CODE        = 'MLS100OFF'
 const MD_CAMPAIGN_START = '2026-04-17'
 const MD_CAMPAIGN_END   = '2026-05-12'
 // While the Independence Day campaign is running, defer to IndependenceDayPopup
-const J4_CAMPAIGN_START = '2026-06-25'
+const J4_CAMPAIGN_START = '2026-06-24'
 const J4_CAMPAIGN_END   = '2026-07-06'
 
 export function PromoPopup() {

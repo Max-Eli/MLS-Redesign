@@ -12,7 +12,7 @@
 --   RF Microneedling                   $399  (Reg. $550)
 --   Lip Filler                         $399
 --
--- Campaign window: 2026-06-25 → 2026-07-06 (offer expires July 6).
+-- Campaign window: 2026-06-24 → 2026-07-06 (offer expires July 6).
 -- Limited appointments.
 --
 -- After running:
@@ -116,7 +116,7 @@ insert into promotions (
    'July 4th',
    '/laserskintreatments.png',
    'july-4th-picoway-pigmentation',
-   true, '2026-06-25', '2026-07-07', 1),
+   true, '2026-06-24', '2026-07-07', 1),
 
   ('Laser Hair Removal — Small (Package of 6)',
    'Six sessions of laser hair removal for small areas — upper lip, chin, sideburns, underarms.',
@@ -125,7 +125,7 @@ insert into promotions (
    'July 4th',
    '/laserhairremoval.jpg',
    'july-4th-laser-hair-removal-small',
-   true, '2026-06-25', '2026-07-07', 2),
+   true, '2026-06-24', '2026-07-07', 2),
 
   ('Laser Hair Removal — Medium (Package of 6)',
    'Six sessions of laser hair removal for medium areas — half arms, bikini line, lower legs.',
@@ -134,7 +134,7 @@ insert into promotions (
    'July 4th',
    '/laserhairremoval.jpg',
    'july-4th-laser-hair-removal-medium',
-   true, '2026-06-25', '2026-07-07', 3),
+   true, '2026-06-24', '2026-07-07', 3),
 
   ('Laser Hair Removal — Large (Package of 6)',
    'Six sessions of laser hair removal for large areas — full arms, full legs, full back, Brazilian.',
@@ -143,7 +143,7 @@ insert into promotions (
    'July 4th',
    '/laserhairremoval.jpg',
    'july-4th-laser-hair-removal-large',
-   true, '2026-06-25', '2026-07-07', 4),
+   true, '2026-06-24', '2026-07-07', 4),
 
   ('Laser Hair Removal — Full Body (Package of 6)',
    'Six sessions of full-body laser hair removal — head-to-toe coverage at our biggest Independence Day savings.',
@@ -152,7 +152,7 @@ insert into promotions (
    'July 4th',
    '/laserhairremoval.jpg',
    'july-4th-laser-hair-removal-full-body',
-   true, '2026-06-25', '2026-07-07', 5),
+   true, '2026-06-24', '2026-07-07', 5),
 
   ('RF Microneedling',
    'Collagen-stimulating RF microneedling for fine lines, scarring, texture, and pore size.',
@@ -161,7 +161,7 @@ insert into promotions (
    'July 4th',
    '/facialtreaments.png',
    'july-4th-rf-microneedling',
-   true, '2026-06-25', '2026-07-07', 6),
+   true, '2026-06-24', '2026-07-07', 6),
 
   ('Lip Filler',
    'Soft, natural-looking lip enhancement with premium hyaluronic acid filler, by our licensed injector.',
@@ -170,4 +170,4 @@ insert into promotions (
    'July 4th',
    '/injectables.png',
    'july-4th-lip-filler',
-   true, '2026-06-25', '2026-07-07', 7);
+   true, '2026-06-24', '2026-07-07', 7);
