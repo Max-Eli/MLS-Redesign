@@ -19,10 +19,26 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const service = getServiceData(params.slug)
   if (!service) return { title: 'Service Not Found' }
+
+  const title       = `${service.name} in Sunny Isles Beach, FL | Manhattan Laser Spa`
+  const description = `${service.tagline}. Performed at Manhattan Laser Spa in Sunny Isles Beach — serving Miami, Aventura, Bal Harbour & surrounding South Florida communities.`
+
   return {
-    title: `${service.name} | Manhattan Laser Spa`,
-    description: service.tagline,
+    title,
+    description,
     alternates: { canonical: `https://manhattanlaserspa.com/services/${service.slug}` },
+    openGraph: {
+      title,
+      description,
+      type:    'website',
+      url:     `https://manhattanlaserspa.com/services/${service.slug}`,
+      ...(service.image ? { images: [{ url: `https://manhattanlaserspa.com${service.image}`, alt: service.name }] } : {}),
+    },
+    twitter: {
+      card:        'summary_large_image',
+      title,
+      description,
+    },
   }
 }
 
@@ -34,8 +50,64 @@ export default function ServicePage({ params }: Props) {
     ? `/treatments/${service.categorySlug}`
     : '/shop'
 
+  // FAQPage schema — Google AI Overviews, Perplexity, and ChatGPT all read
+  // this directly when surfacing answers about treatments. The FAQ content
+  // already exists in JSX below; this exposes the same Q&As as structured data.
+  const faqJsonLd = service.faqs.length > 0 ? {
+    '@context':  'https://schema.org',
+    '@type':     'FAQPage',
+    mainEntity:  service.faqs.map(f => ({
+      '@type': 'Question',
+      name:    f.question,
+      acceptedAnswer: { '@type': 'Answer', text: f.answer },
+    })),
+  } : null
+
+  // MedicalProcedure schema — identifies the treatment as a specific medical
+  // procedure offered by Manhattan Laser Spa at a specific address. Drives
+  // rich results and "near me" intent matching in Google.
+  const procedureJsonLd = {
+    '@context':    'https://schema.org',
+    '@type':       'MedicalProcedure',
+    name:          service.name,
+    description:   `${service.tagline}. ${service.overview}`,
+    procedureType: 'https://schema.org/TherapeuticProcedure',
+    ...(service.howItWorks.length > 0 && {
+      howPerformed: service.howItWorks.map(s => `${s.step}: ${s.description}`).join(' '),
+    }),
+    ...(service.machine && {
+      usesDevice: { '@type': 'MedicalDevice', name: service.machine },
+    }),
+    provider: {
+      '@type':    'MedicalBusiness',
+      name:       'Manhattan Laser Spa',
+      url:        'https://manhattanlaserspa.com',
+      telephone:  '+1-305-705-3997',
+      address: {
+        '@type':           'PostalAddress',
+        streetAddress:     '16850 Collins Ave, Suite 105',
+        addressLocality:   'Sunny Isles Beach',
+        addressRegion:     'FL',
+        postalCode:        '33160',
+        addressCountry:    'US',
+      },
+      areaServed: ['Sunny Isles Beach', 'Miami', 'Aventura', 'Bal Harbour', 'Hallandale Beach', 'North Miami Beach'],
+    },
+  }
+
   return (
-    <div className="min-h-screen bg-cream">
+    <>
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(procedureJsonLd) }}
+      />
+      <div className="min-h-screen bg-cream">
       {/* Hero */}
       <div className="bg-dark pt-36 pb-20 relative overflow-hidden">
         {service.image && (
@@ -219,5 +291,6 @@ export default function ServicePage({ params }: Props) {
         </Container>
       </div>
     </div>
+    </>
   )
 }
