@@ -59,6 +59,27 @@ export async function fetchInactivePromoSlugs(): Promise<string[]> {
     .filter((s): s is string => !!s)
 }
 
+// Inverse of fetchInactivePromoSlugs — slugs of services linked to a
+// currently active promotion (started, not yet expired, active=true).
+// Used by the Promotions filter chip on /shop so the chip shows every
+// service with an active promotion regardless of its treatment category.
+export async function fetchActivePromoSlugs(): Promise<string[]> {
+  if (!supabase) return []
+  const now = new Date().toISOString()
+  const { data, error } = await supabase
+    .from('promotions')
+    .select('product_slug')
+    .eq('active', true)
+    .not('product_slug', 'is', null)
+    .or(`starts_at.is.null,starts_at.lte.${now}`)
+    .or(`ends_at.is.null,ends_at.gte.${now}`)
+
+  if (error || !data) return []
+  return data
+    .map((r: { product_slug: string | null }) => r.product_slug)
+    .filter((s): s is string => !!s)
+}
+
 export async function fetchServices(params?: {
   categorySlug?: string
   search?: string
@@ -83,9 +104,19 @@ export async function fetchServices(params?: {
     .order('title',      { ascending: true })
     .range(from, to)
 
-  if (params?.categorySlug) query = query.eq('category_slug', params.categorySlug)
-  if (params?.featured)     query = query.eq('is_featured', true)
-  if (params?.search)       query = query.ilike('title', `%${params.search}%`)
+  // Special-case: the "Promotions" filter chip on /shop filters by slugs of
+  // services linked to active promotions, not by literal category_slug. This
+  // lets services keep their real treatment category while still surfacing
+  // under Promotions during a campaign.
+  if (params?.categorySlug === 'promotions') {
+    const activeSlugs = await fetchActivePromoSlugs()
+    if (activeSlugs.length === 0) return { services: [], total: 0 }
+    query = query.in('slug', activeSlugs)
+  } else if (params?.categorySlug) {
+    query = query.eq('category_slug', params.categorySlug)
+  }
+  if (params?.featured) query = query.eq('is_featured', true)
+  if (params?.search)   query = query.ilike('title', `%${params.search}%`)
   if (inactiveSlugs.length > 0) {
     query = query.not('slug', 'in', `(${inactiveSlugs.map(s => `"${s}"`).join(',')})`)
   }

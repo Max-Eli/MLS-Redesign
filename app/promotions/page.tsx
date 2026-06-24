@@ -8,7 +8,7 @@ import { BOOK_NOW_URL } from '@/lib/utils'
 import { fetchActivePromotions } from '@/lib/promotions'
 import type { Promotion } from '@/lib/promotions'
 
-export const revalidate = 300 // refresh every 5 minutes
+export const revalidate = 60 // refresh every minute so campaign changes propagate fast
 
 export const metadata: Metadata = {
   title: 'Special Offers & Promotions',
