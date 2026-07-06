@@ -40,16 +40,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!service) return { title: 'Service Not Found' }
 
   const image = getServiceImage(service)
+  const name  = stripHtml(service.title.rendered)
   const desc  = stripHtml(service.excerpt.rendered || service.content.rendered).slice(0, 160)
 
+  const title       = `${name} in Sunny Isles Beach, FL | Manhattan Laser Spa`
+  const description = desc || `Book ${name} at Manhattan Laser Spa in Sunny Isles Beach, FL — serving Miami, Aventura, and South Florida.`
+
   return {
-    title: stripHtml(service.title.rendered),
-    description: desc || `Book ${stripHtml(service.title.rendered)} at Manhattan Laser Spa in Sunny Isles Beach, FL`,
+    title,
+    description,
     alternates: { canonical: `https://manhattanlaserspa.com/product/${service.slug}` },
     openGraph: {
-      title: stripHtml(service.title.rendered),
-      description: desc,
+      title:       name,
+      description,
+      type:        'website',
+      url:         `https://manhattanlaserspa.com/product/${service.slug}`,
       ...(image ? { images: [{ url: image.src, alt: image.alt }] } : {}),
+    },
+    twitter: {
+      card:        'summary_large_image',
+      title,
+      description,
+      ...(image ? { images: [image.src] } : {}),
     },
   }
 }
@@ -70,6 +82,48 @@ export default async function ProductPage({ params }: Props) {
   const hasPrice   = !!safeMeta(service).mls_price
   const isGiftCard = category?.slug === 'gift-cards'
 
+  // Product + Offer JSON-LD. Qualifies the page for Google Shopping-style
+  // rich results (price, availability, brand) and gives AI-search engines
+  // a structured signal that this is a buyable medspa treatment offered by
+  // Manhattan Laser Spa in Sunny Isles Beach.
+  const rawName        = stripHtml(service.title.rendered)
+  const rawDescription = stripHtml(service.content.rendered || service.excerpt.rendered) || `Book ${rawName} at Manhattan Laser Spa.`
+  const numericPrice   = parseFloat(safeMeta(service).mls_sale_price || safeMeta(service).mls_price || '')
+  const productJsonLd  = {
+    '@context':   'https://schema.org',
+    '@type':      'Product',
+    name:         rawName,
+    description:  rawDescription.slice(0, 500),
+    ...(image?.src && {
+      image: image.src.startsWith('http') ? [image.src] : [`https://manhattanlaserspa.com${image.src}`],
+    }),
+    brand: { '@type': 'Brand', name: 'Manhattan Laser Spa' },
+    ...(hasPrice && !isNaN(numericPrice) && numericPrice > 0 && {
+      offers: {
+        '@type':         'Offer',
+        priceCurrency:   'USD',
+        price:           numericPrice.toFixed(2),
+        availability:    'https://schema.org/InStock',
+        url:             `https://manhattanlaserspa.com/product/${service.slug}`,
+        priceValidUntil: '2027-12-31',
+        seller: {
+          '@type':   'MedicalBusiness',
+          name:      'Manhattan Laser Spa',
+          address: {
+            '@type':         'PostalAddress',
+            streetAddress:   '16850 Collins Ave, Suite 105',
+            addressLocality: 'Sunny Isles Beach',
+            addressRegion:   'FL',
+            postalCode:      '33160',
+            addressCountry:  'US',
+          },
+          telephone: '+1-305-705-3997',
+        },
+      },
+    }),
+    ...(category && { category: category.name }),
+  }
+
   // Related services from same category
   const { services: related } = category
     ? await getServices({ category: category.id, perPage: 4 })
@@ -79,6 +133,10 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <div className="min-h-screen bg-cream">
         <div className="pt-24 md:pt-32" />
 
