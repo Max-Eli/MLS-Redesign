@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { X, ArrowRight, ArrowLeft } from 'lucide-react'
 
 const STORAGE_KEY    = 'mls_july4_popup_shown_2026'
+const CAMPAIGN_BADGE = 'July 4th'
 const CAMPAIGN_START = '2026-06-24'
 const CAMPAIGN_END   = '2026-07-06'
 
@@ -81,14 +82,33 @@ export function IndependenceDayPopup() {
   const [view, setView] = useState<'main' | 'laser'>('main')
 
   useEffect(() => {
+    // Cheapest checks first — bail before hitting the API when we can.
     const now = Date.now()
     if (now < new Date(CAMPAIGN_START).getTime()) return
     if (now > new Date(CAMPAIGN_END + 'T23:59:59').getTime()) return
     try {
       if (localStorage.getItem(STORAGE_KEY)) return
     } catch {}
-    const t = setTimeout(() => setOpen(true), 2000)
-    return () => clearTimeout(t)
+
+    // Final gate: only show if the owner still has July 4th promotions
+    // marked active in /admin/promotions. Turning them all off there stops
+    // the popup instantly (well, within the 60s revalidate on the endpoint).
+    let cancelled = false
+    let timer: ReturnType<typeof setTimeout> | undefined
+
+    fetch('/api/campaigns/active')
+      .then(r => (r.ok ? r.json() : Promise.reject()))
+      .then((data: { campaigns?: string[] }) => {
+        if (cancelled) return
+        if (!Array.isArray(data.campaigns) || !data.campaigns.includes(CAMPAIGN_BADGE)) return
+        timer = setTimeout(() => setOpen(true), 2000)
+      })
+      .catch(() => { /* fail closed — don't show if we can't confirm */ })
+
+    return () => {
+      cancelled = true
+      if (timer) clearTimeout(timer)
+    }
   }, [])
 
   // Lock background scroll while the popup is open

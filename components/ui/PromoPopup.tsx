@@ -26,16 +26,50 @@ export function PromoPopup() {
 
   useEffect(() => {
     const now = Date.now()
-    if (now >= new Date(MD_CAMPAIGN_START).getTime() && now <= new Date(MD_CAMPAIGN_END).getTime()) return
-    if (now >= new Date(J4_CAMPAIGN_START).getTime() && now <= new Date(J4_CAMPAIGN_END + 'T23:59:59').getTime()) return
     try {
       if (localStorage.getItem(STORAGE_KEY)) return
     } catch {}
-    const timer = setTimeout(() => {
-      openedAt.current = Date.now()
-      setOpen(true)
-    }, 2500)
-    return () => clearTimeout(timer)
+
+    const inMdWindow = now >= new Date(MD_CAMPAIGN_START).getTime() && now <= new Date(MD_CAMPAIGN_END).getTime()
+    const inJ4Window = now >= new Date(J4_CAMPAIGN_START).getTime() && now <= new Date(J4_CAMPAIGN_END + 'T23:59:59').getTime()
+
+    // Fast path: nothing to defer to, run the welcome popup now.
+    if (!inMdWindow && !inJ4Window) {
+      const timer = setTimeout(() => {
+        openedAt.current = Date.now()
+        setOpen(true)
+      }, 2500)
+      return () => clearTimeout(timer)
+    }
+
+    // A campaign window is active — check whether the owner has actually left
+    // that campaign's promotions on in /admin/promotions. If they're all off,
+    // this welcome popup takes over instead of deferring to a dead campaign.
+    let cancelled = false
+    let timer: ReturnType<typeof setTimeout> | undefined
+
+    fetch('/api/campaigns/active')
+      .then(r => (r.ok ? r.json() : Promise.reject()))
+      .then((data: { campaigns?: string[] }) => {
+        if (cancelled) return
+        const campaigns = Array.isArray(data.campaigns) ? data.campaigns : []
+        const mdActive = inMdWindow && campaigns.includes("Mother's Day")
+        const j4Active = inJ4Window && campaigns.includes('July 4th')
+        if (mdActive || j4Active) return // defer to the themed campaign popup
+        timer = setTimeout(() => {
+          openedAt.current = Date.now()
+          setOpen(true)
+        }, 2500)
+      })
+      .catch(() => {
+        // If we can't reach the endpoint, be conservative and stay quiet
+        // during a scheduled campaign window rather than double-popup.
+      })
+
+    return () => {
+      cancelled = true
+      if (timer) clearTimeout(timer)
+    }
   }, [])
 
   function dismiss() {
