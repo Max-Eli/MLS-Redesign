@@ -7,7 +7,7 @@ import { RsvpForm } from '@/components/anniversary/RsvpForm'
 const EVENT = {
   date:      'Friday, August 7, 2026',
   time:      '6:00 PM – 10:00 PM',
-  address1:  '16850 Collins Ave',
+  address1:  '16850 Collins Ave, Suite 105',
   address2:  'Sunny Isles Beach, FL',
   instagram: 'manhattanlaserspa_sunnyisles',
   phone:     '305-705-3997',

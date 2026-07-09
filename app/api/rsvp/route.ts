@@ -216,7 +216,7 @@ function buildGuestConfirmationHtml(p: { fullName: string; guestCount: number })
         <h2 style="margin:0 0 14px;font-size:13px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:#9b8ea0;">Event Details</h2>
         <p style="margin:0 0 6px;font-size:15px;color:#1a1a2e;line-height:1.5;"><strong>Date:</strong> Friday, August 7, 2026</p>
         <p style="margin:0 0 6px;font-size:15px;color:#1a1a2e;line-height:1.5;"><strong>Time:</strong> 6:00 PM – 10:00 PM</p>
-        <p style="margin:0 0 12px;font-size:15px;color:#1a1a2e;line-height:1.5;"><strong>Location:</strong> 16850 Collins Ave · Sunny Isles Beach, FL</p>
+        <p style="margin:0 0 12px;font-size:15px;color:#1a1a2e;line-height:1.5;"><strong>Location:</strong> 16850 Collins Ave, Suite 105 · Sunny Isles Beach, FL</p>
         <p style="margin:0;font-size:14px;color:#5a5068;line-height:1.5;">Live music · Champagne · Raffles · Goodie bags · <strong style="color:#1a1a2e;">30% off the entire menu</strong>, one night only.</p>
       </div>
 
