@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Calendar, Clock, MapPin, Music, Gift, Sparkles, Ticket } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 import { RsvpForm } from '@/components/anniversary/RsvpForm'
 
@@ -209,7 +210,7 @@ function DetailItem({
   label,
   value,
 }: {
-  icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>
+  icon:  LucideIcon
   label: string
   value: React.ReactNode
 }) {
