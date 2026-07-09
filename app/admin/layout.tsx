@@ -3,11 +3,12 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { ShoppingBag, Tag, Sparkles, LogOut } from 'lucide-react'
+import { ShoppingBag, Tag, Sparkles, CalendarHeart, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV = [
   { href: '/admin/orders',     label: 'Orders',      icon: ShoppingBag },
+  { href: '/admin/rsvps',      label: 'RSVPs',       icon: CalendarHeart },
   { href: '/admin/promos',     label: 'Promo Codes', icon: Tag },
   { href: '/admin/promotions', label: 'Promotions',  icon: Sparkles },
 ]
