@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Calendar, Clock, MapPin, Music, Gift, Sparkles, Ticket, CalendarPlus } from 'lucide-react'
+import { Calendar, Clock, MapPin, Music, Gift, Sparkles, Ticket, Utensils, CalendarPlus } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 import { RsvpForm } from '@/components/anniversary/RsvpForm'
@@ -17,6 +17,7 @@ const EVENT = {
 const HIGHLIGHTS = [
   { icon: Music,    label: 'Live Music' },
   { icon: Sparkles, label: 'Champagne' },
+  { icon: Utensils, label: "Hors d'Oeuvres" },
   { icon: Ticket,   label: 'Raffles' },
   { icon: Gift,     label: 'Goodie Bags' },
 ]
@@ -48,12 +49,16 @@ export default function AnniversaryPage() {
           <div className="max-w-xl mx-auto text-center">
             <p className="eyebrow text-gold-400 mb-4">You&apos;re Invited</p>
 
-            <span className="block font-display font-light leading-none text-white text-[5rem] sm:text-[6.5rem] md:text-[8rem]">
+            <span className="block font-display font-light leading-none text-white text-[6.5rem] sm:text-[9rem] md:text-[11rem]">
               4
             </span>
 
-            <p className="mt-3 md:mt-4 text-[0.7rem] md:text-xs font-medium tracking-[0.28em] uppercase text-white/50">
-              Years of Manhattan Laser Spa
+            <p className="mt-1 sm:mt-2 md:mt-3 font-display font-light text-gold-400 text-2xl sm:text-3xl md:text-4xl tracking-[0.2em]">
+              YEARS
+            </p>
+
+            <p className="mt-3 md:mt-4 text-2xs md:text-xs font-medium tracking-[0.28em] uppercase text-white/50">
+              of Manhattan Laser Spa
             </p>
 
             <div className="w-10 h-px bg-gold-400 mx-auto my-7 md:my-8" />
@@ -77,7 +82,7 @@ export default function AnniversaryPage() {
       </section>
 
       {/* ── 30% OFF — the headline offer, above the details ─────────────── */}
-      <section className="relative -mt-14 md:-mt-20 pb-14 md:pb-20">
+      <section className="pt-14 md:pt-20 pb-14 md:pb-20">
         <Container size="md">
           <div className="relative bg-dark rounded-3xl overflow-hidden mx-2 sm:mx-0 px-6 py-10 sm:px-8 sm:py-12 md:px-14 md:py-14 text-center">
             <div className="absolute -top-16 -right-12 size-56 rounded-full bg-mauve/15 blur-3xl pointer-events-none" />
