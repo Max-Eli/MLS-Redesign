@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { supabase } from '@/lib/supabase'
+import { buildAnniversaryIcs } from '@/lib/anniversary-ics'
 
 // Lazy so a missing RESEND_API_KEY (e.g. local dev) doesn't crash the module
 // at import time — the Resend constructor throws immediately on undefined.
@@ -119,17 +120,22 @@ export async function POST(req: Request) {
         }).catch(err => console.error('[rsvp] Resend spa notify failed:', err)),
       )
 
-      // Confirmation to guest (only if attending — declines don't need a "thanks for coming" note)
+      // Confirmation to guest (only if attending — declines don't need a "thanks for coming" note).
+      // Attaches an .ics calendar file so tapping it on mobile opens iOS
+      // Calendar / Google Calendar and saves the event with one confirmation.
       if (attending === 'yes') {
         emailPromises.push(
           resend.emails.send({
             from:    'Manhattan Laser Spa <noreply@send.manhattanlaserspa.com>',
             to:      email,
             subject: `You're confirmed — 4 Year Anniversary Celebration`,
-            html: buildGuestConfirmationHtml({
-              fullName,
-              guestCount,
-            }),
+            html:    buildGuestConfirmationHtml({ fullName, guestCount }),
+            attachments: [
+              {
+                filename: 'manhattan-laser-spa-anniversary.ics',
+                content:  buildAnniversaryIcs(),
+              },
+            ],
           }).catch(err => console.error('[rsvp] Resend guest confirmation failed:', err)),
         )
       }
@@ -220,6 +226,9 @@ function buildGuestConfirmationHtml(p: { fullName: string; guestCount: number })
         <p style="margin:0;font-size:14px;color:#5a5068;line-height:1.5;">Live music · Champagne · Raffles · Goodie bags · <strong style="color:#1a1a2e;">30% off the entire menu</strong>, one night only.</p>
       </div>
 
+      <p style="font-size:14px;color:#5a5068;line-height:1.7;margin:0 0 12px;">
+        We've attached a calendar file to this email — tap it on your phone to add the event to your calendar with one confirmation.
+      </p>
       <p style="font-size:14px;color:#5a5068;line-height:1.7;margin:0 0 22px;">
         We'll send a reminder closer to the date. If anything changes with your plans, simply reply to this email.
       </p>

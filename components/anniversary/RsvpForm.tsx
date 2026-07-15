@@ -21,7 +21,6 @@ export function RsvpForm() {
       phone:          (fd.get('phone')       as string).trim(),
       attending:      'yes',
       numGuests:      guests,
-      dietary:        (fd.get('dietary')     as string)?.trim() || null,
       notes:          (fd.get('notes')       as string)?.trim() || null,
       website:        fd.get('website') as string,
       formElapsedMs:  Date.now() - mountedAt.current,
@@ -149,19 +148,6 @@ export function RsvpForm() {
           </div>
         </div>
         <p className="mt-2 text-2xs text-dark-50/40 pl-1">Max 4 per RSVP. For larger parties, please call us.</p>
-      </div>
-
-      {/* Dietary */}
-      <div>
-        <label className="block text-2xs font-medium tracking-widest uppercase text-dark-50/50 mb-2">
-          Dietary Restrictions <span className="text-dark-50/30 normal-case tracking-normal">(optional)</span>
-        </label>
-        <input
-          type="text"
-          name="dietary"
-          placeholder="Vegetarian, gluten-free, allergies…"
-          className="w-full h-12 px-4 bg-cream-50 border border-cream-200 rounded-xl text-sm text-dark-50 placeholder:text-dark-50/30 focus:outline-none focus:border-mauve focus:ring-1 focus:ring-mauve transition-colors"
-        />
       </div>
 
       {/* Notes */}

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Calendar, Clock, MapPin, Music, Gift, Sparkles, Ticket } from 'lucide-react'
+import { Calendar, Clock, MapPin, Music, Gift, Sparkles, Ticket, CalendarPlus } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 import { RsvpForm } from '@/components/anniversary/RsvpForm'
@@ -76,8 +76,31 @@ export default function AnniversaryPage() {
         </Container>
       </section>
 
-      {/* ── Event details card ──────────────────────────────────────────── */}
+      {/* ── 30% OFF — the headline offer, above the details ─────────────── */}
       <section className="relative -mt-14 md:-mt-20 pb-14 md:pb-20">
+        <Container size="md">
+          <div className="relative bg-dark rounded-3xl overflow-hidden mx-2 sm:mx-0 px-6 py-10 sm:px-8 sm:py-12 md:px-14 md:py-14 text-center">
+            <div className="absolute -top-16 -right-12 size-56 rounded-full bg-mauve/15 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-16 -left-8 size-48 rounded-full bg-gold/10 blur-3xl pointer-events-none" />
+
+            <p className="eyebrow text-gold-400 mb-4">One Night Only</p>
+
+            <p className="font-display text-6xl sm:text-7xl md:text-[7rem] font-light leading-none text-white">
+              30<span className="text-gold-400">%</span>
+              <span className="align-top text-2xl md:text-3xl tracking-widest ml-2 md:ml-3">OFF</span>
+            </p>
+
+            <div className="w-10 h-px bg-gold-400 mx-auto my-6" />
+
+            <p className="text-sm md:text-[0.95rem] text-white/70 leading-relaxed max-w-sm mx-auto">
+              The entire menu is 30% off — every treatment, package, and service — bookable at the event.
+            </p>
+          </div>
+        </Container>
+      </section>
+
+      {/* ── Event details card ──────────────────────────────────────────── */}
+      <section className="pb-14 md:pb-20">
         <Container size="md">
           <div className="relative bg-white rounded-3xl shadow-luxury-lg p-6 sm:p-8 md:p-12 mx-2 sm:mx-0">
             <div className="text-center mb-8 md:mb-10">
@@ -112,29 +135,20 @@ export default function AnniversaryPage() {
                 ))}
               </div>
             </div>
-          </div>
-        </Container>
-      </section>
 
-      {/* ── 30% OFF — the headline offer ────────────────────────────────── */}
-      <section className="pb-14 md:pb-20">
-        <Container size="md">
-          <div className="relative bg-dark rounded-3xl overflow-hidden mx-2 sm:mx-0 px-6 py-10 sm:px-8 sm:py-12 md:px-14 md:py-14 text-center">
-            <div className="absolute -top-16 -right-12 size-56 rounded-full bg-mauve/15 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-16 -left-8 size-48 rounded-full bg-gold/10 blur-3xl pointer-events-none" />
-
-            <p className="eyebrow text-gold-400 mb-4">One Night Only</p>
-
-            <p className="font-display text-6xl sm:text-7xl md:text-[7rem] font-light leading-none text-white">
-              30<span className="text-gold-400">%</span>
-              <span className="align-top text-2xl md:text-3xl tracking-widest ml-2 md:ml-3">OFF</span>
-            </p>
-
-            <div className="w-10 h-px bg-gold-400 mx-auto my-6" />
-
-            <p className="text-sm md:text-[0.95rem] text-white/70 leading-relaxed max-w-sm mx-auto">
-              The entire menu is 30% off — every treatment, package, and service — bookable at the event.
-            </p>
+            <div className="mt-7 md:mt-8 text-center">
+              <a
+                href="/api/calendar/anniversary.ics"
+                download
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-cream-300 hover:border-mauve/50 bg-cream-50 hover:bg-white px-6 py-3 text-xs font-semibold tracking-widest uppercase text-dark-50/70 hover:text-mauve transition-colors"
+              >
+                <CalendarPlus size={14} strokeWidth={1.75} />
+                Add to Calendar
+              </a>
+              <p className="mt-3 text-2xs text-dark-50/40">
+                Opens in Apple Calendar, Google Calendar, or Outlook
+              </p>
+            </div>
           </div>
         </Container>
       </section>

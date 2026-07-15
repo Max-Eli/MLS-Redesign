@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState, useCallback } from 'react'
-import { CalendarHeart, Users, Utensils, Search, Download, Phone, Mail } from 'lucide-react'
+import { CalendarHeart, Users, Search, Download, Phone, Mail } from 'lucide-react'
 import { StatCard } from '@/components/admin/StatCard'
 
 type Rsvp = {
@@ -47,30 +47,26 @@ export default function AdminRsvpsPage() {
       r.full_name.toLowerCase().includes(q) ||
       r.email.toLowerCase().includes(q)     ||
       r.phone.toLowerCase().includes(q)     ||
-      (r.notes ?? '').toLowerCase().includes(q) ||
-      (r.dietary_restrictions ?? '').toLowerCase().includes(q)
+      (r.notes ?? '').toLowerCase().includes(q)
     )
   }, [rsvps, search])
 
   const stats = useMemo(() => {
-    const attending    = rsvps.filter(r => r.attending)
-    const totalGuests  = attending.reduce((sum, r) => sum + r.num_guests, 0)
-    const withDietary  = attending.filter(r => (r.dietary_restrictions ?? '').trim() !== '').length
+    const attending   = rsvps.filter(r => r.attending)
+    const totalGuests = attending.reduce((sum, r) => sum + r.num_guests, 0)
     return {
-      rsvps:       rsvps.length,
-      guests:      totalGuests,
-      dietary:     withDietary,
+      rsvps:  rsvps.length,
+      guests: totalGuests,
     }
   }, [rsvps])
 
   function exportCsv() {
-    const header = ['Name', 'Email', 'Phone', 'Guests', 'Dietary', 'Notes', 'RSVP Date']
+    const header = ['Name', 'Email', 'Phone', 'Guests', 'Notes', 'RSVP Date']
     const rows = filtered.map(r => [
       r.full_name,
       r.email,
       r.phone,
       r.num_guests,
-      r.dietary_restrictions ?? '',
       r.notes ?? '',
       new Date(r.created_at).toLocaleString('en-US'),
     ])
@@ -97,10 +93,9 @@ export default function AdminRsvpsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <StatCard label="Total RSVPs"    value={stats.rsvps.toString()}   icon={CalendarHeart} tint="mauve" />
-        <StatCard label="Total Guests"   value={stats.guests.toString()}  icon={Users}         tint="slate" hint="Includes plus-ones" />
-        <StatCard label="Dietary Notes"  value={stats.dietary.toString()} icon={Utensils}      tint="gold"  hint="Guests with dietary requests" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <StatCard label="Total RSVPs"  value={stats.rsvps.toString()}  icon={CalendarHeart} tint="mauve" />
+        <StatCard label="Total Guests" value={stats.guests.toString()} icon={Users}         tint="slate" hint="Includes plus-ones" />
       </div>
 
       {/* Controls */}
@@ -111,7 +106,7 @@ export default function AdminRsvpsPage() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search name, email, phone, dietary, notes…"
+            placeholder="Search name, email, phone, notes…"
             className="w-full h-10 pl-10 pr-3 bg-cream-50 border border-cream-200 rounded-xl text-sm text-dark-50 placeholder:text-dark-50/30 focus:outline-none focus:border-mauve focus:ring-2 focus:ring-mauve/20 transition-all"
           />
         </div>
@@ -131,7 +126,7 @@ export default function AdminRsvpsPage() {
           <span>Guest</span>
           <span>Contact</span>
           <span className="text-center">Party</span>
-          <span>Notes</span>
+          <span>Note</span>
         </div>
 
         {loading && rsvps.length === 0 ? (
@@ -178,18 +173,11 @@ export default function AdminRsvpsPage() {
                 </span>
               </div>
 
-              {/* Notes / dietary */}
-              <div className="min-w-0 text-xs text-dark-50/60 space-y-1">
-                {r.dietary_restrictions && (
-                  <div className="flex items-start gap-1.5">
-                    <Utensils size={10} className="text-gold-500 flex-shrink-0 mt-0.5" />
-                    <span className="line-clamp-2">{r.dietary_restrictions}</span>
-                  </div>
-                )}
-                {r.notes && <p className="line-clamp-2 text-dark-50/50">{r.notes}</p>}
-                {!r.dietary_restrictions && !r.notes && (
-                  <span className="text-dark-50/20">—</span>
-                )}
+              {/* Note */}
+              <div className="min-w-0 text-xs text-dark-50/60">
+                {r.notes
+                  ? <p className="line-clamp-2 text-dark-50/60">{r.notes}</p>
+                  : <span className="text-dark-50/20">—</span>}
               </div>
             </div>
           ))
