@@ -12,6 +12,9 @@ const MD_CAMPAIGN_END   = '2026-05-12'
 // While the Independence Day campaign is running, defer to IndependenceDayPopup
 const J4_CAMPAIGN_START = '2026-06-24'
 const J4_CAMPAIGN_END   = '2026-07-06'
+// While the Anniversary campaign is running, defer to AnniversaryPopup
+const ANNIV_CAMPAIGN_START = '2026-07-15'
+const ANNIV_CAMPAIGN_END   = '2026-08-07'
 
 export function PromoPopup() {
   const [open, setOpen] = useState(false)
@@ -30,8 +33,13 @@ export function PromoPopup() {
       if (localStorage.getItem(STORAGE_KEY)) return
     } catch {}
 
-    const inMdWindow = now >= new Date(MD_CAMPAIGN_START).getTime() && now <= new Date(MD_CAMPAIGN_END).getTime()
-    const inJ4Window = now >= new Date(J4_CAMPAIGN_START).getTime() && now <= new Date(J4_CAMPAIGN_END + 'T23:59:59').getTime()
+    const inMdWindow    = now >= new Date(MD_CAMPAIGN_START).getTime()    && now <= new Date(MD_CAMPAIGN_END).getTime()
+    const inJ4Window    = now >= new Date(J4_CAMPAIGN_START).getTime()    && now <= new Date(J4_CAMPAIGN_END + 'T23:59:59').getTime()
+    const inAnnivWindow = now >= new Date(ANNIV_CAMPAIGN_START).getTime() && now <= new Date(ANNIV_CAMPAIGN_END + 'T23:59:59').getTime()
+
+    // Anniversary is a fixed date-window campaign (no admin toggle at the
+    // moment) — defer to AnniversaryPopup immediately when in-window.
+    if (inAnnivWindow) return
 
     // Fast path: nothing to defer to, run the welcome popup now.
     if (!inMdWindow && !inJ4Window) {
