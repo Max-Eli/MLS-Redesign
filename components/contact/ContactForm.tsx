@@ -4,10 +4,11 @@ import { useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
 
 export function ContactForm() {
-  const [status, setStatus]         = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
-  const [errorMsg, setErrorMsg]     = useState('')
-  const [smsConsent, setSmsConsent] = useState(false)
-  const mountedAt                   = useRef(Date.now())
+  const [status, setStatus]                   = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
+  const [errorMsg, setErrorMsg]               = useState('')
+  const [appointmentSms, setAppointmentSms]   = useState(false)
+  const [marketingSms, setMarketingSms]       = useState(false)
+  const mountedAt                             = useRef(Date.now())
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -16,15 +17,19 @@ export function ContactForm() {
 
     const fd = new FormData(e.currentTarget)
     const body = {
-      firstName:     fd.get('first_name') as string,
-      lastName:      fd.get('last_name')  as string,
-      email:         fd.get('email')      as string,
-      phone:         fd.get('phone')      as string,
-      treatment:     fd.get('treatment')  as string,
-      message:       fd.get('message')    as string,
-      website:       fd.get('website')    as string,
-      smsConsent,
-      formElapsedMs: Date.now() - mountedAt.current,
+      firstName:      fd.get('first_name') as string,
+      lastName:       fd.get('last_name')  as string,
+      email:          fd.get('email')      as string,
+      phone:          fd.get('phone')      as string,
+      treatment:      fd.get('treatment')  as string,
+      message:        fd.get('message')    as string,
+      website:        fd.get('website')    as string,
+      appointmentSms,
+      marketingSms,
+      // Kept for backward-compat with the Zapier + email path that already
+      // maps `smsConsent` — true if the client opted in to either flavor.
+      smsConsent:     appointmentSms || marketingSms,
+      formElapsedMs:  Date.now() - mountedAt.current,
     }
 
     try {
@@ -175,35 +180,36 @@ export function ContactForm() {
         />
       </div>
 
-      {/* SMS/MMS consent — affirmative opt-in, TCR-compliant */}
-      <div className="rounded-xl border border-cream-200 bg-cream-50 p-4">
-        <label className="flex items-start gap-3 cursor-pointer">
-          <button
-            type="button"
-            role="checkbox"
-            aria-checked={smsConsent}
-            aria-label="Consent to receive SMS messages"
-            onClick={() => setSmsConsent((v) => !v)}
-            className={cn(
-              'flex-shrink-0 mt-0.5 size-5 rounded-md border-2 flex items-center justify-center transition-all',
-              smsConsent
-                ? 'bg-mauve border-mauve'
-                : 'bg-white border-cream-300 hover:border-mauve/50',
-            )}
-          >
-            {smsConsent && (
-              <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 12 12">
-                <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            )}
-          </button>
-          <span className="text-2xs text-dark-50/60 leading-relaxed">
-            I agree to receive recurring automated text messages (SMS/MMS) from Manhattan Laser Spa at the mobile number provided, including appointment reminders, promotional offers, and treatment updates. Consent is not a condition of purchase. Message frequency varies. Message and data rates may apply. Reply <strong>STOP</strong> to unsubscribe at any time, or <strong>HELP</strong> for assistance. See our{' '}
-            <a href="/privacy" className="underline decoration-dotted hover:text-mauve transition-colors">Privacy Policy</a>
-            {' '}and{' '}
-            <a href="/terms" className="underline decoration-dotted hover:text-mauve transition-colors">Terms of Service</a>.
-          </span>
-        </label>
+      {/* SMS/MMS consent — two separate affirmative opt-ins per A2P 10DLC
+          best practice: transactional (appointments) is separate from
+          promotional (marketing). Both are optional and both default to
+          unchecked. The full-length legal disclosures live in the last
+          block below and cover both toggles. */}
+      <div className="rounded-xl border border-cream-200 bg-cream-50 p-4 space-y-4">
+        <p className="text-2xs font-medium tracking-widest uppercase text-dark-50/50">
+          Text Message Preferences <span className="text-dark-50/30 normal-case tracking-normal">(optional)</span>
+        </p>
+
+        <SmsToggle
+          checked={appointmentSms}
+          onChange={setAppointmentSms}
+          title="Appointment notifications"
+          desc="Confirmations, reminders, follow-up care, and treatment updates related to your visits."
+        />
+
+        <SmsToggle
+          checked={marketingSms}
+          onChange={setMarketingSms}
+          title="Marketing messages"
+          desc="Promotional offers, special events, and new treatment announcements. Consent is not a condition of purchase."
+        />
+
+        <p className="text-2xs text-dark-50/50 leading-relaxed pt-2 border-t border-cream-200">
+          By checking either box you agree to receive recurring automated text messages (SMS/MMS) from Manhattan Laser Spa at the mobile number provided. Message frequency varies. Message and data rates may apply. Reply <strong>STOP</strong> to unsubscribe at any time, or <strong>HELP</strong> for assistance. See our{' '}
+          <a href="/privacy" className="underline decoration-dotted hover:text-mauve transition-colors">Privacy Policy</a>
+          {' '}and{' '}
+          <a href="/terms" className="underline decoration-dotted hover:text-mauve transition-colors">Terms of Service</a>.
+        </p>
       </div>
 
       {errorMsg && (
@@ -228,5 +234,45 @@ export function ContactForm() {
         <a href="/privacy" className="underline decoration-dotted hover:text-mauve transition-colors">Privacy Policy</a>.
       </p>
     </form>
+  )
+}
+
+function SmsToggle({
+  checked,
+  onChange,
+  title,
+  desc,
+}: {
+  checked:  boolean
+  onChange: (v: boolean) => void
+  title:    string
+  desc:     string
+}) {
+  return (
+    <label className="flex items-start gap-3 cursor-pointer">
+      <button
+        type="button"
+        role="checkbox"
+        aria-checked={checked}
+        aria-label={title}
+        onClick={() => onChange(!checked)}
+        className={cn(
+          'flex-shrink-0 mt-0.5 size-5 rounded-md border-2 flex items-center justify-center transition-all',
+          checked
+            ? 'bg-mauve border-mauve'
+            : 'bg-white border-cream-300 hover:border-mauve/50',
+        )}
+      >
+        {checked && (
+          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 12 12">
+            <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
+      </button>
+      <div className="min-w-0">
+        <p className="text-xs font-medium text-dark-50">{title}</p>
+        <p className="text-2xs text-dark-50/50 leading-relaxed mt-0.5">{desc}</p>
+      </div>
+    </label>
   )
 }

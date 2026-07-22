@@ -25,8 +25,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
 
-    const { firstName, lastName, email, phone, treatment, message, smsConsent, website, formElapsedMs } = await req.json()
-    const hasSmsConsent = smsConsent === true
+    const {
+      firstName, lastName, email, phone, treatment, message,
+      appointmentSms, marketingSms, smsConsent,
+      website, formElapsedMs,
+    } = await req.json()
+
+    // Two granular flags (A2P 10DLC best practice: separate transactional
+    // from marketing) plus the older combined flag kept for back-compat.
+    const hasAppointmentSms = appointmentSms === true
+    const hasMarketingSms   = marketingSms   === true
+    const hasSmsConsent     = hasAppointmentSms || hasMarketingSms || smsConsent === true
 
     // Honeypot — real users can't see this field; bots fill everything.
     // Return success silently so the bot moves on instead of retrying.
@@ -52,14 +61,16 @@ export async function POST(req: Request) {
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({
             firstName,
-            lastName:    lastName  ?? null,
+            lastName:        lastName  ?? null,
             email,
-            phone:       phone     ?? null,
-            treatment:   treatment ?? null,
-            message:     message   ?? null,
-            smsConsent:  hasSmsConsent,
-            submittedAt: new Date().toISOString(),
-            source:      'manhattanlaserspa.com/contact',
+            phone:           phone     ?? null,
+            treatment:       treatment ?? null,
+            message:         message   ?? null,
+            appointmentSms:  hasAppointmentSms,
+            marketingSms:    hasMarketingSms,
+            smsConsent:      hasSmsConsent,
+            submittedAt:     new Date().toISOString(),
+            source:          'manhattanlaserspa.com/contact',
           }),
         })
           .then(res => {
@@ -94,8 +105,12 @@ export async function POST(req: Request) {
               <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:14px;color:#1a1a2e;"><a href="tel:${phone}" style="color:#9b8ea0;">${phone}</a></td>
             </tr>` : ''}
             <tr>
-              <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#9b8ea0;">SMS Opt-in</td>
-              <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:14px;color:${hasSmsConsent ? '#1a1a2e' : '#9b8ea0'};font-weight:${hasSmsConsent ? '600' : '400'};">${hasSmsConsent ? 'Yes — consented to SMS/MMS' : 'No — do not text'}</td>
+              <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#9b8ea0;">SMS: Appointments</td>
+              <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:14px;color:${hasAppointmentSms ? '#1a1a2e' : '#9b8ea0'};font-weight:${hasAppointmentSms ? '600' : '400'};">${hasAppointmentSms ? 'Yes — may text about appointments' : 'No'}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#9b8ea0;">SMS: Marketing</td>
+              <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:14px;color:${hasMarketingSms ? '#1a1a2e' : '#9b8ea0'};font-weight:${hasMarketingSms ? '600' : '400'};">${hasMarketingSms ? 'Yes — opted in to marketing SMS' : 'No'}</td>
             </tr>
             ${treatment ? `<tr>
               <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#9b8ea0;">Treatment</td>

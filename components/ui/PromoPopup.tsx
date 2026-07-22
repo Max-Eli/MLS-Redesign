@@ -307,10 +307,10 @@ export function PromoPopup() {
                           )}
                         </button>
                         <span className="text-xs text-dark-50/50 leading-relaxed">
-                          I agree to receive recurring automated marketing text messages from Manhattan Laser Spa at the number provided. Consent is not required to purchase. Msg &amp; data rates may apply. Reply STOP to cancel.{' '}
-                          <a href="/privacy" className="underline decoration-dotted hover:text-mauve transition-colors">Privacy</a>
-                          {' '}&amp;{' '}
-                          <a href="/terms" className="underline decoration-dotted hover:text-mauve transition-colors">Terms</a>.
+                          I agree to receive recurring automated text messages (SMS/MMS) from Manhattan Laser Spa at the mobile number provided, including appointment reminders, promotional offers, and treatment updates. Consent is not a condition of purchase. Message frequency varies. Message and data rates may apply. Reply <strong>STOP</strong> to unsubscribe at any time, or <strong>HELP</strong> for assistance. See our{' '}
+                          <a href="/privacy" className="underline decoration-dotted hover:text-mauve transition-colors">Privacy Policy</a>
+                          {' '}and{' '}
+                          <a href="/terms" className="underline decoration-dotted hover:text-mauve transition-colors">Terms of Service</a>.
                         </span>
                       </label>
                       {errors.smsConsent && (
