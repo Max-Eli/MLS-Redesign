@@ -159,7 +159,7 @@ insert into blog_posts (
   'Laser Hair Removal',
   ARRAY['laser hair removal', 'Miami', 'Sunny Isles Beach', 'Aventura', 'GentleMax Pro', 'pricing', 'brazilian'],
   11,
-  '2026-08-14T13:00:00-04:00',
+  '2026-07-28T17:00:00-04:00',
   true
 )
 on conflict (slug) do update set

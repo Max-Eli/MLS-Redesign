@@ -173,7 +173,7 @@ insert into blog_posts (
   'Body Contouring',
   ARRAY['coolsculpting', 'pricing', 'Miami', 'Sunny Isles Beach', 'body contouring', 'cost guide'],
   10,
-  '2026-07-31T13:00:00-04:00',
+  '2026-07-28T13:00:00-04:00',
   true
 )
 on conflict (slug) do update set

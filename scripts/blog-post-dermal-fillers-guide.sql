@@ -167,7 +167,7 @@ insert into blog_posts (
   'Injectables',
   ARRAY['dermal fillers', 'lip filler', 'juvederm', 'restylane', 'Miami', 'Sunny Isles Beach', 'injectables', 'cost guide'],
   13,
-  '2026-08-14T15:00:00-04:00',
+  '2026-07-28T15:00:00-04:00',
   true
 )
 on conflict (slug) do update set

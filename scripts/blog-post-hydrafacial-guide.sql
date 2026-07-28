@@ -155,7 +155,7 @@ insert into blog_posts (
   'Facial Treatments',
   ARRAY['hydrafacial', 'facials', 'skincare', 'Miami', 'Sunny Isles Beach', 'aesthetic treatments'],
   9,
-  '2026-07-31T14:00:00-04:00',
+  '2026-07-28T14:00:00-04:00',
   true
 )
 on conflict (slug) do update set

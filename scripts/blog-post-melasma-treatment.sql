@@ -152,7 +152,7 @@ insert into blog_posts (
   'Skin Concerns',
   ARRAY['melasma', 'hyperpigmentation', 'PicoWay', 'Miami', 'Sunny Isles Beach', 'skincare'],
   11,
-  '2026-08-14T14:00:00-04:00',
+  '2026-07-28T16:00:00-04:00',
   true
 )
 on conflict (slug) do update set
