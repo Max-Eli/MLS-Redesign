@@ -1,6 +1,17 @@
 import twilio from 'twilio'
 
-type TwilioClient = ReturnType<typeof twilio>
+export type TwilioClient = ReturnType<typeof twilio>
+
+// Build a Twilio client from explicit credentials (e.g. entered in the admin
+// panel). Returns null if either credential is missing or the SDK rejects them.
+export function makeTwilioClient(accountSid: string, authToken: string): TwilioClient | null {
+  if (!accountSid || !authToken) return null
+  try {
+    return twilio(accountSid, authToken)
+  } catch {
+    return null
+  }
+}
 
 // Lazy singleton so a missing TWILIO_* env (e.g. local dev) doesn't crash the
 // module at import time — mirrors the getResend() pattern used elsewhere.
