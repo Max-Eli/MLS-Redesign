@@ -7,9 +7,8 @@ export const ANNIVERSARY_EVENT_SLUG = 'anniversary-4-year-2026'
 // Safety net: never send after the event has ended (Sat Aug 8, 4 AM EDT).
 const EVENT_ENDED_ISO = '2026-08-08T08:00:00Z'
 
-// Dedup column on the rsvps table — stamp-before-send guarantees no guest is
-// ever texted twice, even under retries or concurrent requests.
-const SMS_COLUMN = 'reminder_sms_sent_at'
+// Default campaign key used by the env-based cron trigger.
+export const DEFAULT_CAMPAIGN = 'anniversary-reminder'
 
 // Default copy. `{name}` is replaced with the guest's first name. Includes the
 // brand name + STOP/HELP opt-out required for A2P 10DLC-registered traffic.
@@ -24,6 +23,7 @@ export type SmsMode = 'dryRun' | 'test' | 'live'
 export interface SmsResult {
   ok:            boolean
   mode:          SmsMode
+  campaign?:     string
   summary?:      { pending: number; sent: number; skippedInvalid: number; failed: number }
   wouldSendTo?:  string[]
   sid?:          string
@@ -48,83 +48,100 @@ function renderBody(template: string, firstName: string): string {
 }
 
 // Core sender, shared by the admin endpoint and the cron endpoint.
+// Dedup is per-CAMPAIGN: a guest already logged in sms_sends for this campaign
+// is skipped, but a brand-new campaign name reaches the whole audience again —
+// so you can send a day-before and a day-of blast without collisions.
 // - dryRun: count + preview masked numbers, no sends, no DB writes.
 // - testTo: send exactly one message to that number, no DB writes.
-// - otherwise: send to every attending RSVP not yet texted (stamp-before-send).
+// - otherwise: send to every attending RSVP not yet sent for `campaign`.
 export async function runSmsReminders(params: {
-  client:   TwilioClient | null
-  from:     string
-  message:  string
-  dryRun?:  boolean
-  testTo?:  string | null
+  client:    TwilioClient | null
+  from:      string
+  message:   string
+  campaign:  string
+  dryRun?:   boolean
+  testTo?:   string | null
 }): Promise<SmsResult> {
   const { client, from, message, dryRun = false, testTo = null } = params
+  const campaign = (params.campaign || DEFAULT_CAMPAIGN).trim()
   const mode: SmsMode = testTo ? 'test' : dryRun ? 'dryRun' : 'live'
 
-  if (!supabase) return { ok: false, mode, error: 'Supabase not configured' }
+  if (!supabase) return { ok: false, mode, campaign, error: 'Supabase not configured' }
 
   const nowISO = new Date().toISOString()
   if (nowISO > EVENT_ENDED_ISO) {
-    return { ok: true, mode, error: 'Event has ended — nothing sent.' }
+    return { ok: true, mode, campaign, error: 'Event has ended — nothing sent.' }
   }
 
   // ── Test mode: single message, no DB writes ──
   if (testTo) {
     const to = toE164US(testTo)
-    if (!to) return { ok: false, mode: 'test', error: `Invalid test number: ${testTo}` }
-    if (dryRun) return { ok: true, mode: 'test', to: maskPhone(to) }
-    if (!client || !from) return { ok: false, mode: 'test', error: 'Twilio credentials or From number missing.' }
+    if (!to) return { ok: false, mode: 'test', campaign, error: `Invalid test number: ${testTo}` }
+    if (dryRun) return { ok: true, mode: 'test', campaign, to: maskPhone(to) }
+    if (!client || !from) return { ok: false, mode: 'test', campaign, error: 'Twilio credentials or From number missing.' }
     try {
       const msg = await client.messages.create({ from, to, body: renderBody(message, 'there') })
-      return { ok: true, mode: 'test', sid: msg.sid, to: maskPhone(to) }
+      return { ok: true, mode: 'test', campaign, sid: msg.sid, to: maskPhone(to) }
     } catch (err) {
-      return { ok: false, mode: 'test', error: String(err) }
+      return { ok: false, mode: 'test', campaign, error: String(err) }
     }
   }
 
-  // ── Fetch attending RSVPs that haven't gotten the SMS yet ──
+  // ── Audience: attending RSVPs, minus anyone already sent for this campaign ──
   const { data: rsvps, error } = await supabase
     .from('rsvps')
     .select('id, full_name, phone')
     .eq('event_slug', ANNIVERSARY_EVENT_SLUG)
     .eq('attending', true)
-    .is(SMS_COLUMN, null)
 
-  if (error) return { ok: false, mode, error: error.message }
+  if (error) return { ok: false, mode, campaign, error: error.message }
 
-  const summary = { pending: rsvps?.length ?? 0, sent: 0, skippedInvalid: 0, failed: 0 }
+  const { data: already, error: sentErr } = await supabase
+    .from('sms_sends')
+    .select('rsvp_id')
+    .eq('campaign', campaign)
+
+  if (sentErr) return { ok: false, mode, campaign, error: sentErr.message }
+  const alreadySent = new Set((already ?? []).map(r => r.rsvp_id))
+
+  const pending = (rsvps ?? []).filter(r => !alreadySent.has(r.id))
+  const summary = { pending: pending.length, sent: 0, skippedInvalid: 0, failed: 0 }
   const preview: string[] = []
 
   if (!dryRun && (!client || !from)) {
-    return { ok: false, mode: 'live', error: 'Twilio credentials or From number missing.' }
+    return { ok: false, mode: 'live', campaign, error: 'Twilio credentials or From number missing.' }
   }
 
-  for (const rsvp of rsvps ?? []) {
+  for (const rsvp of pending) {
     const to = toE164US(rsvp.phone)
     if (!to) { summary.skippedInvalid++; continue }
 
     if (dryRun) { preview.push(maskPhone(to)); continue }
 
-    // STAMP-BEFORE-SEND under an optimistic lock (.is(col, null)): if zero rows
-    // match, another request already claimed this guest — skip. No double-text.
-    const { data: stamped, error: stampErr } = await supabase
-      .from('rsvps')
-      .update({ [SMS_COLUMN]: new Date().toISOString() })
-      .eq('id', rsvp.id)
-      .is(SMS_COLUMN, null)
+    // CLAIM-BEFORE-SEND: insert the (rsvp_id, campaign) row first. The unique
+    // constraint + ignoreDuplicates means a concurrent request that already
+    // claimed this guest yields no row here, so we skip — no double-text.
+    const { data: claimed, error: claimErr } = await supabase
+      .from('sms_sends')
+      .upsert({ rsvp_id: rsvp.id, campaign, to_phone: to, status: 'sending' },
+              { onConflict: 'rsvp_id,campaign', ignoreDuplicates: true })
       .select('id')
 
-    if (stampErr) { summary.failed++; continue }
-    if (!stamped || stamped.length === 0) continue // claimed elsewhere
+    if (claimErr) { summary.failed++; continue }
+    if (!claimed || claimed.length === 0) continue // claimed elsewhere
 
     try {
-      await client!.messages.create({ from, to, body: renderBody(message, firstNameOf(rsvp.full_name)) })
+      const msg = await client!.messages.create({ from, to, body: renderBody(message, firstNameOf(rsvp.full_name)) })
+      await supabase.from('sms_sends').update({ twilio_sid: msg.sid, status: 'sent' })
+        .eq('rsvp_id', rsvp.id).eq('campaign', campaign)
       summary.sent++
     } catch (err) {
-      console.error(`[anniversary-sms] send failed for RSVP ${rsvp.id} — already stamped, will not retry:`, err)
+      console.error(`[anniversary-sms] send failed for RSVP ${rsvp.id} (campaign ${campaign}) — claimed, will not retry:`, err)
+      await supabase.from('sms_sends').update({ status: 'failed' })
+        .eq('rsvp_id', rsvp.id).eq('campaign', campaign)
       summary.failed++
     }
   }
 
-  return { ok: true, mode: dryRun ? 'dryRun' : 'live', summary, ...(dryRun ? { wouldSendTo: preview } : {}) }
+  return { ok: true, mode: dryRun ? 'dryRun' : 'live', campaign, summary, ...(dryRun ? { wouldSendTo: preview } : {}) }
 }

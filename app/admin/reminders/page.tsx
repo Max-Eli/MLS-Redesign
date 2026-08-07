@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MessageSquare, Send, AlertTriangle, Loader2, CheckCircle2, Eye } from 'lucide-react'
 
 const DEFAULT_MESSAGE =
@@ -25,11 +25,20 @@ export default function AdminRemindersPage() {
   const [authToken,  setAuthToken]  = useState('')
   const [fromNumber, setFromNumber] = useState('')
   const [message,    setMessage]    = useState(DEFAULT_MESSAGE)
+  const [campaign,   setCampaign]   = useState('')
   const [testNumber, setTestNumber] = useState('')
 
   const [busy,   setBusy]   = useState<null | 'dry' | 'test' | 'live'>(null)
   const [result, setResult] = useState<ApiResult | null>(null)
   const [error,  setError]  = useState('')
+
+  // Suggest a date-based campaign name so consecutive-day sends differ by
+  // default (set after mount to avoid an SSR/hydration mismatch).
+  useEffect(() => {
+    setCampaign(`reminder-${new Date().toISOString().slice(0, 10)}`)
+  }, [])
+
+  const canSend = campaign.trim().length > 0
 
   async function call(payload: Record<string, unknown>, kind: 'dry' | 'test' | 'live') {
     setBusy(kind)
@@ -39,7 +48,7 @@ export default function AdminRemindersPage() {
       const res  = await fetch('/api/admin/send-reminders', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ accountSid, authToken, fromNumber, message, ...payload }),
+        body:    JSON.stringify({ accountSid, authToken, fromNumber, message, campaign, ...payload }),
       })
       const data = await res.json() as ApiResult
       if (!res.ok || !data.ok) {
@@ -122,6 +131,20 @@ export default function AdminRemindersPage() {
             ~{chars} chars · {segments} segment{segments === 1 ? '' : 's'}
           </span>
         </div>
+
+        <div className="mb-4">
+          <label className="block text-2xs font-medium tracking-widest uppercase text-dark-50/50 mb-2">Campaign name</label>
+          <input
+            type="text" value={campaign} onChange={e => setCampaign(e.target.value)}
+            placeholder="e.g. day-before-reminder"
+            className="w-full h-11 px-4 bg-cream-50 border border-cream-200 rounded-xl text-sm text-dark-50 placeholder:text-dark-50/30 focus:outline-none focus:border-mauve focus:ring-2 focus:ring-mauve/20 transition-all"
+          />
+          <p className="mt-1.5 text-2xs text-dark-50/40">
+            Give each separate send a new name. Everyone attending gets a fresh send under a new name;
+            reusing a name only reaches people that name hasn&apos;t reached yet (safe to re-run).
+          </p>
+        </div>
+
         <textarea
           value={message} onChange={e => setMessage(e.target.value)} rows={6}
           className="w-full px-4 py-3 bg-cream-50 border border-cream-200 rounded-xl text-sm text-dark-50 leading-relaxed placeholder:text-dark-50/30 focus:outline-none focus:border-mauve focus:ring-2 focus:ring-mauve/20 transition-all resize-none"
@@ -138,7 +161,7 @@ export default function AdminRemindersPage() {
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => call({ dryRun: true }, 'dry')}
-            disabled={busy !== null}
+            disabled={busy !== null || !canSend}
             className="flex items-center justify-center gap-2 h-11 px-4 rounded-xl border border-cream-300 bg-white text-dark-50 text-xs font-semibold tracking-widest uppercase hover:bg-cream-50 transition-colors disabled:opacity-40"
           >
             {busy === 'dry' ? <Loader2 size={14} className="animate-spin" /> : <Eye size={14} />}
@@ -153,7 +176,7 @@ export default function AdminRemindersPage() {
             />
             <button
               onClick={() => call({ test: testNumber }, 'test')}
-              disabled={busy !== null || !testNumber.trim()}
+              disabled={busy !== null || !testNumber.trim() || !canSend}
               className="flex items-center justify-center gap-2 h-11 px-4 rounded-xl border border-cream-300 bg-white text-dark-50 text-xs font-semibold tracking-widest uppercase hover:bg-cream-50 transition-colors disabled:opacity-40"
             >
               {busy === 'test' ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
@@ -165,11 +188,11 @@ export default function AdminRemindersPage() {
         {/* Send to all */}
         <button
           onClick={() => {
-            if (confirm('Send the SMS reminder to every attending RSVP now? This cannot be undone.')) {
+            if (confirm(`Send this SMS to every attending RSVP not yet reached in campaign "${campaign}"? This cannot be undone.`)) {
               call({}, 'live')
             }
           }}
-          disabled={busy !== null}
+          disabled={busy !== null || !canSend}
           className="w-full flex items-center justify-center gap-2 h-13 py-3.5 rounded-xl bg-mauve text-white text-sm font-semibold tracking-widest uppercase hover:bg-mauve-600 transition-colors disabled:opacity-50"
         >
           {busy === 'live' ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
