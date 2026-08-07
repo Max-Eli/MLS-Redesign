@@ -14,11 +14,14 @@ type ApiResult = {
   ok: boolean
   mode: 'dryRun' | 'test' | 'live'
   summary?: Summary
+  remaining?: number
   wouldSendTo?: string[]
   sid?: string
   to?: string
   error?: string
 }
+
+const BATCH_SIZE = 10
 
 export default function AdminRemindersPage() {
   const [accountSid, setAccountSid] = useState('')
@@ -28,9 +31,10 @@ export default function AdminRemindersPage() {
   const [campaign,   setCampaign]   = useState('')
   const [testNumber, setTestNumber] = useState('')
 
-  const [busy,   setBusy]   = useState<null | 'dry' | 'test' | 'live'>(null)
-  const [result, setResult] = useState<ApiResult | null>(null)
-  const [error,  setError]  = useState('')
+  const [busy,     setBusy]     = useState<null | 'dry' | 'test' | 'live'>(null)
+  const [result,   setResult]   = useState<ApiResult | null>(null)
+  const [error,    setError]    = useState('')
+  const [progress, setProgress] = useState<{ sent: number; failed: number } | null>(null)
 
   // Suggest a date-based campaign name so consecutive-day sends differ by
   // default (set after mount to avoid an SSR/hydration mismatch).
@@ -61,6 +65,47 @@ export default function AdminRemindersPage() {
     } finally {
       setBusy(null)
     }
+  }
+
+  // Send to everyone in batches of BATCH_SIZE: call the endpoint repeatedly,
+  // each call sends the next batch and reports how many remain, until 0.
+  async function sendAllBatched() {
+    setBusy('live')
+    setError('')
+    setResult(null)
+    setProgress({ sent: 0, failed: 0 })
+
+    let sent = 0, failed = 0, invalid = 0
+    // Safety cap so a persistent backend issue can't loop forever.
+    for (let i = 0; i < 200; i++) {
+      let data: ApiResult
+      try {
+        const res = await fetch('/api/admin/send-reminders', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ accountSid, authToken, fromNumber, message, campaign, batchSize: BATCH_SIZE }),
+        })
+        data = await res.json() as ApiResult
+        if (!res.ok || !data.ok) { setError(data.error || 'Something went wrong.'); break }
+      } catch {
+        setError('Network error partway through — some texts may have sent. Re-run the same campaign to finish (already-sent guests are skipped).')
+        break
+      }
+
+      sent    += data.summary?.sent ?? 0
+      failed  += data.summary?.failed ?? 0
+      invalid += data.summary?.skippedInvalid ?? 0
+      setProgress({ sent, failed })
+
+      if ((data.remaining ?? 0) <= 0) {
+        setResult({ ok: true, mode: 'live', summary: { pending: 0, sent, skippedInvalid: invalid, failed } })
+        break
+      }
+      // brief pause between batches to pace Twilio
+      await new Promise(r => setTimeout(r, 700))
+    }
+    setProgress(null)
+    setBusy(null)
   }
 
   const chars    = message.replace('{name}', 'Sarah').length
@@ -188,16 +233,24 @@ export default function AdminRemindersPage() {
         {/* Send to all */}
         <button
           onClick={() => {
-            if (confirm(`Send this SMS to every attending RSVP not yet reached in campaign "${campaign}"? This cannot be undone.`)) {
-              call({}, 'live')
+            if (confirm(`Send this SMS to every attending RSVP not yet reached in campaign "${campaign}", in batches of ${BATCH_SIZE}? This cannot be undone.`)) {
+              sendAllBatched()
             }
           }}
           disabled={busy !== null || !canSend}
           className="w-full flex items-center justify-center gap-2 h-13 py-3.5 rounded-xl bg-mauve text-white text-sm font-semibold tracking-widest uppercase hover:bg-mauve-600 transition-colors disabled:opacity-50"
         >
           {busy === 'live' ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-          Send to all attending RSVPs
+          {busy === 'live'
+            ? `Sending… ${progress?.sent ?? 0} sent`
+            : `Send to all attending RSVPs (batches of ${BATCH_SIZE})`}
         </button>
+
+        {busy === 'live' && progress && (
+          <p className="text-center text-2xs text-dark-50/50 tabular-nums">
+            {progress.sent} sent{progress.failed ? ` · ${progress.failed} failed` : ''} — keep this tab open until it finishes.
+          </p>
+        )}
       </div>
 
       {/* Result / error */}

@@ -19,6 +19,7 @@ export async function POST(req: Request) {
     fromNumber?: string
     message?:    string
     campaign?:   string
+    batchSize?:  number
     dryRun?:     boolean
     test?:       string
   }
@@ -30,6 +31,10 @@ export async function POST(req: Request) {
   const campaign   = (body.campaign && body.campaign.trim()) || DEFAULT_CAMPAIGN
   const dryRun     = body.dryRun === true
   const testTo     = body.test?.trim() || null
+  // Cap batch size to a sane range; omit → send everyone in one call.
+  const batchSize  = typeof body.batchSize === 'number' && body.batchSize > 0
+    ? Math.min(50, Math.floor(body.batchSize))
+    : undefined
 
   // A dry run just counts recipients — no credentials needed for that preview.
   if (!dryRun) {
@@ -46,6 +51,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: 'Twilio rejected those credentials — check the Account SID and Auth Token.' }, { status: 400 })
   }
 
-  const result = await runSmsReminders({ client, from: fromNumber, message, campaign, dryRun, testTo })
+  const result = await runSmsReminders({ client, from: fromNumber, message, campaign, limit: batchSize, dryRun, testTo })
   return NextResponse.json(result, { status: result.ok ? 200 : 500 })
 }
