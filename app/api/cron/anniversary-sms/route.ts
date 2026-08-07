@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getTwilio, getTwilioFrom } from '@/lib/twilio'
-import { runSmsReminders, DEFAULT_SMS_MESSAGE } from '@/lib/anniversary-sms'
+import { runSmsReminders, DEFAULT_SMS_MESSAGE, DEFAULT_CAMPAIGN } from '@/lib/anniversary-sms'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,9 +23,10 @@ export async function GET(req: Request) {
   const testTo = url.searchParams.get('test')
 
   const result = await runSmsReminders({
-    client:  getTwilio(),
-    from:    getTwilioFrom() ?? '',
-    message: DEFAULT_SMS_MESSAGE,
+    client:   getTwilio(),
+    from:     getTwilioFrom() ?? '',
+    message:  DEFAULT_SMS_MESSAGE,
+    campaign: url.searchParams.get('campaign') || DEFAULT_CAMPAIGN,
     dryRun,
     testTo,
   })
