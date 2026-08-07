@@ -25,6 +25,7 @@ export interface SmsResult {
   mode:          SmsMode
   campaign?:     string
   summary?:      { pending: number; sent: number; skippedInvalid: number; failed: number }
+  remaining?:    number   // recipients still un-sent for this campaign after this batch
   wouldSendTo?:  string[]
   sid?:          string
   to?:           string
@@ -59,10 +60,11 @@ export async function runSmsReminders(params: {
   from:      string
   message:   string
   campaign:  string
+  limit?:    number        // process at most this many recipients (one batch); omit for all
   dryRun?:   boolean
   testTo?:   string | null
 }): Promise<SmsResult> {
-  const { client, from, message, dryRun = false, testTo = null } = params
+  const { client, from, message, limit, dryRun = false, testTo = null } = params
   const campaign = (params.campaign || DEFAULT_CAMPAIGN).trim()
   const mode: SmsMode = testTo ? 'test' : dryRun ? 'dryRun' : 'live'
 
@@ -104,19 +106,43 @@ export async function runSmsReminders(params: {
   if (sentErr) return { ok: false, mode, campaign, error: sentErr.message }
   const alreadySent = new Set((already ?? []).map(r => r.rsvp_id))
 
-  const pending = (rsvps ?? []).filter(r => !alreadySent.has(r.id))
-  const summary = { pending: pending.length, sent: 0, skippedInvalid: 0, failed: 0 }
-  const preview: string[] = []
+  const pendingAll = (rsvps ?? []).filter(r => !alreadySent.has(r.id))
 
-  if (!dryRun && (!client || !from)) {
+  // ── Dry run: preview the whole remaining audience, no DB writes ──
+  if (dryRun) {
+    const summary = { pending: pendingAll.length, sent: 0, skippedInvalid: 0, failed: 0 }
+    const preview: string[] = []
+    for (const rsvp of pendingAll) {
+      const to = toE164US(rsvp.phone)
+      if (!to) { summary.skippedInvalid++; continue }
+      preview.push(maskPhone(to))
+    }
+    return { ok: true, mode: 'dryRun', campaign, summary, remaining: pendingAll.length, wouldSendTo: preview }
+  }
+
+  if (!client || !from) {
     return { ok: false, mode: 'live', campaign, error: 'Twilio credentials or From number missing.' }
   }
 
-  for (const rsvp of pending) {
-    const to = toE164US(rsvp.phone)
-    if (!to) { summary.skippedInvalid++; continue }
+  // ── Live: process just ONE batch (up to `limit`) so the caller can loop and
+  // pace the sends. `handled` counts everyone removed from the pending set this
+  // call — including invalid numbers, which we log so they don't reappear and
+  // stall the batch loop — so `remaining` reliably reaches 0. ──
+  const batch = limit && limit > 0 ? pendingAll.slice(0, limit) : pendingAll
+  const summary = { pending: pendingAll.length, sent: 0, skippedInvalid: 0, failed: 0 }
+  let handled = 0
 
-    if (dryRun) { preview.push(maskPhone(to)); continue }
+  for (const rsvp of batch) {
+    const to = toE164US(rsvp.phone)
+
+    if (!to) {
+      // Log as invalid (claim-before-send) so this guest leaves the pending set.
+      await supabase.from('sms_sends').upsert(
+        { rsvp_id: rsvp.id, campaign, status: 'invalid' },
+        { onConflict: 'rsvp_id,campaign', ignoreDuplicates: true })
+      summary.skippedInvalid++; handled++
+      continue
+    }
 
     // CLAIM-BEFORE-SEND: insert the (rsvp_id, campaign) row first. The unique
     // constraint + ignoreDuplicates means a concurrent request that already
@@ -127,21 +153,21 @@ export async function runSmsReminders(params: {
               { onConflict: 'rsvp_id,campaign', ignoreDuplicates: true })
       .select('id')
 
-    if (claimErr) { summary.failed++; continue }
-    if (!claimed || claimed.length === 0) continue // claimed elsewhere
+    if (claimErr) { summary.failed++; handled++; continue }
+    if (!claimed || claimed.length === 0) { handled++; continue } // claimed elsewhere
 
     try {
-      const msg = await client!.messages.create({ from, to, body: renderBody(message, firstNameOf(rsvp.full_name)) })
+      const msg = await client.messages.create({ from, to, body: renderBody(message, firstNameOf(rsvp.full_name)) })
       await supabase.from('sms_sends').update({ twilio_sid: msg.sid, status: 'sent' })
         .eq('rsvp_id', rsvp.id).eq('campaign', campaign)
-      summary.sent++
+      summary.sent++; handled++
     } catch (err) {
       console.error(`[anniversary-sms] send failed for RSVP ${rsvp.id} (campaign ${campaign}) — claimed, will not retry:`, err)
       await supabase.from('sms_sends').update({ status: 'failed' })
         .eq('rsvp_id', rsvp.id).eq('campaign', campaign)
-      summary.failed++
+      summary.failed++; handled++
     }
   }
 
-  return { ok: true, mode: dryRun ? 'dryRun' : 'live', campaign, summary, ...(dryRun ? { wouldSendTo: preview } : {}) }
+  return { ok: true, mode: 'live', campaign, summary, remaining: Math.max(0, pendingAll.length - handled) }
 }
