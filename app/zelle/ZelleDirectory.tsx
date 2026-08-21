@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Copy, Send } from 'lucide-react'
+import { Check, Copy, Heart, Send } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 
 export interface ZelleProvider {
@@ -54,13 +54,22 @@ export function ZelleDirectory({ providers }: { providers: ZelleProvider[] }) {
   }
 
   return (
-    <section className="min-h-[70vh] bg-cream py-16 md:py-24">
+    <section className="min-h-[70vh] bg-cream pt-32 pb-16 md:pt-40 md:pb-24">
       <Container size="md">
         <div className="text-center mb-12">
           <p className="text-2xs tracking-[0.25em] uppercase text-mauve mb-3">Manhattan Laser Spa</p>
-          <h1 className="font-display text-4xl md:text-5xl font-medium text-dark-50 mb-4">
+          <h1 className="font-display text-4xl md:text-5xl font-medium text-dark-50 mb-5">
             Pay with <span className="italic">Zelle</span>
           </h1>
+          <p className="font-display italic text-xl md:text-2xl text-mauve-700 max-w-xl mx-auto mb-4">
+            A little thank-you goes a long way — your support means the world to the hands that
+            care for you.
+          </p>
+          <div className="flex items-center justify-center gap-3 mb-5" aria-hidden>
+            <span className="h-px w-10 bg-mauve/25" />
+            <Heart size={13} className="text-mauve/60 fill-current" />
+            <span className="h-px w-10 bg-mauve/25" />
+          </div>
           <p className="text-dark-50/60 max-w-xl mx-auto">
             Send payment directly to your provider. On your phone, tap{' '}
             <span className="font-medium text-dark-50">Open in Zelle</span> — or copy their Zelle
