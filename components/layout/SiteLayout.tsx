@@ -7,28 +7,25 @@ import { CartDrawer } from '@/components/shop/CartDrawer'
 import { PromoPopup } from '@/components/ui/PromoPopup'
 import { MothersDayPopup } from '@/components/ui/MothersDayPopup'
 import { IndependenceDayPopup } from '@/components/ui/IndependenceDayPopup'
-import { AnniversaryPopup } from '@/components/ui/AnniversaryPopup'
-import { AnnouncementBar } from '@/components/layout/AnnouncementBar'
+
+// Anniversary promo (AnniversaryPopup + AnnouncementBar) unmounted after the
+// event on 2026-08-07 stopped accepting RSVPs. Files kept in the codebase
+// for reuse — re-mount here for future anniversary campaigns.
 
 export function SiteLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isAdmin  = pathname?.startsWith('/admin')
-  // Don't run the anniversary promo on the anniversary page itself — the
-  // whole page IS the promo, no need to popup or announce over the top of it.
-  const isAnniversary = pathname === '/anniversary'
 
   if (isAdmin) return <>{children}</>
 
   return (
     <>
-      {!isAnniversary && <AnnouncementBar />}
       <Header />
       <main>{children}</main>
       <Footer />
       <CartDrawer />
       <MothersDayPopup />
       <IndependenceDayPopup />
-      {!isAnniversary && <AnniversaryPopup />}
       <PromoPopup />
     </>
   )
