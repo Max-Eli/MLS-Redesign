@@ -8,7 +8,7 @@ module.exports = {
       { userAgent: '*', disallow: ['/api/', '/cart', '/checkout', '/wp-admin'] },
     ],
   },
-  exclude: ['/api/*', '/cart', '/checkout'],
+  exclude: ['/api/*', '/cart', '/checkout', '/zelle'],
   changefreq: 'weekly',
   priority: 0.7,
   sitemapSize: 5000,
