@@ -114,7 +114,7 @@ export function FeaturedTreatments() {
                 </p>
                 <div className="flex gap-3">
                   <Button variant="primary" size="sm" asChild>
-                    <a href={BOOK_NOW_URL} target="_blank" rel="noopener noreferrer">Book Now</a>
+                    <a href={BOOK_NOW_URL}>Book Now</a>
                   </Button>
                   <Button
                     variant="ghost"

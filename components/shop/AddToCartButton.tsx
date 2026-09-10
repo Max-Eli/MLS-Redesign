@@ -25,7 +25,7 @@ export function AddToCartButton({ service, compact = false }: Props) {
   if (!price || isNaN(price)) {
     return (
       <Button variant="outline" size={compact ? 'sm' : 'lg'} asChild className={compact ? '' : 'w-full'}>
-        <a href={BOOK_NOW_URL} target="_blank" rel="noopener noreferrer">Book Now</a>
+        <a href={BOOK_NOW_URL}>Book Now</a>
       </Button>
     )
   }

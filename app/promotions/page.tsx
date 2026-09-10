@@ -116,8 +116,6 @@ function PromotionCard({ promo }: { promo: Promotion }) {
           ) : (
             <a
               href={BOOK_NOW_URL}
-              target="_blank"
-              rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-xs font-medium tracking-widest uppercase text-mauve hover:text-mauve-600 transition-colors"
             >
               Book Now

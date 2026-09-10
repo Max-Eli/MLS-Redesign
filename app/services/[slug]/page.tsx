@@ -253,7 +253,7 @@ export default function ServicePage({ params }: Props) {
               </p>
               <div className="space-y-3">
                 <Button variant="gold" size="lg" className="w-full" asChild>
-                  <a href={BOOK_NOW_URL} target="_blank" rel="noopener noreferrer">Book Now</a>
+                  <a href={BOOK_NOW_URL}>Book Now</a>
                 </Button>
                 <Link
                   href="/contact"

@@ -22,5 +22,5 @@ export function readingTime(text: string): number {
   return Math.ceil(words / 200)
 }
 
-export const BOOK_NOW_URL =
-  'https://manhattanlaser.zenoti.com/webstoreNew/services/7f30b4bd-0182-4a65-9633-7d0d039374d6?merchantId=7f30b4bd-0182-4a65-9633-7d0d039374d6&booking_source=booknow&booking_medium=google&rwg_token=AFd1xnGjaW7JiACQMKXlimxv8jQLWfy94bsaPdWs9KREfL2ddcpcZyDEyjgnMROkl-zHtOsXlDuUheVpHwuRiqyiTM3P9-3bQw%3D%3D'
+// The site's own booking page (app/book), wired to LumèCRM.
+export const BOOK_NOW_URL = '/book'

@@ -368,7 +368,7 @@ export function Header() {
               asChild
               className="hidden md:inline-flex"
             >
-              <a href={BOOK_NOW_URL} target="_blank" rel="noopener noreferrer">Book Now</a>
+              <a href={BOOK_NOW_URL}>Book Now</a>
             </Button>
 
             {/* Mobile menu toggle */}
