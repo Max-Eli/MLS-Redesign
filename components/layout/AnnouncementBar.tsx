@@ -4,20 +4,22 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { X, ArrowRight } from 'lucide-react'
 
-const STORAGE_KEY    = 'mls_anniversary_bar_dismissed_2026'
-const CAMPAIGN_START = '2026-07-15'
-const CAMPAIGN_END   = '2026-08-07'
+// Current campaign: The Botox Event — Thursday, October 15, 2026.
+const STORAGE_KEY    = 'mls_botox_bar_dismissed_2026'
+const CAMPAIGN_START = '2026-09-28'
+const CAMPAIGN_END   = '2026-10-15'
+const CAMPAIGN_LINK  = '/botox-event'
 const ROTATE_MS      = 5000
 
 const MESSAGES = [
   {
-    eyebrow: '4 Year Anniversary',
-    text:    'Friday, August 7 · Live music, champagne & more',
+    eyebrow: 'The Botox Event',
+    text:    'Thursday, October 15 · 4–8 PM · Champagne, raffles & goodie bags',
     cta:     'RSVP',
   },
   {
-    eyebrow: 'One Night Only',
-    text:    '30% OFF the entire menu — every treatment, package & service',
+    eyebrow: 'One Evening Only',
+    text:    'Botox at $6.99 per unit — during the event only',
     cta:     'Reserve',
   },
 ]
@@ -72,9 +74,9 @@ export function AnnouncementBar() {
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[60] h-11 bg-dark border-b border-white/10">
-      {/* Clickable message region — goes to /anniversary */}
+      {/* Clickable message region — goes to the campaign page */}
       <Link
-        href="/anniversary"
+        href={CAMPAIGN_LINK}
         className="flex items-center justify-center gap-2 sm:gap-3 h-full px-10 sm:px-14 text-white/90 hover:text-white transition-colors"
       >
         <div key={index} className="flex items-center gap-2 sm:gap-3 animate-fade-in min-w-0">

@@ -25,18 +25,39 @@ function fmtTime(iso: string) {
   return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 }
 
+// Newest event first — the first entry is the default view.
+const EVENTS = [
+  {
+    slug:     'botox-event-oct-2026',
+    title:    'The Botox Event RSVPs',
+    subtitle: 'Thursday, October 15 · 4–8 PM · Manhattan Laser Spa',
+    short:    'Botox Event (Oct 2026)',
+    csvName:  'botox-event-rsvps',
+  },
+  {
+    slug:     'anniversary-4-year-2026',
+    title:    '4 Year Anniversary RSVPs',
+    subtitle: 'Friday, August 7 · 6–10 PM · Manhattan Laser Spa',
+    short:    '4 Year Anniversary (Aug 2026)',
+    csvName:  'anniversary-rsvps',
+  },
+]
+
 export default function AdminRsvpsPage() {
   const [rsvps, setRsvps]     = useState<Rsvp[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch]   = useState('')
+  const [eventSlug, setEventSlug] = useState(EVENTS[0].slug)
+
+  const event = EVENTS.find(e => e.slug === eventSlug) ?? EVENTS[0]
 
   const load = useCallback(async () => {
     setLoading(true)
-    const res  = await fetch('/api/admin/rsvps')
+    const res  = await fetch(`/api/admin/rsvps?event=${eventSlug}`)
     const data = await res.json()
     setRsvps(data.rsvps ?? [])
     setLoading(false)
-  }, [])
+  }, [eventSlug])
 
   useEffect(() => { load() }, [load])
 
@@ -78,7 +99,7 @@ export default function AdminRsvpsPage() {
     const url  = URL.createObjectURL(blob)
     const a    = document.createElement('a')
     a.href     = url
-    a.download = `anniversary-rsvps-${new Date().toISOString().slice(0, 10)}.csv`
+    a.download = `${event.csvName}-${new Date().toISOString().slice(0, 10)}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -86,10 +107,22 @@ export default function AdminRsvpsPage() {
   return (
     <div className="p-8 max-w-7xl mx-auto">
       {/* Heading */}
-      <div className="mb-8">
-        <p className="eyebrow mb-2">Event Registrations</p>
-        <h1 className="font-display text-4xl font-light text-dark-50 mb-1">4 Year Anniversary RSVPs</h1>
-        <p className="text-sm text-dark-50/50">Friday, August 7 · 6–10 PM · Manhattan Laser Spa</p>
+      <div className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <p className="eyebrow mb-2">Event Registrations</p>
+          <h1 className="font-display text-4xl font-light text-dark-50 mb-1">{event.title}</h1>
+          <p className="text-sm text-dark-50/50">{event.subtitle}</p>
+        </div>
+        <select
+          value={eventSlug}
+          onChange={e => setEventSlug(e.target.value)}
+          className="h-10 px-3 bg-white border border-cream-200 rounded-xl text-sm text-dark-50 focus:outline-none focus:border-mauve focus:ring-2 focus:ring-mauve/20 transition-all"
+          aria-label="Select event"
+        >
+          {EVENTS.map(e => (
+            <option key={e.slug} value={e.slug}>{e.short}</option>
+          ))}
+        </select>
       </div>
 
       {/* Stats */}

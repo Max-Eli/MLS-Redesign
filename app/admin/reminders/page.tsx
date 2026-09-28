@@ -3,11 +3,27 @@
 import { useState, useEffect } from 'react'
 import { MessageSquare, Send, AlertTriangle, Loader2, CheckCircle2, Eye } from 'lucide-react'
 
-const DEFAULT_MESSAGE =
-  `Hi {name}! Reminder from Manhattan Laser Spa: our 4 Year Anniversary is TOMORROW, ` +
-  `Fri Aug 7, 6–10 PM at 16850 Collins Ave Ste 105, Sunny Isles Beach. ` +
-  `Champagne, live music, raffles & 30% off the entire menu — one night only. ` +
-  `Can't wait to see you! Reply STOP to opt out, HELP for help.`
+// Newest event first — the first entry is the default.
+const EVENTS = [
+  {
+    slug:  'botox-event-oct-2026',
+    label: 'The Botox Event (Oct 15)',
+    defaultMessage:
+      `Hi {name}! Reminder from Manhattan Laser Spa: The Botox Event is TOMORROW, ` +
+      `Thu Oct 15, 4–8 PM at 16850 Collins Ave Ste 105, Sunny Isles Beach. ` +
+      `Botox at $6.99/unit during the event only — plus champagne, raffles & goodie bags. ` +
+      `See you there! Reply STOP to opt out, HELP for help.`,
+  },
+  {
+    slug:  'anniversary-4-year-2026',
+    label: '4 Year Anniversary (Aug 7)',
+    defaultMessage:
+      `Hi {name}! Reminder from Manhattan Laser Spa: our 4 Year Anniversary is TOMORROW, ` +
+      `Fri Aug 7, 6–10 PM at 16850 Collins Ave Ste 105, Sunny Isles Beach. ` +
+      `Champagne, live music, raffles & 30% off the entire menu — one night only. ` +
+      `Can't wait to see you! Reply STOP to opt out, HELP for help.`,
+  },
+]
 
 type Summary = { pending: number; sent: number; skippedInvalid: number; failed: number }
 type ApiResult = {
@@ -27,8 +43,19 @@ export default function AdminRemindersPage() {
   const [accountSid, setAccountSid] = useState('')
   const [authToken,  setAuthToken]  = useState('')
   const [fromNumber, setFromNumber] = useState('')
-  const [message,    setMessage]    = useState(DEFAULT_MESSAGE)
+  const [eventSlug,  setEventSlug]  = useState(EVENTS[0].slug)
+  const [message,    setMessage]    = useState(EVENTS[0].defaultMessage)
   const [campaign,   setCampaign]   = useState('')
+
+  function switchEvent(slug: string) {
+    setEventSlug(slug)
+    // Reset the message to the selected event's template so a text about one
+    // event can't accidentally go to the other event's guest list.
+    const ev = EVENTS.find(e => e.slug === slug)
+    if (ev) setMessage(ev.defaultMessage)
+    setResult(null)
+    setError('')
+  }
   const [testNumber, setTestNumber] = useState('')
 
   const [busy,     setBusy]     = useState<null | 'dry' | 'test' | 'live'>(null)
@@ -52,7 +79,7 @@ export default function AdminRemindersPage() {
       const res  = await fetch('/api/admin/send-reminders', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ accountSid, authToken, fromNumber, message, campaign, ...payload }),
+        body:    JSON.stringify({ accountSid, authToken, fromNumber, message, campaign, eventSlug, ...payload }),
       })
       const data = await res.json() as ApiResult
       if (!res.ok || !data.ok) {
@@ -83,7 +110,7 @@ export default function AdminRemindersPage() {
         const res = await fetch('/api/admin/send-reminders', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ accountSid, authToken, fromNumber, message, campaign, batchSize: BATCH_SIZE }),
+          body:    JSON.stringify({ accountSid, authToken, fromNumber, message, campaign, eventSlug, batchSize: BATCH_SIZE }),
         })
         data = await res.json() as ApiResult
         if (!res.ok || !data.ok) { setError(data.error || 'Something went wrong.'); break }
@@ -114,12 +141,24 @@ export default function AdminRemindersPage() {
   return (
     <div className="p-8 max-w-3xl mx-auto">
       {/* Heading */}
-      <div className="mb-8">
-        <p className="eyebrow mb-2">Event Communications</p>
-        <h1 className="font-display text-4xl font-light text-dark-50 mb-1">Send SMS Reminders</h1>
-        <p className="text-sm text-dark-50/50">
-          Text every attending RSVP for the 4 Year Anniversary. Enter your Twilio details, preview, then send.
-        </p>
+      <div className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <p className="eyebrow mb-2">Event Communications</p>
+          <h1 className="font-display text-4xl font-light text-dark-50 mb-1">Send SMS Reminders</h1>
+          <p className="text-sm text-dark-50/50">
+            Text every attending RSVP for the selected event. Enter your Twilio details, preview, then send.
+          </p>
+        </div>
+        <select
+          value={eventSlug}
+          onChange={e => switchEvent(e.target.value)}
+          className="h-10 px-3 bg-white border border-cream-200 rounded-xl text-sm text-dark-50 focus:outline-none focus:border-mauve focus:ring-2 focus:ring-mauve/20 transition-all"
+          aria-label="Select event"
+        >
+          {EVENTS.map(e => (
+            <option key={e.slug} value={e.slug}>{e.label}</option>
+          ))}
+        </select>
       </div>
 
       {/* Consent notice */}

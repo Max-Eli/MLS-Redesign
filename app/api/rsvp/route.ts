@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { supabase } from '@/lib/supabase'
 import { buildAnniversaryIcs } from '@/lib/anniversary-ics'
+import { buildBotoxEventIcs } from '@/lib/botox-event'
 
 // Lazy so a missing RESEND_API_KEY (e.g. local dev) doesn't crash the module
 // at import time — the Resend constructor throws immediately on undefined.
@@ -30,9 +31,43 @@ function isRateLimited(ip: string): boolean {
   return false
 }
 
-const EVENT_SLUG    = 'anniversary-4-year-2026'
-const EVENT_LABEL   = '4 Year Anniversary Celebration'
-const NOTIFY_EMAIL  = 'florida@manhattanlaserspa.com'
+const NOTIFY_EMAIL = 'florida@manhattanlaserspa.com'
+
+// Whitelisted events this endpoint accepts. Each carries the copy for the
+// confirmation email and its .ics attachment.
+interface RsvpEvent {
+  label:      string
+  sourcePath: string
+  dateLine:   string
+  timeLine:   string
+  perksLine:  string
+  icsFilename:string
+  buildIcs:   () => string
+}
+
+const EVENTS: Record<string, RsvpEvent> = {
+  'anniversary-4-year-2026': {
+    label:       '4 Year Anniversary Celebration',
+    sourcePath:  '/anniversary',
+    dateLine:    'Friday, August 7, 2026',
+    timeLine:    '6:00 PM – 10:00 PM',
+    perksLine:   'Live music · Champagne · Raffles · Goodie bags · <strong style="color:#1a1a2e;">30% off the entire menu</strong>, one night only.',
+    icsFilename: 'manhattan-laser-spa-anniversary.ics',
+    buildIcs:    buildAnniversaryIcs,
+  },
+  'botox-event-oct-2026': {
+    label:       'The Botox Event',
+    sourcePath:  '/botox-event',
+    dateLine:    'Thursday, October 15, 2026',
+    timeLine:    '4:00 PM – 8:00 PM',
+    perksLine:   '<strong style="color:#1a1a2e;">Botox at $6.99 per unit</strong> — during the event only · Complimentary consultations · Champagne · Raffles · Goodie bags.',
+    icsFilename: 'manhattan-laser-spa-botox-event.ics',
+    buildIcs:    buildBotoxEventIcs,
+  },
+}
+
+// The anniversary flow predates the eventSlug field — default keeps it working.
+const DEFAULT_EVENT_SLUG = 'anniversary-4-year-2026'
 
 export async function POST(req: Request) {
   try {
@@ -46,6 +81,7 @@ export async function POST(req: Request) {
       attending, numGuests,
       dietary, notes,
       website, formElapsedMs,
+      eventSlug,
     } = await req.json() as {
       fullName?:      string
       email?:         string
@@ -56,6 +92,12 @@ export async function POST(req: Request) {
       notes?:         string | null
       website?:       string
       formElapsedMs?: number
+      eventSlug?:     string
+    }
+
+    const event = EVENTS[eventSlug ?? DEFAULT_EVENT_SLUG]
+    if (!event) {
+      return NextResponse.json({ error: 'Unknown event' }, { status: 400 })
     }
 
     // Honeypot — real users can't see this field; bots fill everything.
@@ -83,7 +125,7 @@ export async function POST(req: Request) {
     // ── Store in Supabase (graceful — logs and continues if unavailable) ──
     if (supabase) {
       const { error: dbError } = await supabase.from('rsvps').insert({
-        event_slug:            EVENT_SLUG,
+        event_slug:            eventSlug ?? DEFAULT_EVENT_SLUG,
         full_name:             fullName.trim(),
         email:                 email.trim().toLowerCase(),
         phone:                 phone.trim(),
@@ -115,7 +157,7 @@ export async function POST(req: Request) {
           html: buildSpaNotificationHtml({
             fullName, email, phone,
             attending: attending === 'yes',
-            guestCount, dietary, notes,
+            guestCount, dietary, notes, event,
           }),
         }).catch(err => console.error('[rsvp] Resend spa notify failed:', err)),
       )
@@ -128,12 +170,12 @@ export async function POST(req: Request) {
           resend.emails.send({
             from:    'Manhattan Laser Spa <noreply@send.manhattanlaserspa.com>',
             to:      email,
-            subject: `You're confirmed — 4 Year Anniversary Celebration`,
-            html:    buildGuestConfirmationHtml({ fullName, guestCount }),
+            subject: `You're confirmed — ${event.label}`,
+            html:    buildGuestConfirmationHtml({ fullName, guestCount, event }),
             attachments: [
               {
-                filename: 'manhattan-laser-spa-anniversary.ics',
-                content:  buildAnniversaryIcs(),
+                filename: event.icsFilename,
+                content:  event.buildIcs(),
               },
             ],
           }).catch(err => console.error('[rsvp] Resend guest confirmation failed:', err)),
@@ -160,12 +202,13 @@ function buildSpaNotificationHtml(p: {
   guestCount: number
   dietary:    string | null | undefined
   notes:      string | null | undefined
+  event:      RsvpEvent
 }): string {
   return `
     <div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;background:#faf9f7;padding:40px 32px;border-radius:12px;">
       <div style="border-bottom:1px solid #e8e0d8;padding-bottom:24px;margin-bottom:28px;">
         <p style="margin:0;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9b8ea0;">Manhattan Laser Spa</p>
-        <h1 style="margin:8px 0 0;font-size:26px;font-weight:300;color:#1a1a2e;">New RSVP — ${EVENT_LABEL}</h1>
+        <h1 style="margin:8px 0 0;font-size:26px;font-weight:300;color:#1a1a2e;">New RSVP — ${p.event.label}</h1>
       </div>
 
       <table style="width:100%;border-collapse:collapse;">
@@ -198,13 +241,13 @@ function buildSpaNotificationHtml(p: {
       </table>
 
       <div style="margin-top:32px;padding-top:24px;border-top:1px solid #e8e0d8;">
-        <p style="margin:0;font-size:12px;color:#c4b8a8;">Sent from manhattanlaserspa.com/anniversary</p>
+        <p style="margin:0;font-size:12px;color:#c4b8a8;">Sent from manhattanlaserspa.com${p.event.sourcePath}</p>
       </div>
     </div>
   `
 }
 
-function buildGuestConfirmationHtml(p: { fullName: string; guestCount: number }): string {
+function buildGuestConfirmationHtml(p: { fullName: string; guestCount: number; event: RsvpEvent }): string {
   const firstName = p.fullName.trim().split(/\s+/)[0]
   return `
     <div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;background:#faf9f7;padding:40px 32px;border-radius:12px;">
@@ -214,16 +257,16 @@ function buildGuestConfirmationHtml(p: { fullName: string; guestCount: number })
       </div>
 
       <p style="font-size:15px;color:#5a5068;line-height:1.7;margin:0 0 22px;">
-        Thank you for RSVP'ing to our 4 Year Anniversary Celebration. We've reserved your spot for
-        <strong>${p.guestCount} guest${p.guestCount === 1 ? '' : 's'}</strong> and can't wait to celebrate with you.
+        Thank you for RSVP'ing to ${p.event.label}. We've reserved your spot for
+        <strong>${p.guestCount} guest${p.guestCount === 1 ? '' : 's'}</strong> and can't wait to see you.
       </p>
 
       <div style="background:#fff;border:1px solid #e8e0d8;border-radius:12px;padding:24px;margin:24px 0;">
         <h2 style="margin:0 0 14px;font-size:13px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:#9b8ea0;">Event Details</h2>
-        <p style="margin:0 0 6px;font-size:15px;color:#1a1a2e;line-height:1.5;"><strong>Date:</strong> Friday, August 7, 2026</p>
-        <p style="margin:0 0 6px;font-size:15px;color:#1a1a2e;line-height:1.5;"><strong>Time:</strong> 6:00 PM – 10:00 PM</p>
+        <p style="margin:0 0 6px;font-size:15px;color:#1a1a2e;line-height:1.5;"><strong>Date:</strong> ${p.event.dateLine}</p>
+        <p style="margin:0 0 6px;font-size:15px;color:#1a1a2e;line-height:1.5;"><strong>Time:</strong> ${p.event.timeLine}</p>
         <p style="margin:0 0 12px;font-size:15px;color:#1a1a2e;line-height:1.5;"><strong>Location:</strong> 16850 Collins Ave, Suite 105 · Sunny Isles Beach, FL</p>
-        <p style="margin:0;font-size:14px;color:#5a5068;line-height:1.5;">Live music · Champagne · Raffles · Goodie bags · <strong style="color:#1a1a2e;">30% off the entire menu</strong>, one night only.</p>
+        <p style="margin:0;font-size:14px;color:#5a5068;line-height:1.5;">${p.event.perksLine}</p>
       </div>
 
       <p style="font-size:14px;color:#5a5068;line-height:1.7;margin:0 0 12px;">

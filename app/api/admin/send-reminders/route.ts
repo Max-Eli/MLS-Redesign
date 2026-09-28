@@ -22,6 +22,18 @@ export async function POST(req: Request) {
     batchSize?:  number
     dryRun?:     boolean
     test?:       string
+    eventSlug?:  string
+  }
+
+  // Whitelisted events with their hard-stop times (no sends after these).
+  const SMS_EVENTS: Record<string, { endedISO: string }> = {
+    'botox-event-oct-2026':    { endedISO: '2026-10-16T08:00:00Z' },
+    'anniversary-4-year-2026': { endedISO: '2026-08-08T08:00:00Z' },
+  }
+  const eventSlug = (body.eventSlug || 'botox-event-oct-2026').trim()
+  const smsEvent  = SMS_EVENTS[eventSlug]
+  if (!smsEvent) {
+    return NextResponse.json({ ok: false, error: 'Unknown event.' }, { status: 400 })
   }
 
   const accountSid = (body.accountSid || process.env.TWILIO_ACCOUNT_SID || '').trim()
@@ -51,6 +63,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: 'Twilio rejected those credentials — check the Account SID and Auth Token.' }, { status: 400 })
   }
 
-  const result = await runSmsReminders({ client, from: fromNumber, message, campaign, limit: batchSize, dryRun, testTo })
+  const result = await runSmsReminders({
+    client, from: fromNumber, message, campaign, limit: batchSize, dryRun, testTo,
+    eventSlug, eventEndedISO: smsEvent.endedISO,
+  })
   return NextResponse.json(result, { status: result.ok ? 200 : 500 })
 }

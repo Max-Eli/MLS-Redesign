@@ -63,15 +63,20 @@ export async function runSmsReminders(params: {
   limit?:    number        // process at most this many recipients (one batch); omit for all
   dryRun?:   boolean
   testTo?:   string | null
+  eventSlug?:     string   // which event's RSVPs to text (default: anniversary, for back-compat)
+  eventEndedISO?: string   // hard stop — no sends after this UTC time
 }): Promise<SmsResult> {
-  const { client, from, message, limit, dryRun = false, testTo = null } = params
+  const {
+    client, from, message, limit, dryRun = false, testTo = null,
+    eventSlug = ANNIVERSARY_EVENT_SLUG, eventEndedISO = EVENT_ENDED_ISO,
+  } = params
   const campaign = (params.campaign || DEFAULT_CAMPAIGN).trim()
   const mode: SmsMode = testTo ? 'test' : dryRun ? 'dryRun' : 'live'
 
   if (!supabase) return { ok: false, mode, campaign, error: 'Supabase not configured' }
 
   const nowISO = new Date().toISOString()
-  if (nowISO > EVENT_ENDED_ISO) {
+  if (nowISO > eventEndedISO) {
     return { ok: true, mode, campaign, error: 'Event has ended — nothing sent.' }
   }
 
@@ -93,7 +98,7 @@ export async function runSmsReminders(params: {
   const { data: rsvps, error } = await supabase
     .from('rsvps')
     .select('id, full_name, phone')
-    .eq('event_slug', ANNIVERSARY_EVENT_SLUG)
+    .eq('event_slug', eventSlug)
     .eq('attending', true)
 
   if (error) return { ok: false, mode, campaign, error: error.message }
