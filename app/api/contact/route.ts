@@ -52,6 +52,33 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
+    // Push to LumèCRM's contact-form webhook in parallel — creates/dedupes the
+    // lead (tagged "Website Lead") and records marketing consent. Field names
+    // match the webhook's accepted aliases; `treatment` has no CRM concept so
+    // it rides inside the message. Appointment-SMS consent is transactional,
+    // not marketing, so only the marketing checkbox maps to sms_marketing_opt_in.
+    const lumeWebhookUrl = process.env.LUME_CONTACT_WEBHOOK_URL
+    const lumePromise = lumeWebhookUrl
+      ? fetch(lumeWebhookUrl, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            first_name: firstName,
+            last_name:  lastName ?? '',
+            email,
+            phone:      phone ?? '',
+            message:    [treatment ? `Interested in: ${treatment}` : '', message ?? '']
+                          .filter(Boolean).join('\n\n'),
+            sms_marketing_opt_in: hasMarketingSms,
+            source:     'manhattanlaserspa.com/contact',
+          }),
+        })
+          .then(res => {
+            if (!res.ok) console.error(`[contact] LumèCRM webhook returned ${res.status}`)
+          })
+          .catch(err => console.error('[contact] LumèCRM webhook failed:', err))
+      : null
+
     // Push to Zapier in parallel with the email so a CRM outage can't slow down
     // the user-facing response, and an email failure can't block CRM sync.
     const webhookUrl = process.env.ZAPIER_CONTACT_WEBHOOK_URL
@@ -129,7 +156,7 @@ export async function POST(req: Request) {
       `,
     })
 
-    await Promise.all([emailPromise, zapierPromise])
+    await Promise.all([emailPromise, zapierPromise, lumePromise])
 
     return NextResponse.json({ ok: true })
   } catch (err) {
