@@ -43,6 +43,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
+    // Push to LumèCRM's contact-form webhook in parallel — same endpoint the
+    // contact form uses (the `source` field tells the surfaces apart). The
+    // popup's consent checkbox is a marketing-SMS opt-in collected at a
+    // marketing signup, so it maps to sms_marketing_opt_in.
+    const lumeWebhookUrl = process.env.LUME_CONTACT_WEBHOOK_URL
+    const lumePromise = lumeWebhookUrl
+      ? fetch(lumeWebhookUrl, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            first_name: firstName,
+            last_name:  '',
+            email:      email ?? '',
+            phone,
+            message:    'Claimed the $100 off welcome offer (promo code MLS100OFF) via the website popup.',
+            sms_marketing_opt_in: hasSmsConsent,
+            source:     'manhattanlaserspa.com/popup',
+          }),
+        })
+          .then(res => {
+            if (!res.ok) console.error(`[promo-lead] LumèCRM webhook returned ${res.status}`)
+          })
+          .catch(err => console.error('[promo-lead] LumèCRM webhook failed:', err))
+      : null
+
     // Push to Zapier in parallel with the emails so a CRM outage can't slow down
     // the user-facing response. Popup leads use their own webhook, separate from
     // the contact form, so they can route to Zenoti independently.
@@ -143,7 +168,7 @@ export async function POST(req: Request) {
       })
       : null
 
-    await Promise.all([zapierPromise, spaEmailPromise, customerEmailPromise])
+    await Promise.all([zapierPromise, lumePromise, spaEmailPromise, customerEmailPromise])
 
     return NextResponse.json({ ok: true })
   } catch (err) {
