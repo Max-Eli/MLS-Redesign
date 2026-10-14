@@ -1,6 +1,20 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
+
+// Own client with cache: 'no-store' — Next's data cache was serving this
+// route stale Supabase reads, so runs after a reminder's first batch kept
+// seeing the old row list and never picked up later RSVPs.
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL  ?? ''
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
+const supabase = supabaseUrl && supabaseKey
+  ? createClient(supabaseUrl, supabaseKey, {
+      global: {
+        fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+          fetch(input, { ...init, cache: 'no-store' }),
+      },
+    })
+  : null
 
 // Automated email reminders for The Botox Event (Oct 15, 2026) — same
 // stamp-before-send pattern as the anniversary cron: the sent_at column is
@@ -23,6 +37,8 @@ const EVENT_MAP_URL = 'https://maps.google.com/?q=16850+Collins+Ave+Suite+105+Su
 type ReminderConfig = {
   column:      'reminder_week_sent_at' | 'reminder_48h_sent_at' | 'reminder_dayof_sent_at'
   sendAfterISO: string   // don't send before this UTC time
+  sendBeforeISO: string  // …and not after this one — a reminder caught up late
+                         // must never go out once its wording would be wrong
   subject:     string
   buildHtml:   (firstName: string, guests: number) => string
 }
@@ -31,21 +47,27 @@ const REMINDERS: ReminderConfig[] = [
   {
     column:       'reminder_week_sent_at',
     // Thursday, October 8 2026 at 10:00 AM EDT = 14:00 UTC
-    sendAfterISO: '2026-10-08T14:00:00Z',
+    sendAfterISO:  '2026-10-08T14:00:00Z',
+    // "One week away" reads wrong within a couple days of the event; late
+    // RSVPers already got full details in their confirmation email.
+    sendBeforeISO: '2026-10-12T04:00:00Z',
     subject:      'One week away — The Botox Event at Manhattan Laser Spa',
     buildHtml:    (firstName, guests) => buildWeekHtml(firstName, guests),
   },
   {
     column:       'reminder_48h_sent_at',
     // Tuesday, October 13 2026 at 10:00 AM EDT = 14:00 UTC
-    sendAfterISO: '2026-10-13T14:00:00Z',
+    sendAfterISO:  '2026-10-13T14:00:00Z',
+    // Stop at event start (Thu 4 PM EDT = 20:00 UTC) — day-of takes over.
+    sendBeforeISO: '2026-10-15T20:00:00Z',
     subject:      '48 hours to go — see you Thursday',
     buildHtml:    (firstName, guests) => buildFortyEightHtml(firstName, guests),
   },
   {
     column:       'reminder_dayof_sent_at',
     // Thursday, October 15 2026 at 9:00 AM EDT = 13:00 UTC
-    sendAfterISO: '2026-10-15T13:00:00Z',
+    sendAfterISO:  '2026-10-15T13:00:00Z',
+    sendBeforeISO: '2026-10-16T08:00:00Z', // = EVENT_ENDED_ISO
     subject:      'Today 4–8 PM — see you soon',
     buildHtml:    (firstName, guests) => buildDayOfHtml(firstName, guests),
   },
@@ -86,7 +108,7 @@ export async function GET(req: Request) {
   for (const reminder of REMINDERS) {
     summary[reminder.column] = { pending: 0, sent: 0, failed: 0 }
 
-    if (nowISO < reminder.sendAfterISO) continue
+    if (nowISO < reminder.sendAfterISO || nowISO > reminder.sendBeforeISO) continue
 
     const { data: rsvps, error } = await supabase
       .from('rsvps')
