@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/botox-event-reminders",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/botox-event-sms",
+      "schedule": "0 * * * *"
     }
   ]
 }
